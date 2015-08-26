@@ -20,7 +20,7 @@ ViewModel = class ViewModel {
       _name: { value: name || null },
 
       // List of child viewmodels
-      _children: { value: [] },
+      _children: { value: new ReactiveVar([]) },
 
       // Save view on viewmodel instance
       _view: { value: view }
@@ -33,8 +33,10 @@ ViewModel = class ViewModel {
     let parent = this.parent();
 
     // Register with parent
-    if (parent)
-      parent._children.push(this);
+    if (parent) {
+      parent._children.curValue.push(this);
+      parent._children.dep.changed();
+    }
 
 
     // Add to global list
@@ -236,11 +238,11 @@ ViewModel = class ViewModel {
             if (is_match)
               results.push(vm);
 
-            next(vm._children, level++);
+            next(vm._children.get(), level++);
           }
         });
       }
-    })(this._children, 1);
+    })(this._children.get(), 1);
 
     // Return a single viewmodel or a list
     return _.isNumber(index) ? results[index] || null : results;
@@ -309,7 +311,6 @@ ViewModel = class ViewModel {
   // Add a viewmodel to the global list
   static _add(vm) {
     all.curValue.push(vm);
-
     all.dep.changed();
   }
 
@@ -319,7 +320,6 @@ ViewModel = class ViewModel {
 
     // Remove from array
     all.curValue.splice(index, 1);
-
     all.dep.changed();
   }
 
@@ -335,7 +335,6 @@ ViewModel = class ViewModel {
       throw new TypeError("The name of the binding must be supplied as the first argument");
 
     bindings.curValue[name] = definition;
-
     bindings.dep.changed();
   }
 
