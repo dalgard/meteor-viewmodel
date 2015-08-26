@@ -68,6 +68,11 @@ Blaze.Template.prototype.viewmodel = function (name, definition) {
   // Register bind helper on templates with a viewmodel – the special Blaze helper
   // {{bind 'type: key'}} is registered for this template. Elements are bound to
   // the viewmodel through this helper
-  if (!ViewModel._isGlobal())
-    this.helpers(_.zipObject([ViewModel.helperName], [ViewModel._bindHelper]));
+  if (!ViewModel._isGlobal()) {
+    let bind = {};
+
+    bind[ViewModel.helperName] = ViewModel._bindHelper;
+
+    this.helpers(bind);
+  }
 };

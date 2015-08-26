@@ -7,8 +7,9 @@ Template.page.viewmodel({
     return child && child.value();
   },
 
-  // Runs onRendered – all child viewmodels are ready
+  // Runs onRendered
   autorun: function () {
+    // All child viewmodels will be ready
     console.log("page autorun", this.child().value());
   }
 });
