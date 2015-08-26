@@ -201,12 +201,12 @@ ViewModel.findOne([name]);
 
 ### addBinding
 
-Bindings are added through simple definition objects:
+The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through simple definition objects:
 
 ```javascript
 // All three properties on the definition object are optional
 ViewModel.addBinding(name, {
-  // Apply new value to the DOM
+  // Apply updated value to the DOM
   set: function ($elem, new_value, args, kwargs) {
     this instanceof ViewModel;  // true
 
@@ -217,14 +217,46 @@ ViewModel.addBinding(name, {
   // Space separated list of events
   on: "keyup input change",
 
-  // Retrieve value from the DOM
+  // Possibly return a value retrieved from the DOM
   get: function (event, $elem, prop, args, kwargs) {
+    this instanceof ViewModel;  // true
 
+    // For example
+    return $elem.val();
   }
 });
 ```
 
-A definition object may also be returned from a factory function, which is called with these arguments:
+The `args` parameter is a possibly empty array containing any space separated values following the key in the bind expression. The `kwargs` parameter is the keyword arguments that the `{bind}` helper was called with.
+
+The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
+
+Here's an example:
+
+```javascript
+ViewModel.addBinding("enterKey", {
+  on: "keyup",
+
+  get: function (event, elem, prop) {
+    if (event.which === 13)
+      // Prop is the getter/setter function of the viewmodel property, which sometimes
+      // will simply be a method with side effects on the viewmodel
+      prop();
+  }
+});
+```
+
+If you want to call the bound property but not do so with a value, simply omit the `get` function altogether.
+
+Here's the full definition of the `click` binding:
+
+```javascript
+ViewModel.addBinding("click", {
+  on: "click"
+});
+```
+
+A definition object may also be returned from a factory function, which is called with some useful arguments:
 
 ```javascript
 ViewModel.addBinding(name, function (template_data, key, args, kwargs) {
@@ -234,7 +266,7 @@ ViewModel.addBinding(name, function (template_data, key, args, kwargs) {
 ```
 
 
-### Todo
+## Todo
 
 - Persist viewmodels on hot code pushes.
 - Optionally persist viewmodel across routes.
