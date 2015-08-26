@@ -87,11 +87,15 @@ Template.field.viewmodel("field", {
 
 This Blaze helper is only registered on templates with a declared viewmodel. The name of the helper may be changed:
 
-> `ViewModel.helperName = "myBind"`.
+```javascript
+ViewModel.helperName = "myBind"
+```
 
 You may choose to register the helper globally:
 
-> `ViewModel.registerHelper(name)` (`name` is optional).
+```javascript
+ViewModel.registerHelper(name)  // name is optional
+```
 
 The advantage of registering `{{bind}}` globally is that you may use it inside any template without first declaring a viewmodel.
 
@@ -99,17 +103,23 @@ Using the helper then automatically creates a new viewmodel instance (if none ex
 
 The syntax of the bind helper looks like this:
 
-> `{{bind expression ...}}`
+```html
+{{bind expression ...}}
+```
 
 where `expression` is a string formatted like a key/value pair:
 
-> `'binding: key'`.
+```javascript
+'binding: key'
+```
 
 You may pass multiple bind expressions to the helper.
 
 Any space separated values placed after the viewmodel key (i.e. the name of a property) inside the bind expression are passed as arguments to the binding – for instance, delay:
 
-> `<input type="text" {{bind 'value: filter 1500'}}>`.
+```html
+<input type="text" {{bind 'value: search 1500'}}>
+```
 
 #### ViewModel.prototype
 
