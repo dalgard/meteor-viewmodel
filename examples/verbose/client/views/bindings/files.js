@@ -1,0 +1,3 @@
+Template.files.viewmodel({
+  files: []
+});
