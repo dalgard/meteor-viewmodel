@@ -131,7 +131,7 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a more declarative approach.
 
-Templates:
+*Templates*
 
 ```javascript
 // Get the current template instance
@@ -141,7 +141,7 @@ this.templateInstance();
 this.getData();
 ```
 
-Serialization:
+*Serialization*
 
 ```javascript
 // Get a snapshot of the viewmodel, ready for serialization
@@ -151,7 +151,7 @@ this.serialize();
 this.deserialize(object);
 ```
 
-Traversal:
+*Traversal*
 
 ```javascript
 // Reactively get the parent viewmodel, optionally filtered by name (string or regex)
@@ -229,9 +229,9 @@ ViewModel.addBinding(name, {
 
 `$elem` is the element where the `{{bind}}` helper was called wrapped in jQuery.
 
-`args` is a possibly empty array containing any space separated values following the key in the bind expression.
+`args` is a (possibly empty) array containing any space separated values that came after the key in the bind expression.
 
-`kwargs` is the keyword arguments that the `{{bind}}` helper was called with.
+`kwargs` contains the keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
 
@@ -241,6 +241,7 @@ Here's an example:
 ViewModel.addBinding("enterKey", {
   on: "keyup",
 
+  // This function doesn't return anything but calls the property explicitly instead
   get: function (event, elem, prop) {
     if (event.which === 13)
       // Prop is the getter/setter function of the viewmodel property, which sometimes
@@ -252,7 +253,7 @@ ViewModel.addBinding("enterKey", {
 
 If you want to call the bound property but not do so with a value, simply omit the `get` function altogether.
 
-Here's the full definition of the `click` binding:
+For example, here's the full definition of the `click` binding:
 
 ```javascript
 ViewModel.addBinding("click", {
