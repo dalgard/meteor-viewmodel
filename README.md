@@ -219,9 +219,9 @@ ViewModel.all();
 // filtered by name (string or regex)
 ViewModel.find([name][, index]);
 
-// Reactively get the first current viewmodel, optionally filtered by name (string
-// or regex)
-ViewModel.findOne([name]);
+// Reactively get the first current viewmodel at index, optionally filtered by name
+// (string or regex)
+ViewModel.findOne([name][, index]);
 ```
 
 ### addBinding

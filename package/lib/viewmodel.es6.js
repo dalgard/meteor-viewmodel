@@ -307,9 +307,13 @@ ViewModel = class ViewModel {
     return _.isNumber(index) ? results[index] || null : results;
   }
 
-  // Reactively get the first current viewmodel, optionally filtered by name (string or regex)
-  static findOne(name) {
-    return this.find(name || null, 0);
+  // Reactively get the first current viewmodel at index, optionally filtered by name
+  // (string or regex)
+  static findOne(name, index) {
+    if (_.isNumber(name))
+      index = name, name = null;
+
+    return this.find(name || null, index || 0);
   }
 
   // Add a viewmodel to the global list
