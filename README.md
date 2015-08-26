@@ -227,7 +227,11 @@ ViewModel.addBinding(name, {
 });
 ```
 
-The `args` parameter is a possibly empty array containing any space separated values following the key in the bind expression. The `kwargs` parameter is the keyword arguments that the `{bind}` helper was called with.
+`$elem` is the jQuery wrapped element where the `{{bind}}` helper was called.
+
+`args` is a possibly empty array containing any space separated values following the key in the bind expression.
+
+`kwargs` is the keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
 
