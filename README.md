@@ -7,7 +7,6 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - No redundancy in syntax
 - Reactive and terse API
 - Easily extensible
-- 
 
 
 #### Install
