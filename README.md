@@ -181,24 +181,24 @@ this.deserialize(object);
 // Reactively get the parent viewmodel, optionally filtered by name (string or regex)
 this.parent([name]);
 
-// Reactively get the first ancestor viewmodel at index, optionally filtered by name
-// (string or regex)
+// Reactively get the first ancestor viewmodel at index, optionally filtered
+// by name (string or regex)
 this.ancestor([name][, index=0]);
 
 // Reactively get an array of ancestor viewmodels or the first at index (within
 // a depth of levels), optionally filtered by name (string or regex)
 this.ancestors([name][, index][, levels]);
 
-// Reactively get the first child viewmodel at index, optionally filtered by name
-// (string or regex)
+// Reactively get the first child viewmodel at index, optionally filtered
+// by name (string or regex)
 this.child([name][, index]);
 
 // Reactively get an array of descendant viewmodels or the first at index (within
 // a depth of levels), optionally filtered by name (string or regex)
 this.children([name][, index]);
 
-// Reactively get the first descendant viewmodel at index, optionally filtered by name
-// (string or regex)
+// Reactively get the first descendant viewmodel at index, optionally filtered
+// by name (string or regex)
 this.descendant([name][, index=0]);
 
 // Reactively get an array of descendant viewmodels or the first at index (within
