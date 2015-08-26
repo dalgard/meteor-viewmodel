@@ -12,19 +12,53 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 #### Install
 
-*coming soon*
+*Coming soon*
 
 ~~`meteor install dalgard:viewmodel`~~
 
 
 ## Usage
 
-*work in progress*
+*Work in progress*
 
 ```javascript
-Template.thing.viewmodel({
-  ...
+Template.mytemplate.viewmodel({
+  // Primitive property
+  myprop: "",
+
+  // Computed property
+  regex: function () {
+    // Get value of myprop reactively
+    var value = this.myprop();
+
+    return new RexExp(value);
+  },
+
+  // React to changes in dependencies such as viewmodel properties
+  // – can be an array of functions
+  autorun: function () {
+    console.log("new value of regex", this.regex());
+  },
+
+  // Blaze onCreated (rendered and destroyed also exist)
+  // – can be an array of functions
+  created: function () {
+    // this === viewmodel instance
+  },
+
+  // Blaze events
+  events: {
+    "click input": function (event, template_instance) {
+      // this === viewmodel instance
+    }
+  }
 });
+```
+
+```html
+<template name="mytemplate">
+  <input type="text" {{bind 'value: myprop'}}>
+</template>
 ```
 
 Check out the examples.
@@ -32,7 +66,7 @@ Check out the examples.
 
 ## API
 
-*work in progress*
+*Work in progress*
 
 - {{bind}} helper (multiple, arguments) (global: helper must be used after bind)
 - ViewModel.prototype
