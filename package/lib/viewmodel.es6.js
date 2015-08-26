@@ -163,8 +163,8 @@ ViewModel = class ViewModel {
   }
 
 
-  // Get an array of ancestor viewmodels or the first at index
-  // filtered by name (string or regex)
+  // Get an array of ancestor viewmodels or the first at index (within a depth of levels),
+  // optionally filtered by name (string or regex)
   ancestors(name, index, levels) {
     // Name argument may be omitted or replaced by null
     if (!_.isString(name) && !_.isNull(name) && !_.isRegExp(name))
@@ -199,7 +199,7 @@ ViewModel = class ViewModel {
     return _.isNumber(index) ? results[index] || null : results;
   }
 
-  // Get the first ancestor viewmodel filtered by name (string or regex)
+  // Get the first ancestor viewmodel at index filtered by name (string or regex)
   ancestor(name, index) {
     if (_.isNumber(name))
       index = name, name = null;
@@ -212,8 +212,8 @@ ViewModel = class ViewModel {
     return this.ancestors(name || null, 0, 1);
   }
 
-  // Get an array of descendant viewmodels or the first at index
-  // filtered by name (string or regex)
+  // Get an array of descendant viewmodels or the first at index (within a depth of levels),
+  // optionally filtered by name (string or regex)
   descendants(name, index, levels) {
     // Name argument may be omitted or replaced by null
     if (!_.isString(name) && !_.isNull(name) && !_.isRegExp(name))
@@ -248,7 +248,7 @@ ViewModel = class ViewModel {
     return _.isNumber(index) ? results[index] || null : results;
   }
 
-  // Get the first descendant viewmodel filtered by name (string or regex)
+  // Get the first descendant viewmodel at index filtered by name (string or regex)
   descendant(name, index) {
     if (_.isNumber(name))
       index = name, name = null;
@@ -256,13 +256,13 @@ ViewModel = class ViewModel {
     return this.descendants(name || null, index || 0);
   }
 
-  // Get an array of child viewmodels or the first at index
-  // filtered by name (string or regex)
+  // Get an array of child viewmodels or the first at index (within a depth of levels),
+  // optionally filtered by name (string or regex)
   children(name, index) {
     return this.descendants(name || null, index, 1);
   }
 
-  // Get the first child viewmodel filtered by name (string or regex)
+  // Get the first child viewmodel at index filtered by name (string or regex)
   child(name, index) {
     if (_.isNumber(name))
       index = name, name = null;
