@@ -5,8 +5,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 - Highly declarative
 - Absolutely no redundant syntax
-- Reactive
-- Simple API
+- Reactive and terse API
 - Easily extensible
 
 
@@ -22,29 +21,34 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 *Work in progress*
 
 ```javascript
-Template.mytemplate.viewmodel({
-  // Primitive property
-  myprop: "",
-
-  // Computed property
-  regex: function () {
-    // Get value of myprop reactively
-    var value = this.myprop();
-
-    return new RexExp(value);
-  },
-
+Template.page.viewmodel({
   // React to changes in dependencies such as viewmodel properties
   // – can be an array of functions
   autorun: function () {
+    // Get child viewmodel by name
+    var field = this.child("field");
+
     // Log every time the computed regex property changes
-    console.log("new value of regex", this.regex());
+    console.log("new value of regex", field.regex());
   },
 
   // Blaze onCreated hook (rendered and destroyed also exist)
   // – can be an array of functions
   created: function () {
     this instanceof ViewModel;  // true
+  }
+});
+
+Template.field.viewmodel("field", {
+  // Primitive property
+  prop: "",
+
+  // Computed property
+  regex: function () {
+    // Get value of prop reactively
+    var value = this.prop();
+
+    return new RexExp(value);
   },
 
   // Blaze events
@@ -57,8 +61,12 @@ Template.mytemplate.viewmodel({
 ```
 
 ```html
-<template name="mytemplate">
-  <input type="text" {{bind 'value: myprop'}}>
+<template name="page">
+  {{> field}}
+</template>
+
+<template name="field">
+  <input type="text" {{bind 'value: prop'}}>
 </template>
 ```
 
