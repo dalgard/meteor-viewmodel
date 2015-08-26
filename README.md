@@ -11,9 +11,9 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 #### Install
 
-*Coming soon*
+*Atmosphere coming soon*
 
-~~`meteor install dalgard:viewmodel`~~
+Copy the package folder from this repo into your project's `/packages` (it can be renamed) and add it with `meteor install dalgard:viewmodel`.
 
 
 ## Usage
@@ -32,7 +32,7 @@ Template.page.viewmodel({
     console.log("new value of regex", field.regex());
   },
 
-  // Blaze onCreated hook (rendered and destroyed also exist)
+  // Blaze onCreated hook (similar for rendered and destroyed)
   // – can be an array of functions
   created: function () {
     this instanceof ViewModel;  // true
