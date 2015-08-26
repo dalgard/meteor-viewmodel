@@ -113,7 +113,7 @@ Template.field.viewmodel("field", function (template_data) {
 
 ## API
 
-This is an extract of the full API – take five minutes to explore the ViewModel class with `dir(ViewModel)` and viewmodel instances with `debugger` in your dev tools of choice.
+This is an extract of the full API – take five minutes to explore the ViewModel class with `dir(ViewModel)` and viewmodel instances with `debugger` or `ViewModel.all()` in your dev tools of choice.
 
 ### {{bind}}
 
