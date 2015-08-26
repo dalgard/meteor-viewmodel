@@ -63,7 +63,7 @@ Template.page.viewmodel({
     // Get child viewmodel reactively by name
     var field = this.child("field");
 
-    // Child may not be rendered the first time this value is used
+    // Child may not be ready the first time around
     return field && field.prop();
   },
 
@@ -124,8 +124,7 @@ ViewModel.helperName = "myBind";
 However, you may choose to register the helper globally:
 
 ```javascript
-// Name is optional
-ViewModel.registerHelper(name);
+ViewModel.registerHelper(name);  // name is optional
 ```
 
 The advantage of registering `{{bind}}` globally is that you may use it inside any template without first declaring a viewmodel.
