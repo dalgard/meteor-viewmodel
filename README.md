@@ -183,24 +183,24 @@ this.parent([name]);
 // (string or regex)
 this.ancestor([name][, index=0]);
 
-// Reactively get an array of ancestor viewmodels or the first at index (within a depth
-// of levels), optionally filtered by name (string or regex)
+// Reactively get an array of ancestor viewmodels or the first at index (within
+// a depth of levels), optionally filtered by name (string or regex)
 this.ancestors([name][, index][, levels]);
 
 // Reactively get the first child viewmodel at index, optionally filtered by name
 // (string or regex)
 this.child([name][, index]);
 
-// Reactively get an array of descendant viewmodels or the first at index (within a depth
-// of levels), optionally filtered by name (string or regex)
+// Reactively get an array of descendant viewmodels or the first at index (within
+// a depth of levels), optionally filtered by name (string or regex)
 this.children([name][, index]);
 
 // Reactively get the first descendant viewmodel at index, optionally filtered by name
 // (string or regex)
 this.descendant([name][, index=0]);
 
-// Reactively get an array of descendant viewmodels or the first at index (within a depth
-// of levels), optionally filtered by name (string or regex)
+// Reactively get an array of descendant viewmodels or the first at index (within
+// a depth of levels), optionally filtered by name (string or regex)
 this.descendants([name][, index][, levels]);
 ```
 
@@ -213,11 +213,12 @@ These methods are mainly for inspection while developing, but may also be used a
 // Reactively get global list of current viewmodels
 ViewModel.all();
 
-// Reactively get an array of current viewmodels or the first at index, optionally filtered
-// by name (string or regex)
+// Reactively get an array of current viewmodels or the first at index, optionally
+// filtered by name (string or regex)
 ViewModel.find([name][, index]);
 
-// Reactively get the first current viewmodel, optionally filtered by name (string or regex)
+// Reactively get the first current viewmodel, optionally filtered by name (string
+// or regex)
 ViewModel.findOne([name]);
 ```
 
