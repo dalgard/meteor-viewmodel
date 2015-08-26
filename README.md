@@ -125,9 +125,15 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside properties, autoruns etc. when using a declarative approach.
 
+*Template*
+- `templateInstance()`:  Get the current template instance.
 - `getData()`:  Get the data context of the current template instance reactively.
+
+*Serialization*
 - `serialize()`:  Get a snapshot of the viewmodel, ready for serialization.
 - `deserialize(object)`:  Apply a snapshot to the viewmodel.
+
+*Traversal*
 - `ancestors([name][, index][, levels])`:  Get an array of ancestor viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
 - `ancestor([name][, index=0])`:  Get the first ancestor viewmodel at index filtered by name (string or regex)
 - `parent([name])`:  Get the parent viewmodel filtered by name (string or regex)
