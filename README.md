@@ -7,6 +7,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - Terse syntax
 - Simple, reactive API
 - Easily extensible
+- Non-intrusive
 
 (2.44 kB minified and gzipped)
 
@@ -209,7 +210,7 @@ this.descendants([name][, index][, levels]);
 
 ### Static methods
 
-These methods are mainly for inspection while developing, but may also be used as a means of getting a component in a complex layout.
+These methods are mainly for inspection while developing, but may also be used as a means of retrieving a component somewhere in a complex layout.
 
 ```javascript
 // Reactively get global list of current viewmodels
