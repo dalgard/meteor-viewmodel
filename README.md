@@ -18,7 +18,9 @@ Copy the `package` folder (can be renamed) from this repo into your project's `/
 
 ## Usage
 
-The example below is fairly verbose in order to demonstrate some of the features of ViewModel. Besides normally being much more concise, Viewmodels do not have to be declared in all cases – they may be created automatically by the `{{bind}}` helper if registered globally.
+The example below is fairly verbose in order to demonstrate some of the features of ViewModel.
+
+Besides normally being much more concise, Viewmodels in some cases don't have to be declared at all – they may be created automatically by the `{{bind}}` helper if registered globally.
 
 Check out the other `/examples` in the repo.
 
