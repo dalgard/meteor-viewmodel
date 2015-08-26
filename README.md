@@ -71,7 +71,8 @@ Template.page.viewmodel({
   }
 });
 
-// Instead of a definition object, a factory function may be used
+// Instead of a definition object, a factory function may be used. Unrelated to the factory,
+// this viewmodel is also given a name
 Template.field.viewmodel("field", function (template_data) {
   this instanceof ViewModel;  // true
 
