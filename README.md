@@ -3,9 +3,6 @@ dalgard:viewmodel 0.1.0
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`
 
-
-#### Advantages
-
 - Highly declarative
 - Absolutely no redundant syntax
 - Reactive
@@ -15,10 +12,14 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 #### Install
 
-~`meteor install dalgard:viewmodel`~
+(coming soon)
+
+~meteor install dalgard:viewmodel~
 
 
-#### Use
+#### Usage
+
+(work in progress)
 
 ```javascript
 Template.thing.viewmodel({
@@ -27,6 +28,15 @@ Template.thing.viewmodel({
 ```
 
 Also check out the examples.
+
+
+### API
+
+(work in progress)
+
+- {{bind}} helper (multiple, arguments) (global: helper must be used after bind)
+- ViewModel.prototype
+- static ViewModel
 
 
 #### Todo
