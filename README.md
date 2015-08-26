@@ -258,11 +258,9 @@ ViewModel.addBinding(name, {
 });
 ```
 
-`$elem` is the element where the `{{bind}}` helper was called wrapped in jQuery.
-
-`args` is a (possibly empty) array containing any space separated values that came after the key in the bind expression.
-
-`kwargs` contains the keyword arguments that the `{{bind}}` helper was called with.
+- `$elem` is the element where the `{{bind}}` helper was called wrapped in jQuery.
+- `args` is a (possibly empty) array containing any space separated values that came after the key in the bind expression.
+- `kwargs` contains the keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
 
