@@ -18,7 +18,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add it with `meteor install dalgard:viewmodel`.
 
-At this moment, browser support is IE9+, because I was tempted to use `Object.defineProperties`, because it made things easier. Do complain.
+At this moment, browser support is IE9+, because I was tempted to use `Object.defineProperties`, because it made things easier. Do complain...
 
 
 ## Quickstart
