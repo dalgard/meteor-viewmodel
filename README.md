@@ -107,17 +107,17 @@ Template.field.viewmodel("field", function (template_data) {
 
 ## API
 
-This is an extract of the full API – take five minutes to explore the ViewModel class with `dir(ViewModel)` and viewmodel instances with `debugger` in your dev-tools of choice.
+This is an extract of the full API – take five minutes to explore the ViewModel class with `dir(ViewModel)` and viewmodel instances with `debugger` in your dev tools of choice.
 
 ### {{bind}}
 
-This Blaze helper is only registered on templates with a declared viewmodel. The name of the helper may be changed:
+As a starting point, this Blaze helper only gets registered on templates with a declared viewmodel. The name of the helper may be changed like this:
 
 ```javascript
 ViewModel.helperName = "myBind";
 ```
 
-You may choose to register the helper globally:
+You may choose to register the helper globally, however:
 
 ```javascript
 // Name is optional
@@ -126,7 +126,7 @@ ViewModel.registerHelper(name);
 
 The advantage of registering `{{bind}}` globally is that you may use it inside any template without first declaring a viewmodel.
 
-Using the helper then automatically creates a new viewmodel instance (if none existed) and immediately registers the bound key as a Blaze helper – this helper can then be used anywhere *after* the call to `{{bind}}`, but not before. If you want to be able to place a property helper anywhere in the template, declare the viewmodel explicitly.
+The helper then automatically creates a new viewmodel instance (if none existed) on the template and immediately registers the bound key as a Blaze helper – this helper can then be used anywhere *after* the call to `{{bind}}`, but not before. If you want to be able to place a property helper *anywhere* in the template, declare the viewmodel explicitly.
 
 The syntax of the bind helper looks like this:
 
@@ -150,7 +150,7 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 
 ### Viewmodel instances
 
-ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a more declarative approach.
+ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a declarative approach.
 
 *Templates*
 
@@ -282,7 +282,7 @@ ViewModel.addBinding("enterKey", {
 });
 ```
 
-If you want to call the bound property but not do so with a value, simply omit the `get` function altogether, like with the `click` binding.
+If you want to call the bound property, but not do so with a value, simply omit the `get` function altogether, like with the `click` binding.
 
 A definition object may also be returned from a factory function, which is called with some useful arguments:
 
