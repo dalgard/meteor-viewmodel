@@ -125,18 +125,16 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside properties, autoruns etc. when using a declarative approach.
 
-- `getData()` – Get the data context of the current template instance reactively.
-- `serialize()` – Get a snapshot of the viewmodel, ready for serialization.
-- `deserialize(object)` – Apply a snapshot to the viewmodel.
-
-- `ancestors([name][, index][, levels])` – Get an array of ancestor viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
-- `ancestor([name][, index=0])` – Get the first ancestor viewmodel at index filtered by name (string or regex)
-- `parent([name])` – Get the parent viewmodel filtered by name (string or regex)
-
-- `descendants([name][, index][, levels])` – Get an array of descendant viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
-- `descendant([name][, index=0])` – Get the first descendant viewmodel at index filtered by name (string or regex)
-- `children([name][, index])` – Get an array of descendant viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
-- `child([name][, index])` – Get the first child viewmodel at index filtered by name (string or regex)
+- `getData()`:  Get the data context of the current template instance reactively.
+- `serialize()`:  Get a snapshot of the viewmodel, ready for serialization.
+- `deserialize(object)`:  Apply a snapshot to the viewmodel.
+- `ancestors([name][, index][, levels])`:  Get an array of ancestor viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+- `ancestor([name][, index=0])`:  Get the first ancestor viewmodel at index filtered by name (string or regex)
+- `parent([name])`:  Get the parent viewmodel filtered by name (string or regex)
+- `descendants([name][, index][, levels])`:  Get an array of descendant viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+- `descendant([name][, index=0])`:  Get the first descendant viewmodel at index filtered by name (string or regex)
+- `children([name][, index])`:  Get an array of descendant viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+- `child([name][, index])`:  Get the first child viewmodel at index filtered by name (string or regex)
 
 
 ### Static methods
