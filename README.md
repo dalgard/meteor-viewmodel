@@ -127,7 +127,7 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 <input type="text" {{bind 'value: search 1500'}}>
 ```
 
-### ViewModel.prototype
+### Viewmodel instances
 
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a more declarative approach.
 
