@@ -11,16 +11,16 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 #### Install
 
-*Atmosphere coming soon*
+*(Atmosphere coming soon)*
 
 Copy the `package` (can be renamed) folder from this repo into your project's `/packages` and add it with `meteor install dalgard:viewmodel`.
 
 
 ## Usage
 
-*Work in progress*
+*(Work in progress)*
 
-Check out the examples in the repo.
+Check out the other `examples` in the repo.
 
 ```html
 <template name="page">
@@ -75,7 +75,7 @@ Template.field.viewmodel("field", {
 
 ## API
 
-*Work in progress*
+*(Work in progress)*
 
 - {{bind}} helper (multiple, arguments) (global: helper must be used after bind)
 - ViewModel.prototype
