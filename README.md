@@ -114,7 +114,7 @@ This is an extract of the full API – take five minutes to explore the ViewMode
 
 ### {{bind}}
 
-As a starting point, this Blaze helper only gets registered on templates with a declared viewmodel. The name of the helper may be changed like this:
+As a starting point, the Blaze bind helper only gets registered on templates with a declared viewmodel. The name of the helper may be changed like this:
 
 ```javascript
 ViewModel.helperName = "myBind";
