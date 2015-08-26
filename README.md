@@ -13,14 +13,14 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 *(Atmosphere coming soon)*
 
-Copy the `package` (can be renamed) folder from this repo into your project's `/packages` and add it with `meteor install dalgard:viewmodel`.
+Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add it with `meteor install dalgard:viewmodel`.
 
 
 ## Usage
 
 *(Work in progress)*
 
-Check out the other `examples` in the repo.
+Check out the other `/examples` in the repo.
 
 ```html
 <template name="page">
