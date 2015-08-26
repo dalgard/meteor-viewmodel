@@ -37,11 +37,11 @@ Template.mytemplate.viewmodel({
   // React to changes in dependencies such as viewmodel properties
   // – can be an array of functions
   autorun: function () {
-    // Log every time regex changes
+    // Log every time the computed regex property changes
     console.log("new value of regex", this.regex());
   },
 
-  // Blaze onCreated (rendered and destroyed also exist)
+  // Blaze onCreated hook (rendered and destroyed also exist)
   // – can be an array of functions
   created: function () {
     this instanceof ViewModel;  // true
