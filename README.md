@@ -18,8 +18,6 @@ Copy the `package` folder (can be renamed) from this repo into your project's `/
 
 ## Quickstart
 
-Example from `/examples/quickstart`.
-
 ```javascript
 // All the code you need to get started
 ViewModel.registerHelper("bind");
