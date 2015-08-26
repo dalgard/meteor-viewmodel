@@ -1,13 +1,13 @@
 Package.describe({
   name: "dalgard:viewmodel",
-  version: "0.1.1",
+  version: "0.1.2",
   summary: "Minimalist VM for Meteor – inspired by manuel:viewmodel and nikhizzle:session-bind"
 });
 
 Package.onUse(function (api) {
   api.versionsFrom("METEOR@1.1.0.3");
 
-  api.use("grigio:babel");
+  api.use("grigio:babel@0.1.7");
 
   api.use([
     "reactive-var",
