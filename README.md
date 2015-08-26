@@ -258,8 +258,8 @@ ViewModel.addBinding(name, {
 });
 ```
 
-- `$elem` is the element where the `{{bind}}` helper was called wrapped in jQuery.
-- `args` is a (possibly empty) array containing any space separated values that came after the key in the bind expression.
+- `$elem` is the element where the `{{bind}}` helper was called, wrapped in jQuery.
+- `args` is a, possibly empty, array containing any space separated values that came after the key in the bind expression.
 - `kwargs` contains the keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
@@ -280,7 +280,7 @@ ViewModel.addBinding("enterKey", {
 });
 ```
 
-If you want to call the bound property, but not do so with a value, simply omit the `get` function altogether, like with the `click` binding.
+In the case where you want to call the bound property, but not do so with a value, simply omit the `get` function altogether – like with the `click` binding.
 
 A definition object may also be returned from a factory function, which is called with some useful arguments:
 
