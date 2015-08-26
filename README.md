@@ -81,7 +81,7 @@ Template.field.viewmodel("field", {
 
 ## API
 
-*(Work in progress)*
+This is an extract of the full API – as always, take five minutes to explore the ViewModel class (`dir(ViewModel)`) and instances (`debugger;`) in your dev-tools of choice.
 
 ### {{bind}}
 
@@ -123,7 +123,7 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 
 ### ViewModel.prototype
 
-ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside properties, autoruns etc. when using a declarative approach.
+ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a more declarative approach.
 
 *Templates:*
 
@@ -148,32 +148,50 @@ this.deserialize(object);
 *Traversal:*
 
 ```javascript
-// Get the parent viewmodel filtered by name (string or regex)
+// Reactively get the parent viewmodel, optionally filtered by name (string or regex)
 this.parent([name]);
 
-// Get the first ancestor viewmodel at index filtered by name (string or regex)
+// Reactively get the first ancestor viewmodel at index, optionally filtered by name
+// (string or regex)
 this.ancestor([name][, index=0]);
 
-// Get an array of ancestor viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+// Reactively get an array of ancestor viewmodels or the first at index (within a depth
+// of levels), optionally filtered by name (string or regex)
 this.ancestors([name][, index][, levels]);
 
-// Get the first child viewmodel at index filtered by name (string or regex)
+// Reactively get the first child viewmodel at index, optionally filtered by name
+// (string or regex)
 this.child([name][, index]);
 
-// Get an array of descendant viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+// Reactively get an array of descendant viewmodels or the first at index (within a depth
+// of levels), optionally filtered by name (string or regex)
 this.children([name][, index]);
 
-// Get the first descendant viewmodel at index filtered by name (string or regex)
+// Reactively get the first descendant viewmodel at index, optionally filtered by name
+// (string or regex)
 this.descendant([name][, index=0]);
 
-// Get an array of descendant viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+// Reactively get an array of descendant viewmodels or the first at index (within a depth
+// of levels), optionally filtered by name (string or regex)
 this.descendants([name][, index][, levels]);
 ```
 
 
 ### Static methods
 
--
+These methods are mainly for debugging, but may be used with complex layouts.
+
+```javascript
+// Reactively get global list of current viewmodels
+ViewModel.all();
+
+// Reactively get an array of current viewmodels or the first at index, optionally filtered
+// by name (string or regex)
+ViewModel.find([name][, index]);
+
+// Reactively get the first current viewmodel, optionally filtered by name (string or regex)
+ViewModel.findOne([name]);
+```
 
 
 ### Todo
