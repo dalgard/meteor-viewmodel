@@ -4,7 +4,7 @@ dalgard:viewmodel 0.1.1
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
 
 - Highly declarative
-- Absolutely no redundant syntax
+- No redundancy in syntax
 - Reactive and terse API
 - Easily extensible
 
