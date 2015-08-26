@@ -1,0 +1,12 @@
+<body>
+  {{> example}}
+</body>
+
+<template name="example">
+  <input type="text" {{bind 'value: text'}}>
+  <input type="checkbox" {{bind 'checked: show'}}>
+
+  {{#if show}}
+    {{text}}
+  {{/if}}
+</template>
