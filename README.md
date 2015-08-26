@@ -85,31 +85,31 @@ Template.field.viewmodel("field", {
 
 #### {{bind}}
 
-This Blaze helper is only registered on templates with a declared viewmodel. The name of the helper may be changed like this:
+This Blaze helper is only registered on templates with a declared viewmodel. The name of the helper may be changed:
 
-`ViewModel.helperName = "myBind"`.
+> `ViewModel.helperName = "myBind"`.
 
-You may choose to register the helper globally – like this:
+You may choose to register the helper globally:
 
-`ViewModel.registerHelper(name)` (`name` is optional).
+> `ViewModel.registerHelper(name)` (`name` is optional).
 
-The advantage of having a global `{{bind}}` is that you may use it inside any template without first declaring a viewmodel.
+The advantage of registering `{{bind}}` globally is that you may use it inside any template without first declaring a viewmodel.
 
-Using the helper then automatically creates a new viewmodel instance (if nothing exists) and immediately registers the bound key as a Blaze helper – this helper can then be used anywhere *after* the call to `{{bind}}`, but not before. If you want to be able to place a property helper anywhere in the template, declare the viewmodel explicitly.
+Using the helper then automatically creates a new viewmodel instance (if none existed) and immediately registers the bound key as a Blaze helper – this helper can then be used anywhere *after* the call to `{{bind}}`, but not before. If you want to be able to place a property helper anywhere in the template, declare the viewmodel explicitly.
 
 The syntax of the bind helper looks like this:
 
-`{{bind expression ...}}`
+> `{{bind expression ...}}`
 
 where `expression` is a string formatted like a key/value pair:
 
-`'binding: key'`.
+> `'binding: key'`.
 
 You may pass multiple bind expressions to the helper.
 
-Any space separated values placed after the viewmodel key (i.e. the name of a property) in the bind expression are passed as arguments to the binding – such as delay:
+Any space separated values placed after the viewmodel key (i.e. the name of a property) inside the bind expression are passed as arguments to the binding – for instance, delay:
 
-`<input type="text" {{bind 'value: filter 1500'}}>`.
+> `<input type="text" {{bind 'value: filter 1500'}}>`.
 
 #### ViewModel.prototype
 
