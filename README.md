@@ -75,7 +75,7 @@ Template.page.viewmodel({
 });
 
 // Instead of a definition object, a factory function may be used. Unrelated
-// to the factory, this viewmodel is also given a name. (this instanceof ViewModel)
+// to the factory, this viewmodel is also given a name.
 Template.field.viewmodel("field", function (template_data) {
   var start_value = template_data && template_data.startValue || "";
 
@@ -239,7 +239,7 @@ The job of a binding is to synchronize data between the DOM and the viewmodel. B
 ```javascript
 // All three properties on the definition object are optional
 ViewModel.addBinding(name, {
-  // Apply updated value to the DOM (this instanceof ViewModel)
+  // Apply updated value to the DOM
   set: function ($elem, new_value, args, kwargs) {
     // For example
     $elem.val(new_value);
@@ -248,7 +248,7 @@ ViewModel.addBinding(name, {
   // Space separated list of events
   on: "keyup input change",
 
-  // Possibly return a value retrieved from the DOM (this instanceof ViewModel)
+  // Possibly return a value retrieved from the DOM
   get: function (event, $elem, prop, args, kwargs) {
     // For example
     return $elem.val();
