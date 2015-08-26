@@ -22,6 +22,16 @@ Copy the `package` (can be renamed) folder from this repo into your project's `/
 
 Check out the examples in the repo.
 
+```html
+<template name="page">
+  {{> field}}
+</template>
+
+<template name="field">
+  <input type="text" {{bind 'value: prop'}}>
+</template>
+```
+
 ```javascript
 Template.page.viewmodel({
   // React to changes in dependencies such as viewmodel properties
@@ -60,16 +70,6 @@ Template.field.viewmodel("field", {
     }
   }
 });
-```
-
-```html
-<template name="page">
-  {{> field}}
-</template>
-
-<template name="field">
-  <input type="text" {{bind 'value: prop'}}>
-</template>
 ```
 
 
