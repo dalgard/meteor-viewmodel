@@ -118,7 +118,7 @@ As a starting point, this Blaze helper only gets registered on templates with a 
 ViewModel.helperName = "myBind";
 ```
 
-You may choose to register the helper globally, however:
+However, you may choose to register the helper globally:
 
 ```javascript
 // Name is optional
