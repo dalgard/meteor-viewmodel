@@ -230,7 +230,7 @@ ViewModel.addBinding("click", {
 });
 ```
 
-Here I will explain how it gets to be so small.
+I will explain below how it gets to be so small.
 
 The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through definition objects:
 
