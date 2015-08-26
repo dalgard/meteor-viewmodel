@@ -1,7 +1,7 @@
 dalgard:viewmodel 0.1.1
 =======================
 
-Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`
+Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
 
 - Highly declarative
 - Absolutely no redundant syntax
@@ -36,10 +36,11 @@ Check out the other `/examples` in the repo.
 Template.page.viewmodel({
   // All properties are registered as Blaze helpers
   fieldProp: function () {
-    // Get child viewmodel by name
+    // Get child viewmodel reactively by name
     var field = this.child("field");
 
-    return field.prop();
+    // Child may not be rendered the first time this value is used
+    return field && field.prop();
   },
 
   // Blaze onCreated hook (similar for rendered and destroyed)
@@ -82,9 +83,26 @@ Template.field.viewmodel("field", {
 
 *(Work in progress)*
 
-- {{bind}} helper (multiple, arguments) (global: helper must be used after bind)
-- ViewModel.prototype
-- static ViewModel
+#### {{bind}} helper
+
+This helper is only registered on templates with a declared viewmodel. The name of the helper may be changed like this: `ViewModel.helperName = "mybind"`.
+
+You may choose to register the helper globally like this: `ViewModel.registerHelper(name)` (`name` is optional). The advantage of doing so is that you may use the bind helper in any template without first declaring a viewmodel.
+
+Using bind without a viewmodel creates a new viewmodel on the template and registers the property name passed to bind as a Blaze helper (as always) – this helper can then be used anywhere *after* the call to `{{bind}}`, but not before. If you want to be able to place a property helper anywhere in the template, declare the viewmodel explicitly.
+
+The syntax of the bind helper looks like this: `{{bind 'click: doSomething' ...}}`. You may pass multiple pairs of binding and property name to the bind helper.
+
+Any space separated values after the property name are passed as arguments to the binding (e.g. delay: `{{bind 'value: filter 1500'}}`).
+
+#### ViewModel.prototype
+
+-
+
+
+#### Static methods
+
+-
 
 
 ### Todo
