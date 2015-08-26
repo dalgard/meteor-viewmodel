@@ -16,6 +16,31 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add it with `meteor install dalgard:viewmodel`.
 
 
+## Quickstart
+
+Example from `/examples/quickstart`.
+
+```javascript
+// All the code you need to get started
+ViewModel.registerHelper("bind");
+```
+
+```html
+<body>
+  {{> example}}
+</body>
+
+<template name="example">
+  <input type="text" {{bind 'value: text'}}>
+  <input type="checkbox" {{bind 'checked: show'}}>
+
+  {{#if show}}
+    {{text}}
+  {{/if}}
+</template>
+```
+
+
 ## Usage
 
 The example below is fairly verbose in order to demonstrate some of the features of ViewModel.
