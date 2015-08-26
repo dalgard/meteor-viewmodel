@@ -37,7 +37,7 @@ ViewModel.registerHelper("bind");
 
 ## Usage
 
-The example below is fairly verbose in order to demonstrate some of the features of ViewModel.
+The example below is fairly verbose, the point being to demonstrate some of the features of ViewModel.
 
 Besides normally being much more concise, viewmodels in some cases don't have to be declared at all – they may be created automatically by the `{{bind}}` helper if the helper is registered globally, like in the quickstart example.
 
