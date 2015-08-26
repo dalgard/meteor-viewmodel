@@ -18,7 +18,7 @@ Copy the `package` folder (can be renamed) from this repo into your project's `/
 
 ## Usage
 
-The example below is a bit verbose; viewmodels do not always have to be declared, but may be created automatically by the `{{bind}}` helper if registered globally.
+The example below is fairly verbose in order to demonstrate some of the features of ViewModel. Besides normally being much more concise, Viewmodels do not have to be declared in all cases – they may be created automatically by the `{{bind}}` helper if registered globally.
 
 Check out the other `/examples` in the repo.
 
@@ -86,7 +86,7 @@ Template.field.viewmodel("field", function (template_data) {
 
 ## API
 
-This is an extract of the full API – take five minutes to explore the ViewModel class with `dir(ViewModel)` and viewmodel instances with `debugger;` in your dev-tools of choice.
+This is an extract of the full API – take five minutes to explore the ViewModel class with `dir(ViewModel)` and viewmodel instances with `debugger` in your dev-tools of choice.
 
 ### {{bind}}
 
