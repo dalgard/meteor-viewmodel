@@ -12,14 +12,14 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 #### Install
 
-(coming soon)
+*coming soon*
 
-~meteor install dalgard:viewmodel~
+~~`meteor install dalgard:viewmodel`~~
 
 
-#### Usage
+## Usage
 
-(work in progress)
+*work in progress*
 
 ```javascript
 Template.thing.viewmodel({
@@ -27,19 +27,19 @@ Template.thing.viewmodel({
 });
 ```
 
-Also check out the examples.
+Check out the examples.
 
 
-### API
+## API
 
-(work in progress)
+*work in progress*
 
 - {{bind}} helper (multiple, arguments) (global: helper must be used after bind)
 - ViewModel.prototype
 - static ViewModel
 
 
-#### Todo
+## Todo
 
 - Persist viewmodels on hot code pushes
 - Optionally persist viewmodel across routes
