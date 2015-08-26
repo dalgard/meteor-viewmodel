@@ -18,8 +18,6 @@ Copy the `package` folder (can be renamed) from this repo into your project's `/
 
 ## Usage
 
-*(Work in progress)*
-
 The example below is a bit verbose; viewmodels do not always have to be declared, but may be created automatically by the `{{bind}}` helper if registered globally.
 
 Check out the other `/examples` in the repo.
@@ -91,6 +89,6 @@ Template.field.viewmodel("field", {
 
 ### Todo
 
-- Persist viewmodels on hot code pushes
-- Optionally persist viewmodel across routes
-- Optionally register bindings as individual helpers
+- Persist viewmodels on hot code pushes.
+- Optionally persist viewmodel across routes.
+- Optionally register bindings as individual helpers.
