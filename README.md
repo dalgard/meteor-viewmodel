@@ -126,7 +126,7 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a more declarative approach.
 
-##### Templates
+Templates:
 
 ```javascript
 // Get the current template instance
@@ -136,7 +136,7 @@ this.templateInstance();
 this.getData();
 ```
 
-##### Serialization
+Serialization:
 
 ```javascript
 // Get a snapshot of the viewmodel, ready for serialization
@@ -146,7 +146,7 @@ this.serialize();
 this.deserialize(object);
 ```
 
-##### Traversal
+Traversal:
 
 ```javascript
 // Reactively get the parent viewmodel, optionally filtered by name (string or regex)
@@ -180,7 +180,7 @@ this.descendants([name][, index][, levels]);
 
 ### Static methods
 
-These methods are mainly for inspecting the viewmodels while developing, but may also be used as a means of getting a component in a complex layout.
+These methods are mainly for inspection while developing, but may also be used as a means of getting a component in a complex layout.
 
 ```javascript
 // Reactively get global list of current viewmodels
