@@ -1,5 +1,5 @@
 <template name="disabled">
   <label><input type="checkbox" {{bind 'checked: disabled'}}>disabled</label>
 
-  <input type="text" placeholder="inside #if" {{bind 'value: value' 'disabled: disabled'}}> {{value}}
+  <input type="text" {{bind 'value: value' 'disabled: disabled'}}> {{value}}
 </template>
