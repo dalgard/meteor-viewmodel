@@ -7,7 +7,7 @@ Package.describe({
 Package.onUse(function (api) {
   api.versionsFrom("METEOR@1.1.0.3");
 
-  api.use("grigio:babel");
+  api.use("grigio:babel@0.1.7");
 
   api.use([
     "reactive-var",
