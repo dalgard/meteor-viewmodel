@@ -222,7 +222,15 @@ ViewModel.findOne([name]);
 
 ### addBinding
 
-The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through simple definition objects:
+Before I go into detail, allow me to present the full definition of the `click` binding:
+
+```javascript
+ViewModel.addBinding("click", {
+  on: "click"
+});
+```
+
+The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through definition objects:
 
 ```javascript
 // All three properties on the definition object are optional
@@ -272,15 +280,7 @@ ViewModel.addBinding("enterKey", {
 });
 ```
 
-If you want to call the bound property but not do so with a value, simply omit the `get` function altogether.
-
-For example, here's the full definition of the `click` binding:
-
-```javascript
-ViewModel.addBinding("click", {
-  on: "click"
-});
-```
+If you want to call the bound property but not do so with a value, simply omit the `get` function altogether, like with the `click` binding.
 
 A definition object may also be returned from a factory function, which is called with some useful arguments:
 
