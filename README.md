@@ -24,7 +24,7 @@ Check out the other `/examples` in the repo.
 
 ```html
 <template name="page">
-  {{> field}} {{fieldProp}}
+  {{> field startValue='yo'}} {{fieldProp}}
 </template>
 
 <template name="field">
@@ -50,31 +50,36 @@ Template.page.viewmodel({
   }
 });
 
-Template.field.viewmodel("field", {
-  // Primitive property
-  prop: "",
+// Instead of a definition object, a factory function may be used
+Template.field.viewmodel("field", function (template_data) {
+  this instanceof ViewModel;  // true
 
-  // Computed property
-  regex: function () {
-    // Get value of prop reactively
-    var value = this.prop();
+  return {
+    // Primitive property
+    prop: template_data && template_data.startValue || "",
 
-    return new RexExp(value);
-  },
+    // Computed property
+    regex: function () {
+      // Get value of prop reactively
+      var value = this.prop();
 
-  // React to changes in dependencies such as viewmodel properties
-  // – can be an array of functions
-  autorun: function () {
-    // Log every time the computed regex property changes
-    console.log("new value of regex", this.regex());
-  },
+      return new RexExp(value);
+    },
 
-  // Blaze events
-  events: {
-    "click input": function (event, template_instance) {
-      this instanceof ViewModel;  // true
+    // React to changes in dependencies such as viewmodel properties
+    // – can be an array of functions
+    autorun: function () {
+      // Log every time the computed regex property changes
+      console.log("new value of regex", this.regex());
+    },
+
+    // Blaze events
+    events: {
+      "click input": function (event, template_instance) {
+        this instanceof ViewModel;  // true
+      }
     }
-  }
+  };
 });
 ```
 
@@ -192,6 +197,40 @@ ViewModel.find([name][, index]);
 
 // Reactively get the first current viewmodel, optionally filtered by name (string or regex)
 ViewModel.findOne([name]);
+```
+
+### addBinding
+
+Bindings are added through simple definition objects:
+
+```javascript
+// All three properties on the definition object are optional
+ViewModel.addBinding(name, {
+  // Apply new value to the DOM
+  set: function ($elem, new_value, args, kwargs) {
+    this instanceof ViewModel;  // true
+
+    // For example
+    $elem.val(new_value);
+  };
+
+  // Space separated list of events
+  on: "keyup input change",
+
+  // Retrieve value from the DOM
+  get: function (event, $elem, prop, args, kwargs) {
+
+  }
+});
+```
+
+A definition object may also be returned from a factory function, which is called with these arguments:
+
+```javascript
+ViewModel.addBinding(name, function (template_data, key, args, kwargs) {
+  // Return definition object
+  return {};
+});
 ```
 
 
