@@ -259,7 +259,7 @@ ViewModel.addBinding(name, {
 ```
 
 - `$elem` is the element where the `{{bind}}` helper was called, wrapped in jQuery.
-- `prop` is the getter/setter of the viewmodel property, which sometimes will simply be a method with side effects on the viewmodel.
+- `prop` is the getter-setter of the viewmodel property, which sometimes will simply be a method with side effects on the viewmodel.
 - `args` is a, possibly empty, array containing any space separated values that came after the key in the bind expression.
 - `kwargs` contains the keyword arguments that the `{{bind}}` helper was called with.
 
