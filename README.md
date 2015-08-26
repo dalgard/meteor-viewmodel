@@ -13,12 +13,14 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 *Atmosphere coming soon*
 
-Copy the package folder from this repo into your project's `/packages` (it can be renamed) and add it with `meteor install dalgard:viewmodel`.
+Copy the `package` (can be renamed) folder from this repo into your project's `/packages` and add it with `meteor install dalgard:viewmodel`.
 
 
 ## Usage
 
 *Work in progress*
+
+Check out the examples in the repo.
 
 ```javascript
 Template.page.viewmodel({
@@ -70,8 +72,6 @@ Template.field.viewmodel("field", {
 </template>
 ```
 
-Check out the examples.
-
 
 ## API
 
@@ -82,7 +82,7 @@ Check out the examples.
 - static ViewModel
 
 
-## Todo
+### Todo
 
 - Persist viewmodels on hot code pushes
 - Optionally persist viewmodel across routes
