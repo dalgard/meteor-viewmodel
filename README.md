@@ -26,24 +26,22 @@ Check out the other `/examples` in the repo.
 
 ```html
 <template name="page">
-  {{> field}}
+  {{> field}} {{fieldProp}}
 </template>
 
 <template name="field">
-  <input type="text" {{bind 'value: prop'}}> {{prop}}
+  <input type="text" {{bind 'value: prop'}}>
 </template>
 ```
 
 ```javascript
 Template.page.viewmodel({
-  // React to changes in dependencies such as viewmodel properties
-  // – can be an array of functions
-  autorun: function () {
+  // All properties are registered as Blaze helpers
+  fieldProp: function () {
     // Get child viewmodel by name
     var field = this.child("field");
 
-    // Log every time the computed regex property changes
-    console.log("new value of regex", field.regex());
+    return field.prop();
   },
 
   // Blaze onCreated hook (similar for rendered and destroyed)
@@ -63,6 +61,13 @@ Template.field.viewmodel("field", {
     var value = this.prop();
 
     return new RexExp(value);
+  },
+
+  // React to changes in dependencies such as viewmodel properties
+  // – can be an array of functions
+  autorun: function () {
+    // Log every time the computed regex property changes
+    console.log("new value of regex", this.regex());
   },
 
   // Blaze events
