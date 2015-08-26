@@ -20,7 +20,7 @@ Copy the `package` folder (can be renamed) from this repo into your project's `/
 
 *(Work in progress)*
 
-The example below is a bit verbose; viewmodels do not always have to be declared, but may be created automatically by the `{{bind}}` helper if it is registered globally.
+The example below is a bit verbose; viewmodels do not always have to be declared, but may be created automatically by the `{{bind}}` helper if registered globally.
 
 Check out the other `/examples` in the repo.
 
@@ -30,7 +30,7 @@ Check out the other `/examples` in the repo.
 </template>
 
 <template name="field">
-  <input type="text" {{bind 'value: prop'}}>
+  <input type="text" {{bind 'value: prop'}}> {{prop}}
 </template>
 ```
 
