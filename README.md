@@ -127,31 +127,48 @@ ViewModel can be used in a more programmatical way, but below are the methods th
 
 *Templates:*
 
-`templateInstance()`  –  Get the current template instance.
+```javascript
+// Get the current template instance
+this.templateInstance();
 
-`getData()`  –  Get the data context of the current template instance reactively.
+// Reactively get the data context of the current template instance
+this.getData();
+```
 
 *Serialization:*
 
-`serialize()`  –  Get a snapshot of the viewmodel, ready for serialization.
+```javascript
+// Get a snapshot of the viewmodel, ready for serialization
+this.serialize();
 
-`deserialize(object)`  –  Apply a snapshot to the viewmodel.
+// Apply a snapshot to the viewmodel
+this.deserialize(object);
+```
 
 *Traversal:*
 
-`parent([name])`  –  Get the parent viewmodel filtered by name (string or regex)
+```javascript
+// Get the parent viewmodel filtered by name (string or regex)
+this.parent([name]);
 
-`ancestor([name][, index=0])`  –  Get the first ancestor viewmodel at index filtered by name (string or regex)
+// Get the first ancestor viewmodel at index filtered by name (string or regex)
+this.ancestor([name][, index=0]);
 
-`ancestors([name][, index][, levels])`  –  Get an array of ancestor viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+// Get an array of ancestor viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+this.ancestors([name][, index][, levels]);
 
-`child([name][, index])`  –  Get the first child viewmodel at index filtered by name (string or regex)
+// Get the first child viewmodel at index filtered by name (string or regex)
+this.child([name][, index]);
 
-`children([name][, index])`  –  Get an array of descendant viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+// Get an array of descendant viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+this.children([name][, index]);
 
-`descendant([name][, index=0])`  –  Get the first descendant viewmodel at index filtered by name (string or regex)
+// Get the first descendant viewmodel at index filtered by name (string or regex)
+this.descendant([name][, index=0]);
 
-`descendants([name][, index][, levels])`  –  Get an array of descendant viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+// Get an array of descendant viewmodels or the first at index (within a depth of levels), optionally filtered by name (string or regex)
+this.descendants([name][, index][, levels]);
+```
 
 
 ### Static methods
