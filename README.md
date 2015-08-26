@@ -24,10 +24,6 @@ ViewModel.registerHelper("bind");
 ```
 
 ```html
-<body>
-  {{> example}}
-</body>
-
 <template name="example">
   <input type="text" {{bind 'value: text'}}>
   <input type="checkbox" {{bind 'checked: show'}}>
