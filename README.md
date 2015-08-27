@@ -289,7 +289,7 @@ To persist the state of a viewmodel across re-renderings, including changing to 
 
 ```javascript
 Template.example.viewmodel({
-  // This value will be restored
+  // This property will be restored on re-render
   value: ""
 }, true);
 ```
