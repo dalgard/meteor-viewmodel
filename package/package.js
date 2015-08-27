@@ -1,6 +1,6 @@
 Package.describe({
   name: "dalgard:viewmodel",
-  version: "0.1.2",
+  version: "0.2.0",
   summary: "Minimalist VM for Meteor – inspired by manuel:viewmodel and nikhizzle:session-bind"
 });
 
@@ -11,6 +11,8 @@ Package.onUse(function (api) {
 
   api.use([
     "reactive-var",
+    "reactive-dict",
+    "sha",
     "blaze",
     "stevezhu:lodash@3.10.1"
   ], "client");

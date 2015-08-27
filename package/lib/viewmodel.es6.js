@@ -10,6 +10,9 @@ let bindings = new ReactiveVar({});
 // Whether the bind helper has been registered globally
 let global = false;
 
+// Global ReactiveDict for persistence after hot code push
+let persist = new ReactiveDict("dalgard:viewmodel");
+
 
 // Exported class
 ViewModel = class ViewModel {
@@ -52,25 +55,34 @@ ViewModel = class ViewModel {
 
     // Add properties
     this.addProps(props);
-  }
 
-  // Method for getting template instance reactively
-  templateInstance() {
-    return this._view.templateInstance();
+
+    let hash_id = this._hashId();
+
+    // Always save viewmodel state so it can be restored after hot code push
+    this.autorun(comp => {
+      let map = this.serialize();
+
+      // Wait for actual changes to arrive
+      if (!comp.firstRun)
+        persist.set(hash_id, map);
+    });
   }
 
   // Add proper properties to the viewmodel
   addProps(props) {
     // Omit special reserved names
-    props = _.omit(props, ViewModel._reserved.hooks, ViewModel._reserved.special);
+    props = _.omit(props, _.values(ViewModel._reservedProps.hooks), ViewModel._reservedProps.other);
 
     _.each(props, (prop, key) => {
-      if (!_.isFunction(prop)) {
+      let is_primitive = !_.isFunction(prop);
+
+      if (is_primitive) {
         // The actual value is stored here in the property functions' closure
         let value = new ReactiveVar(prop);
 
-        // Each property is a reactive getter/setter
-        prop = new_value => {
+        // Each property is a reactive getter-setter
+        prop = function (new_value) {
           if (!_.isUndefined(new_value))
             value.set(new_value);
           else
@@ -80,6 +92,9 @@ ViewModel = class ViewModel {
 
       // Bind property to viewmodel
       this[key] = prop.bind(this);
+
+      // Mark getter-setter with type (primitive values as opposed to computed properties)
+      this[key].isPrimitive = is_primitive;
 
 
       let helper = {};
@@ -96,28 +111,6 @@ ViewModel = class ViewModel {
     });
   }
 
-  // Get the template's data context reactively
-  getData() {
-    return this.templateInstance().data;
-  }
-
-  // Register autorun(s) when the view is rendered
-  autorun(autorun) {
-    if (_.isArray(autorun))
-      _.each(autorun, this.autorun, this);
-    else if (this._view.isRendered)
-      this._view.autorun(autorun.bind(this));
-    else
-      this._view.onViewReady(() => this._view.autorun(autorun.bind(this)));
-  }
-
-  // Register listener when the view is rendered
-  register(listener) {
-    if (this._view.isRendered)
-      listener.call(this);
-    else
-      this._view.onViewReady(() => listener.call(this));
-  }
 
   // Bind an element
   bind(elem_or_id, type, key, args, kwargs) {
@@ -160,6 +153,40 @@ ViewModel = class ViewModel {
         });
       });
     }
+  }
+
+  // Register autorun(s) when the view is rendered
+  autorun(autorun) {
+    if (_.isArray(autorun))
+      _.each(autorun, this.autorun, this);
+    else if (this._view.isRendered)
+      this._view.autorun(autorun.bind(this));
+    else
+      this._view.onViewReady(() => this._view.autorun(autorun.bind(this)));
+  }
+
+  // Register listener when the view is rendered
+  register(listener) {
+    if (this._view.isRendered)
+      listener.call(this);
+    else
+      this._view.onViewReady(() => listener.call(this));
+  }
+
+
+  // Reactively get template instance
+  templateInstance() {
+    return this._view.templateInstance();
+  }
+
+  // Get the view that the viewmodel is attached to
+  getView() {
+    return this._view;
+  }
+
+  // Reactively get the template's data context
+  getData() {
+    return this.templateInstance().data;
   }
 
 
@@ -274,14 +301,30 @@ ViewModel = class ViewModel {
   }
 
 
-  // Prepare properties for serialization
+  // Reactively get properties for serialization
   serialize() {
-    return _.mapValues(this, prop => prop());
+    let primitives = _.pick(this, prop => prop.isPrimitive),
+        map = _.mapValues(primitives, prop => prop());
+
+    return map;
   }
 
-  // Apply serialized values
+  // Restore serialized values
   deserialize(map) {
     _.each(map, (value, key) => this[key] && this[key](value));
+  }
+
+  // Get an id that is a hash of the viewmodel instance's index in the global list,
+  // its position in the view hierarchy, and the current browser location
+  _hashId() {
+    let view = this._view,
+        index = _.indexOf(ViewModel.all(), this),
+        view_names = [];
+
+    do view_names.push(view.name);
+    while (view = view.parentView);
+
+    return SHA256(index + view_names.join("/") + location.href);
   }
 
 
@@ -307,9 +350,13 @@ ViewModel = class ViewModel {
     return _.isNumber(index) ? results[index] || null : results;
   }
 
-  // Reactively get the first current viewmodel, optionally filtered by name (string or regex)
-  static findOne(name) {
-    return this.find(name || null, 0);
+  // Reactively get the first current viewmodel at index, optionally filtered by name
+  // (string or regex)
+  static findOne(name, index) {
+    if (_.isNumber(name))
+      index = name, name = null;
+
+    return this.find(name || null, index || 0);
   }
 
   // Add a viewmodel to the global list
@@ -327,8 +374,17 @@ ViewModel = class ViewModel {
     all.dep.changed();
   }
 
+  // Restore persisted viewmodel values to all current instances
+  static _restoreAll() {
+    _.each(all.curValue, vm => {
+      let map = persist.get(vm._hashId());
 
-  // Get global list of current viewmodels reactively
+      vm.deserialize(map);
+    });
+  }
+
+
+  // Reactively get all available bindings
   static _bindings() {
     return bindings.get();
   }
@@ -399,21 +455,22 @@ ViewModel = class ViewModel {
   }
 }
 
-// The name used for the bind helper
-ViewModel.helperName = "bind";
-
 // Reserved property names
-ViewModel._reserved = {
+Object.defineProperty(ViewModel, "_reservedProps", { value: {
   // Lifetime hooks
-  hooks: [
-    "created",
-    "rendered",
-    "destroyed"
-  ],
+  hooks: {
+    onCreated: "created",
+    onRendered: "rendered",
+    onDestroyed: "destroyed"
+  },
 
   // Other special names
-  special: [
+  other: [
     "autorun",
     "events"
   ]
-};
+}});
+
+
+// The name used for the bind helper
+ViewModel.helperName = "bind";
