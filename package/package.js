@@ -11,6 +11,8 @@ Package.onUse(function (api) {
 
   api.use([
     "reactive-var",
+    "reactive-dict",
+    "sha",
     "blaze",
     "stevezhu:lodash@3.10.1"
   ], "client");

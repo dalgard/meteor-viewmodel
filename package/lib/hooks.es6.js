@@ -1,3 +1,10 @@
+Meteor.startup(() => {
+  // Restore viewmodel values after a hot code push
+  Template.body.onRendered(() => ViewModel._restoreAll());
+});
+
+
+// Declare a viewmodel on a template
 Blaze.Template.prototype.viewmodel = function (name, definition) {
   // Name argument may be omitted
   if (_.isObject(name)) {
@@ -5,9 +12,6 @@ Blaze.Template.prototype.viewmodel = function (name, definition) {
     name = null;
   }
 
-
-  // Viewmodel properties
-  let props = _.omit(definition, ViewModel._reserved.hooks, ViewModel._reserved.special);
 
   // Create viewmodel instance – a function is added to the template's onCreated
   // hook, wherein a viewmodel instance is created on the view with the properties
@@ -20,7 +24,7 @@ Blaze.Template.prototype.viewmodel = function (name, definition) {
       vm = new ViewModel(this.view, name);
 
     // Add properties to existing viewmodel
-    vm.addProps(props);
+    vm.addProps(definition);
 
     // Add autoruns
     if (definition.autorun)
@@ -31,12 +35,11 @@ Blaze.Template.prototype.viewmodel = function (name, definition) {
   // Register lifetime hooks with viewmodel as context – the hooks on the
   // viewmodel definition object (created, rendered, destroyed) are registered
   // on the template and gets called with the current viewmodel instance as context
-  _.each(ViewModel._reserved.hooks, hook => {
-    let callbacks = definition[hook];
+  _.each(ViewModel._reservedProps.hooks, (blaze_hook, name) => {
+    let callbacks = definition[name];
 
-    if (definition[hook]) {
-      // "rendered" -> "onRendered"
-      this["on" + hook.charAt(0).toUpperCase() + hook.slice(1)](function () {
+    if (definition[name]) {
+      this[blaze_hook](function () {
         // Array or single
         if (!_.isArray(callbacks))
           callbacks = [callbacks];
