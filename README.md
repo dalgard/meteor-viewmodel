@@ -12,7 +12,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 (2.68 kB minified and gzipped)
 
 
-#### Install
+### Install
 
 *(Atmosphere coming soon)*
 
@@ -21,9 +21,13 @@ Copy the `package` folder (can be renamed) from this repo into your project's `/
 At this moment, browser support is IE9+, because I was tempted to use `Object.defineProperties`, because it made things easier. Do complain...
 
 
+### Contents
+
+*Generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-### Contents
+
 
 - [Quickstart](#quickstart)
 - [Usage](#usage)
