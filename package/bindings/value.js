@@ -5,7 +5,7 @@ ViewModel.addBinding("value", function (data, key, args, kwargs) {
       };
 
   if (throttle)
-    get = _.throttle(get, throttle);
+    get = _.throttle(get, throttle, { leading: false });
 
   return {
     set: function (elem, value) {
