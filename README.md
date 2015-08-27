@@ -524,4 +524,5 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 
 - ~~Persist viewmodels on hot code pushes~~
 - ~~Optionally persist viewmodel across routes~~
+- Share state between two instances of the same viewmodel
 - Optionally register bindings as individual helpers (?)
