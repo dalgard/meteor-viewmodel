@@ -147,6 +147,10 @@ Template.field.viewmodel("field", function (template_data) {
 });
 ```
 
+Try not to create a viewmodel on a template that doesn't contain a `{{bind}}` statement and doesn't need computed properties that use an ancestor or descendant viewmodel.
+
+Too many viewmodels clutters up the global viewmodel space and makes it more difficult to traverse the hierarchy. Since traversal methods are reactive, too many viewmodels may result in autoruns running more times than necessary.
+
 
 ## API
 
