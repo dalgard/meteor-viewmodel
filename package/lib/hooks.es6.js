@@ -36,6 +36,7 @@ Blaze.Template.prototype.viewmodel = function (name, definition, persisted) {
   // viewmodel definition object (created, rendered, destroyed) are registered
   // on the template and gets called with the current viewmodel instance as context
   _.each(ViewModel._reservedProps.hooks, (blaze_hook, name) => {
+    debugger;
     let callbacks = definition[name];
 
     if (definition[name]) {
@@ -74,7 +75,7 @@ Blaze.Template.prototype.viewmodel = function (name, definition, persisted) {
 
 
   // Register bind helper on templates with a viewmodel – the special Blaze helper
-  // {{bind 'type: key'}} is registered for this template. Elements are bound to
+  // {{bind 'binding: key'}} is registered for this template. Elements are bound to
   // the viewmodel through this helper
   if (!ViewModel._isGlobal()) {
     let bind = {};

@@ -131,23 +131,25 @@ ViewModel = class ViewModel {
 
 
   // Bind an element
-  bind(elem_or_id, type, key, args, kwargs) {
+  bind(elem_or_id, binding, key, args, kwargs) {
     let template_instance = this.templateInstance(),
-        selector = _.isElement(elem_or_id) ? elem_or_id : "[vm-bind-id=" + elem_or_id + "]",
-        binding = ViewModel._bindings()[type];
+        selector = _.isElement(elem_or_id) ? elem_or_id : "[vm-bind-id=" + elem_or_id + "]";
+
+    if (_.isString(binding))
+      binding = ViewModel._bindings()[binding];
 
     // Binding may be a factory
     if (_.isFunction(binding))
-      binding = binding.call(this, this.getData(), key, args, kwargs);
+      binding = binding.call(template_instance.view, template_instance.data, key, args, kwargs);
 
     // Wrap set function and add it to list of autoruns (gets called with viewmodel
-    // as context and jQuery element and current property value as arguments)
+    // as context and jQuery element and new property value as arguments)
     if (binding.set) {
       this.autorun(function () {
         let elem = template_instance.$(selector),
-            value = key && this[key]();
+            new_value = binding.free ? null : key && this[key]();
 
-        binding.set.call(this, elem, value, args, kwargs);
+        binding.set.call(this, elem, new_value, args, kwargs);
       });
     }
 
@@ -155,20 +157,21 @@ ViewModel = class ViewModel {
     // of get function (gets called with viewmodel as context and the jQuery element,
     // current property value and event object as arguments)
     if (binding.on) {
-      this.register(function () {
+      // The context here may be a Blaze view, in case of a free binding
+      ViewModel.prototype.register.call(this, function () {
         let elem = template_instance.$(selector);
 
         // Register event
         elem.on(binding.on, event => {
           // Call property if there's no get function
-          if (!binding.get) {
+          if (!binding.free && !binding.get) {
             this[key](event, elem, key, args, kwargs);
           }
           else {
             let result = binding.get.call(this, event, elem, key, args, kwargs);
 
             // Call property if get returned a value other than undefined
-            if (!_.isUndefined(result))
+            if (!binding.free && !_.isUndefined(result))
               this[key](result);
           }
         });
@@ -188,10 +191,12 @@ ViewModel = class ViewModel {
 
   // Register listener when the view is rendered
   register(listener) {
-    if (this._view.isRendered)
+    let view = this instanceof ViewModel ? this._view : this;
+
+    if (view.isRendered)
       listener.call(this);
     else
-      this._view.onViewReady(() => listener.call(this));
+      view.onViewReady(() => listener.call(this));
   }
 
 
@@ -436,7 +441,7 @@ ViewModel = class ViewModel {
     return ++uuid;
   }
 
-  // The Blaze helper that is bound to templates with a viewmodel {{bind 'type: key'}}
+  // The Blaze helper that is bound to templates with a viewmodel {{bind 'binding: key'}}
   static _bindHelper(...pairs) {
     // Keywords argument
     let kwargs = pairs.pop();
@@ -447,23 +452,36 @@ ViewModel = class ViewModel {
     _.each(pairs, pair => {
       pair = pair.trim().split(/\s*:\s*/);
 
-      let type = pair[0],
+      let binding = ViewModel._bindings()[pair[0]],
           args = pair[1].split(/\s+/g),
           key = args.shift(),
-          vm = Template.instance().viewmodel;
+          template_instance = Template.instance(),
+          view = template_instance.view,
+          spread = [bind_id, binding, key, args, kwargs];
 
+      // Binding may be a factory
+      if (_.isFunction(binding))
+        binding = binding.call(view, this, key, args, kwargs);
 
-      // Possibly create new viewmodel instance on view
-      if (!vm)
-        vm = new ViewModel(Blaze.getView());
+      // Some bindings may not use a viewmodel at all
+      if (binding.free) {
+        // Use view as the context for the bind method
+        Tracker.afterFlush(() => ViewModel.prototype.bind.call(view, ...spread));
+      }
+      else {
+        let vm = template_instance.viewmodel;
 
-      // Create properties on viewmodel if needed (initialized as undefined)
-      if (!vm[key])
-        vm.addProps(_.zipObject([key]));
+        // Possibly create new viewmodel instance on view
+        if (!vm)
+          vm = new ViewModel(Blaze.getView());
 
+        // Create properties on viewmodel if needed (initialized as undefined)
+        if (!vm[key])
+          vm.addProps(_.zipObject([key]));
 
-      // Bind elements after they have been added to the view
-      Tracker.afterFlush(() => vm.bind(bind_id, type, key, args, kwargs));
+        // Bind elements after they have been properly added to the view
+        Tracker.afterFlush(() => vm.bind(...spread));
+      }
     });
 
     return {

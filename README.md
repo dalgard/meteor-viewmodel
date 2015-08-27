@@ -454,8 +454,14 @@ ViewModel.addBinding("click", {
 The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through definition objects:
 
 ```javascript
-// All three properties on the definition object are optional
+// All four properties on the definition object are optional
 ViewModel.addBinding(name, {
+  // Omitted in the great majority of cases. If true, the binding doesn't need a viewmodel,
+  // and consequently, neither viewmodel nor property will be created if missing.
+  // The get and set functions will then be called with the view as contex instead of
+  // the viewmodel.
+  free: false,
+
   // Space separated list of events
   on: "keyup input change",
 
@@ -500,7 +506,7 @@ ViewModel.addBinding("enterKey", {
 
 In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding. The bound property will then be called with the same arguments as the `get` function.
 
-A definition object may also be returned from a factory function, which is called with some useful arguments:
+A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
 
 ```javascript
 ViewModel.addBinding(name, function (template_data, key, args, kwargs) {
