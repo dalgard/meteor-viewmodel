@@ -1,0 +1,3 @@
+Template.select.viewmodel({
+  value: ""
+});

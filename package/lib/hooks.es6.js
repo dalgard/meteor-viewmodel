@@ -5,9 +5,10 @@ Meteor.startup(() => {
 
 
 // Declare a viewmodel on a template
-Blaze.Template.prototype.viewmodel = function (name, definition) {
+Blaze.Template.prototype.viewmodel = function (name, definition, persisted) {
   // Name argument may be omitted
   if (_.isObject(name)) {
+    persisted = definition;
     definition = name;
     name = null;
   }
@@ -19,12 +20,11 @@ Blaze.Template.prototype.viewmodel = function (name, definition) {
   this.onCreated(function () {
     let vm = this.viewmodel;
 
-    // Create new viewmodel instance on view
+    // Create new viewmodel instance on view or add properties to existing viewmodel
     if (!vm)
-      vm = new ViewModel(this.view, name);
-
-    // Add properties to existing viewmodel
-    vm.addProps(definition);
+      vm = new ViewModel(this.view, name, definition, persisted);
+    else
+      vm.addProps(definition);
 
     // Add autoruns
     if (definition.autorun)
@@ -35,17 +35,22 @@ Blaze.Template.prototype.viewmodel = function (name, definition) {
   // Register lifetime hooks with viewmodel as context – the hooks on the
   // viewmodel definition object (created, rendered, destroyed) are registered
   // on the template and gets called with the current viewmodel instance as context
-  _.each(ViewModel._reservedProps.hooks, (blaze_hook, name) => {
+  _.each(ViewModel._reservedProps.hooks, (name, blaze_hook) => {
     let callbacks = definition[name];
 
-    if (definition[name]) {
+    if (callbacks) {
       this[blaze_hook](function () {
         // Array or single
         if (!_.isArray(callbacks))
           callbacks = [callbacks];
 
         // Run callbacks with viewmodel as context
-        _.each(callbacks, callback => callback.call(this.viewmodel));
+        _.each(callbacks, callback => {
+          if (!_.isFunction)
+            throw new TypeError("The " + name + " hook must be a function or an array of functions");
+
+          callback.call(this.viewmodel)
+        });
       });
     }
   });
@@ -69,7 +74,7 @@ Blaze.Template.prototype.viewmodel = function (name, definition) {
 
 
   // Register bind helper on templates with a viewmodel – the special Blaze helper
-  // {{bind 'type: key'}} is registered for this template. Elements are bound to
+  // {{bind 'binding: key'}} is registered for this template. Elements are bound to
   // the viewmodel through this helper
   if (!ViewModel._isGlobal()) {
     let bind = {};

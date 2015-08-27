@@ -1,8 +1,8 @@
 ViewModel.addBinding("key", {
   on: "keyup",
 
-  get: function (event, elem, prop, args) {
+  get: function (event, elem, key, args, kwhash) {
     if (event.keyCode === parseInt(args[0], 10))
-      prop();
+      this[key](event, elem, key, args, kwhash);
   }
 });

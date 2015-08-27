@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.2.0
+dalgard:viewmodel 0.3.0
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -12,13 +12,49 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 (2.68 kB minified and gzipped)
 
 
-#### Install
+### Install
 
-*(Atmosphere coming soon)*
+*Atmosphere coming soon.*
 
-Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add it with `meteor install dalgard:viewmodel`.
+Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add the package with `meteor install dalgard:viewmodel`.
 
-At this moment, browser support is IE9+, because I was tempted to use `Object.defineProperties`, because it made things easier. Do complain...
+Browser support is IE9+ because of `Object.defineProperties`. I'll change it if someone complains...
+
+
+### Contents
+
+*Generated with [DocToc](https://github.com/thlorenz/doctoc).*
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [Quickstart](#quickstart)
+- [Usage](#usage)
+- [API](#api)
+  - [{{bind}}](#bind)
+  - [Viewmodel instances](#viewmodel-instances)
+      - [Templates](#templates)
+      - [Serialization](#serialization)
+      - [Traversal](#traversal)
+  - [Static methods](#static-methods)
+  - [Persistence](#persistence)
+- [Bindings](#bindings)
+  - [Value ([throttle])](#value-throttle)
+  - [Checked](#checked)
+  - [Click](#click)
+  - [Toggle](#toggle)
+  - [Submit ([boolean])](#submit-boolean)
+  - [Disabled](#disabled)
+  - [Focused](#focused)
+  - [Hovered](#hovered)
+  - [Enter key](#enter-key)
+  - [Key (keyCode)](#key-keycode)
+  - [Files](#files)
+- [addBinding](#addbinding)
+- [Todo](#todo)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 
 ## Quickstart
@@ -100,7 +136,8 @@ Template.field.viewmodel("field", function (template_data) {
       console.log("new value of regex", this.regex());
     },
 
-    // Blaze events
+    // Blaze events (if you use this, chances are you are not using ViewModel
+    // in an optimal way – use bindings instead)
     events: {
       "click input": function (event, template_instance) {
         console.log(this instanceof ViewModel);  // true
@@ -109,6 +146,10 @@ Template.field.viewmodel("field", function (template_data) {
   };
 });
 ```
+
+Try not to create a viewmodel on a template that doesn't contain a `{{bind}}` statement and doesn't need computed properties that use an ancestor or descendant viewmodel.
+
+Too many viewmodels clutters up the global viewmodel space and makes it more difficult to traverse the hierarchy. Since traversal methods are reactive, too many viewmodels may result in autoruns running more times than necessary.
 
 
 ## API
@@ -157,52 +198,68 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a declarative approach.
 
-*Templates*
+##### Templates
 
 ```javascript
 // Get the current template instance
 this.templateInstance();
+```
 
+```javascript
 // Reactively get the data context of the current template instance
 this.getData();
 ```
 
-*Serialization*
+##### Serialization
 
 ```javascript
 // Get a snapshot of the viewmodel, ready for serialization
 this.serialize();
+```
 
+```javascript
 // Apply a snapshot to the viewmodel
 this.deserialize(object);
 ```
 
-*Traversal*
+##### Traversal
 
 ```javascript
 // Reactively get the parent viewmodel, optionally filtered by name (string or regex)
 this.parent([name]);
+```
 
+```javascript
 // Reactively get the first ancestor viewmodel at index, optionally filtered
 // by name (string or regex)
 this.ancestor([name][, index=0]);
+```
 
+```javascript
 // Reactively get an array of ancestor viewmodels or the first at index (within
 // a depth of levels), optionally filtered by name (string or regex)
 this.ancestors([name][, index][, levels]);
+```
 
+```javascript
 // Reactively get the first child viewmodel at index, optionally filtered
 // by name (string or regex)
 this.child([name][, index]);
+```
 
+```javascript
 // Reactively get an array of descendant viewmodels or the first at index (within
 // a depth of levels), optionally filtered by name (string or regex)
 this.children([name][, index]);
+```
 
+```javascript
 // Reactively get the first descendant viewmodel at index, optionally filtered
 // by name (string or regex)
 this.descendant([name][, index=0]);
+```
 
+```javascript
 // Reactively get an array of descendant viewmodels or the first at index (within
 // a depth of levels), optionally filtered by name (string or regex)
 this.descendants([name][, index][, levels]);
@@ -215,11 +272,15 @@ These methods are mainly for inspection while developing, but may also be used a
 ```javascript
 // Reactively get global list of current viewmodels
 ViewModel.all();
+```
 
+```javascript
 // Reactively get an array of current viewmodels or the first at index, optionally
 // filtered by name (string or regex)
 ViewModel.find([name][, index]);
+```
 
+```javascript
 // Reactively get the first current viewmodel at index, optionally filtered by name
 // (string or regex)
 ViewModel.findOne([name][, index]);
@@ -229,7 +290,162 @@ ViewModel.findOne([name][, index]);
 
 Values in viewmodel instances are automatically persisted across hot code pushes.
 
-### addBinding
+To persist the state of a viewmodel across re-renderings, including changing to another route and going back to a previous view, pass `true` as the last argument when declaring a new viewmodel:
+
+```javascript
+Template.example.viewmodel({
+  // This property will be restored on re-render
+  prop: ""
+}, true);
+```
+
+In order to determine whether an instance is the same as previous, ViewModel looks at 1) the position of the viewmodel in the view hierarchy, 2) the index of the viewmodel in relation to other current viewmodels, and 3) the browser location.
+
+If all these things match, the state of the viewmodel instance will be restored.
+
+
+## Bindings
+
+Several standard bindings are included with the package.
+
+Viewmodel declarations and template names are omitted below in order to make the examples easier to read. Arguments are shown in parentheses.
+
+#### Value ([throttle])
+
+The `text` property reflects the value of a text input, textarea, or select.
+
+An initial value can be set in the viewmodel. The throttle argument is a number (in ms) by which the update is [delayed](https://lodash.com/docs#throttle) as long as the user is typing.
+
+```html
+<input type="text" {{bind 'value: text 100'}}>
+```
+
+```javascript
+{ text: "" }
+```
+
+#### Checked
+
+The `checked` property reflects the state of the checkbox. The inital state of the checkbox can be set in the viewmodel.
+
+```html
+<input type="checkbox" {{bind 'checked: checked'}}>
+```
+
+```javascript
+{ checked: false }
+```
+
+#### Click
+
+A function on the viewmodel is run when the element is clicked.
+
+```html
+<button {{bind 'click: click'}}></button>
+```
+
+```javascript
+{ click: function (event, $elem, args, kwhash) {} }
+```
+
+#### Toggle
+
+The `toggled` property is negated on each `click` of the button.
+
+```html
+<button {{bind 'toggle: toggled'}}></button>
+```
+
+```javascript
+{ toggled: false }
+```
+
+#### Submit ([boolean])
+
+A function on the viewmodel is run when the form is submitted. If `true` is passed as an argument in the binding, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
+
+```html
+<form {{bind 'submit: submit true'}}></form>
+```
+
+```javascript
+{ submit: function (event, $elem, args, kwhash) {} }
+```
+
+#### Disabled
+
+The disabled state of the element reflects a boolean property on the viewmodel. The inital state can be set in the viewmodel.
+
+```html
+<input type="text" {{bind 'disabled: disabled'}}>
+```
+
+```javascript
+{ disabled: false }
+```
+
+#### Focused
+
+The `focused` property reflects whether the element is in focus. An element can be given focus by setting the initial state to `true`.
+
+```html
+<input type="text" {{bind 'focused: focused'}}>
+```
+
+```javascript
+{ focused: true }
+```
+
+#### Hovered
+
+The `hovered` property reflects whether the mouse hovers over the element.
+
+```html
+<button {{bind 'hovered: hovered'}}></button>
+```
+
+```javascript
+{ hovered: false }
+```
+
+#### Enter key
+
+A function on the viewmodel is run when the enter key is pressed on the element.
+
+```html
+<input type="text" {{bind 'enterKey: pressed'}}>
+```
+
+```javascript
+{ pressed: function (event, $elem, args, kwhash) {} }
+```
+
+#### Key (keyCode)
+
+A function on the viewmodel is run when the specific key, passed as an argument, is pressed on the element. In the example, it's the shift key.
+
+```html
+<input type="text" {{bind 'key: pressed 16'}}>
+```
+
+```javascript
+{ pressed: function (event, $elem, args, kwhash) {} }
+```
+
+#### Files
+
+The `files` property is an array of the currently selected file object(s) from the file picker. The boolean attribute `multiple` is optional on the input element.
+
+```html
+<input type="file" multiple {{bind 'files: files'}}>
+```
+
+```javascript
+{ files: [] }
+```
+
+
+## addBinding
 
 This is the full definition of the `click` binding:
 
@@ -242,29 +458,39 @@ ViewModel.addBinding("click", {
 The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through definition objects:
 
 ```javascript
-// All three properties on the definition object are optional
+// All four properties on the definition object are optional
 ViewModel.addBinding(name, {
-  // Apply updated value to the DOM
-  set: function ($elem, new_value, args, kwargs) {
-    // For example
-    $elem.val(new_value);
-  };
+  // Omitted in the great majority of cases. If true, the binding doesn't need a viewmodel,
+  // and consequently, neither viewmodel nor property will be created if missing.
+  // The get and set functions will then be called with the view as contex instead of
+  // the viewmodel.
+  free: false,
 
   // Space separated list of events
   on: "keyup input change",
 
   // Possibly return a value retrieved from the DOM
-  get: function (event, $elem, prop, args, kwargs) {
+  get: function (event, $elem, key, args, kwhash) {
     // For example
     return $elem.val();
+  },
+
+  // Apply updated value to the DOM
+  set: function ($elem, new_value, args, kwhash) {
+    // For example
+    $elem.val(new_value);
   }
 });
 ```
 
-- `$elem` is the element where the `{{bind}}` helper was called, wrapped in jQuery.
-- `prop` is the getter-setter of the viewmodel property, which sometimes will simply be a method with side effects on the viewmodel.
+Here are the parameters that `get` and `set` receive:
+
+- `event` is the original (jQuery) event object.
+- `$elem` is the element that the `{{bind}}` helper was called on, wrapped in jQuery.
+- `new_value` is the new value that was given to the property.
+- `key` is the name of the property.
 - `args` is a, possibly empty, array containing any space separated values that came after the key in the bind expression.
-- `kwargs` contains the keyword arguments that the `{{bind}}` helper was called with.
+- `kwhash` is the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
 
@@ -275,19 +501,19 @@ ViewModel.addBinding("enterKey", {
   on: "keyup",
 
   // This function doesn't return anything but calls the property explicitly instead
-  get: function (event, elem, prop) {
+  get: function (event, $elem, key, args, kwhash) {
     if (event.which === 13)
-      prop();
+      this[key](event, $elem, args, kwhash);
   }
 });
 ```
 
-In the case where you want to call the bound property, but not do so with a value, simply omit the `get` function altogether – like with the `click` binding.
+In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding. The bound property will then be called with the same arguments as the `get` function.
 
-A definition object may also be returned from a factory function, which is called with some useful arguments:
+A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
 
 ```javascript
-ViewModel.addBinding(name, function (template_data, key, args, kwargs) {
+ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
   // Return definition object
   return {};
 });
@@ -296,5 +522,6 @@ ViewModel.addBinding(name, function (template_data, key, args, kwargs) {
 
 ## Todo
 
-- Optionally persist viewmodel across routes
+- ~~Persist viewmodels on hot code pushes~~
+- ~~Optionally persist viewmodel across routes~~
 - Optionally register bindings as individual helpers (?)

@@ -3,15 +3,23 @@
 
   <p>childValue: {{childValue}}</p>
 
-  <p>{{> value}}</p>
-  <p>{{> throttled startValue='yo'}}</p>
-  <p>{{> checked}}</p>
-  <p>{{> click}}</p>
-  <p>{{> toggle}}</p>
-  <p>{{> disabled}}</p>
-  <p>{{> files}}</p>
-  <p>{{> focused}}</p>
-  <p>{{> hovered}}</p>
-  <p>{{> key}}</p>
-  <p>{{> enterKey}}</p>
+  <button {{bind 'toggle: destroy'}}>destroy</button> {{destroy}}
+
+  {{#unless destroy}}
+    <p>{{> persisted}}</p>
+    <p>{{> value}}</p>
+    <p>{{> throttled}}</p>
+    <p>{{> startValue startValue='yo'}}</p>
+    <p>{{> checked}}</p>
+    <p>{{> click}}</p>
+    <p>{{> toggle}}</p>
+    <p>{{> disabled}}</p>
+    <p>{{> focused}}</p>
+    <p>{{> hovered}}</p>
+    <p>{{> enterKey}}</p>
+    <p>{{> key}}</p>
+    <p>{{> files}}</p>
+    <p>{{> textarea}}</p>
+    <p>{{> select}}</p>
+  {{/unless}}
 </template>

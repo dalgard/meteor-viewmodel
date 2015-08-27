@@ -1,6 +1,6 @@
 Package.describe({
   name: "dalgard:viewmodel",
-  version: "0.2.0",
+  version: "0.3.0",
   summary: "Minimalist VM for Meteor – inspired by manuel:viewmodel and nikhizzle:session-bind"
 });
 
@@ -31,6 +31,7 @@ Package.onUse(function (api) {
     "bindings/hovered.js",
     "bindings/key.js",
     "bindings/enter-key.js",
+    "bindings/submit.js",
     "bindings/toggle.js",
     "bindings/value.js"
   ], "client");

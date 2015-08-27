@@ -16,17 +16,20 @@ let persist = new ReactiveDict("dalgard:viewmodel");
 
 // Exported class
 ViewModel = class ViewModel {
-  constructor(view, name, props) {
+  constructor(view, name, props, persisted) {
     // Non-enumerable private properties (ES5)
     Object.defineProperties(this, {
       // Save name on viewmodel instance
       _name: { value: name || null },
 
-      // List of child viewmodels
+      // Create list of child viewmodels
       _children: { value: new ReactiveVar([]) },
 
       // Save view on viewmodel instance
-      _view: { value: view }
+      _view: { value: view },
+
+      // Save whether the viewmodel state should be persisted across renderings
+      _persisted: { value: persisted || false }
     });
 
     // Attach to template instance
@@ -36,17 +39,19 @@ ViewModel = class ViewModel {
     let parent = this.parent();
 
     // Register with parent
-    if (parent) {
-      parent._children.curValue.push(this);
-      parent._children.dep.changed();
-    }
-
+    if (parent)
+      parent._addChild(this);
 
     // Add to global list
     ViewModel._add(this);
 
-    // Remove from global list onDestroyed
-    view.onViewDestroyed(() => ViewModel._remove(this));
+    // Remove from parent and global list onDestroyed
+    view.onViewDestroyed(() => {
+      if (parent)
+        parent._removeChild(this);
+
+      ViewModel._remove(this)
+    });
 
 
     // Definition may be a factory
@@ -57,9 +62,14 @@ ViewModel = class ViewModel {
     this.addProps(props);
 
 
+    // Restore viewmodel instance from last time the template was rendered
+    if (persisted === true)
+      this._restore();
+
+
     let hash_id = this._hashId();
 
-    // Always save viewmodel state so it can be restored after hot code push
+    // Always save viewmodel state so it can be restored after a hot code push
     this.autorun(comp => {
       let map = this.serialize();
 
@@ -82,7 +92,7 @@ ViewModel = class ViewModel {
         let value = new ReactiveVar(prop);
 
         // Each property is a reactive getter-setter
-        prop = function (new_value) {
+        prop = new_value => {
           if (!_.isUndefined(new_value))
             value.set(new_value);
           else
@@ -100,10 +110,19 @@ ViewModel = class ViewModel {
       let helper = {};
 
       // Create a Blaze helper for the property
-      helper[key] = function () {
-        let vm = Template.instance().viewmodel;
+      helper[key] = function (...args) {
+        let vm = Template.instance().viewmodel,
+            kwargs = args.pop(),  // Keywords argument
+            spread = [];
 
-        return vm[key]();
+        // Use hash of Spacebars keywords arguments object if it has any properties
+        if (kwargs instanceof Spacebars.kw && _.keys(kwargs.hash).length)
+          spread.push(kwargs.hash);
+
+        // Add arguments
+        spread.unshift(...args);
+
+        return vm[key](...spread);
       };
 
       // Register helper
@@ -111,25 +130,35 @@ ViewModel = class ViewModel {
     });
   }
 
+  // Restore persisted viewmodel values to instance
+  _restore() {
+    let hash_id = this._hashId(),
+        map = persist.get(hash_id);
+
+    this.deserialize(map);
+  }
+
 
   // Bind an element
-  bind(elem_or_id, type, key, args, kwargs) {
+  bind(elem_or_id, binding, key, args, kwhash) {
     let template_instance = this.templateInstance(),
-        selector = _.isElement(elem_or_id) ? elem_or_id : "[vm-bind-id=" + elem_or_id + "]",
-        binding = ViewModel._bindings()[type];
+        selector = _.isElement(elem_or_id) ? elem_or_id : "[vm-bind-id=" + elem_or_id + "]";
+
+    if (_.isString(binding))
+      binding = ViewModel._bindings()[binding];
 
     // Binding may be a factory
     if (_.isFunction(binding))
-      binding = binding.call(this, this.getData(), key, args, kwargs);
+      binding = binding.call(template_instance.view, template_instance.data, key, args, kwhash);
 
     // Wrap set function and add it to list of autoruns (gets called with viewmodel
-    // as context and jQuery element and current property value as arguments)
+    // as context and jQuery element and new property value as arguments)
     if (binding.set) {
       this.autorun(function () {
         let elem = template_instance.$(selector),
-            value = key && this[key]();
+            new_value = binding.free ? null : key && this[key]();
 
-        binding.set.call(this, elem, value, args, kwargs);
+        binding.set.call(this, elem, new_value, args, kwhash);
       });
     }
 
@@ -137,19 +166,23 @@ ViewModel = class ViewModel {
     // of get function (gets called with viewmodel as context and the jQuery element,
     // current property value and event object as arguments)
     if (binding.on) {
-      this.register(function () {
-        let elem = template_instance.$(selector),
-            prop = this[key]
-            vm = this;
+      // The context here may be a Blaze view, in case of a free binding
+      ViewModel.prototype.register.call(this, function () {
+        let elem = template_instance.$(selector);
 
         // Register event
-        elem.on(binding.on, function (event) {
-          let result = binding.get && binding.get.call(vm, event, elem, prop, args, kwargs);
+        elem.on(binding.on, event => {
+          // Call property if there's no get function
+          if (!binding.free && !binding.get) {
+            this[key](event, elem, key, args, kwhash);
+          }
+          else {
+            let result = binding.get.call(this, event, elem, key, args, kwhash);
 
-          // Only call property if there's no get function or if it returned a value
-          // other than undefined
-          if (!binding.get || !_.isUndefined(result))
-            prop(result);
+            // Call property if get returned a value other than undefined
+            if (!binding.free && !_.isUndefined(result))
+              this[key](result);
+          }
         });
       });
     }
@@ -167,10 +200,12 @@ ViewModel = class ViewModel {
 
   // Register listener when the view is rendered
   register(listener) {
-    if (this._view.isRendered)
+    let view = this instanceof ViewModel ? this._view : this;
+
+    if (view.isRendered)
       listener.call(this);
     else
-      this._view.onViewReady(() => listener.call(this));
+      view.onViewReady(() => listener.call(this));
   }
 
 
@@ -189,6 +224,21 @@ ViewModel = class ViewModel {
     return this.templateInstance().data;
   }
 
+
+  // Reactively add a child viewmodel to the _children list
+  _addChild(vm) {
+    this._children.curValue.push(vm);
+    this._children.dep.changed();
+  }
+
+  // Reactively remove a child viewmodel from the _children list
+  _removeChild(vm) {
+    let index = this._children.curValue.indexOf(vm);
+
+    // Remove from array
+    this._children.curValue.splice(index, 1);
+    this._children.dep.changed();
+  }
 
   // Reactively get an array of ancestor viewmodels or the first at index (within a depth
   // of levels), optionally filtered by name (string or regex)
@@ -376,11 +426,7 @@ ViewModel = class ViewModel {
 
   // Restore persisted viewmodel values to all current instances
   static _restoreAll() {
-    _.each(all.curValue, vm => {
-      let map = persist.get(vm._hashId());
-
-      vm.deserialize(map);
-    });
+    _.each(all.curValue, vm => vm._restore());
   }
 
 
@@ -404,10 +450,15 @@ ViewModel = class ViewModel {
     return ++uuid;
   }
 
-  // The Blaze helper that is bound to templates with a viewmodel {{bind 'type: key'}}
+  // The Blaze helper that is bound to templates with a viewmodel {{bind 'binding: key'}}
   static _bindHelper(...pairs) {
-    // Keywords argument
-    let kwargs = pairs.pop();
+    let kwargs = pairs.pop(),  // Keywords argument
+        spread = [];
+
+    // Use hash of Spacebars keywords arguments object if it has any properties
+    if (kwargs instanceof Spacebars.kw && _.keys(kwargs.hash).length)
+      spread.push(kwargs.hash);
+
 
     // Unique id for current element
     let bind_id = ViewModel._uniqueId();
@@ -415,23 +466,41 @@ ViewModel = class ViewModel {
     _.each(pairs, pair => {
       pair = pair.trim().split(/\s*:\s*/);
 
-      let type = pair[0],
+      let binding = ViewModel._bindings()[pair[0]],
           args = pair[1].split(/\s+/g),
           key = args.shift(),
-          vm = Template.instance().viewmodel;
+          template_instance = Template.instance(),
+          view = template_instance.view;
 
+      // Add arguments
+      spread.unshift(key, args);
 
-      // Possibly create new viewmodel instance on view
-      if (!vm)
-        vm = new ViewModel(Blaze.getView());
+      // Binding may be a factory
+      if (_.isFunction(binding))
+        binding = binding.call(view, this, ...spread);
 
-      // Create properties on viewmodel if needed (initialized as undefined)
-      if (!vm[key])
-        vm.addProps(_.zipObject([key]));
+      // Add more arguments
+      spread.unshift(bind_id, binding);
 
+      // Some bindings may not use a viewmodel at all
+      if (binding.free) {
+        // Use view as the context for the bind method
+        Tracker.afterFlush(() => ViewModel.prototype.bind.call(view, ...spread));
+      }
+      else {
+        let vm = template_instance.viewmodel;
 
-      // Bind elements after they have been added to the view
-      Tracker.afterFlush(() => vm.bind(bind_id, type, key, args, kwargs));
+        // Possibly create new viewmodel instance on view
+        if (!vm)
+          vm = new ViewModel(Blaze.getView());
+
+        // Create properties on viewmodel if needed (initialized as undefined)
+        if (!vm[key])
+          vm.addProps(_.zipObject([key]));
+
+        // Bind elements after they have been properly added to the view
+        Tracker.afterFlush(() => vm.bind(...spread));
+      }
     });
 
     return {
