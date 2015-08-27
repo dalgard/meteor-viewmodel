@@ -321,7 +321,7 @@ An initial value can be set in the viewmodel. The throttle argument is a number 
 
 #### Checked
 
-The `checked` property reflects the checked state of the checkbox. The inital state of the checkbox can be set in the viewmodel.
+The `checked` property reflects the state of the checkbox. The inital state of the checkbox can be set in the viewmodel.
 
 ```html
 <input type="checkbox" {{bind 'checked: checked'}}>
@@ -340,7 +340,7 @@ A function on the viewmodel is run when the element is clicked.
 ```
 
 ```javascript
-{ click: function (event, elem, args, kwargs) {} }
+{ click: function (event, $elem, args, kwargs) {} }
 ```
 
 #### Toggle
@@ -364,7 +364,7 @@ A function on the viewmodel is run when the form is submitted. If `true` is pass
 ```
 
 ```javascript
-{ submit: function (event, elem, args, kwargs) {} }
+{ submit: function (event, $elem, args, kwargs) {} }
 ```
 
 #### Disabled
@@ -412,7 +412,7 @@ A function on the viewmodel is run when the enter key is pressed on the element.
 ```
 
 ```javascript
-{ pressed: function (event, elem, args, kwargs) {} }
+{ pressed: function (event, $elem, args, kwargs) {} }
 ```
 
 #### Key (keyCode)
@@ -424,7 +424,7 @@ A function on the viewmodel is run when the specific key, passed as an argument,
 ```
 
 ```javascript
-{ pressed: function (event, elem, args, kwargs) {} }
+{ pressed: function (event, $elem, args, kwargs) {} }
 ```
 
 #### Files
@@ -486,14 +486,14 @@ ViewModel.addBinding("enterKey", {
   on: "keyup",
 
   // This function doesn't return anything but calls the property explicitly instead
-  get: function (event, elem, prop, args, kwargs) {
+  get: function (event, $elem, prop, args, kwargs) {
     if (event.which === 13)
-      prop(event, elem, args, kwargs);
+      prop(event, $elem, args, kwargs);
   }
 });
 ```
 
-In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding. The bound property will then be called with the arguments `event`, `elem`, `args`, and `kwargs`.
+In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding. The bound property will then be called with the arguments `event`, `$elem`, `args`, and `kwargs`.
 
 A definition object may also be returned from a factory function, which is called with some useful arguments:
 
