@@ -16,9 +16,9 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 *Atmosphere coming soon.*
 
-Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add it with `meteor install dalgard:viewmodel`.
+Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add the package with `meteor install dalgard:viewmodel`.
 
-Browser support is IE9+ because of `Object.defineProperties`. I'll change it when someone complains...
+Browser support is IE9+ because of `Object.defineProperties`. I'll change it if someone complains...
 
 
 ### Contents
@@ -473,7 +473,7 @@ ViewModel.addBinding(name, {
 ```
 
 - `$elem` is the element where the `{{bind}}` helper was called, wrapped in jQuery.
-- `prop` is the getter-setter of the viewmodel property, which sometimes will simply be a method with side effects on the viewmodel.
+- `prop` is the getter-setter of the viewmodel property, or sometimes a simple function with side effects on the viewmodel.
 - `args` is a, possibly empty, array containing any space separated values that came after the key in the bind expression.
 - `kwargs` contains the keyword arguments that the `{{bind}}` helper was called with.
 
@@ -486,14 +486,14 @@ ViewModel.addBinding("enterKey", {
   on: "keyup",
 
   // This function doesn't return anything but calls the property explicitly instead
-  get: function (event, elem, prop) {
+  get: function (event, elem, prop, args, kwargs) {
     if (event.which === 13)
-      prop();
+      prop(event, elem, args, kwargs);
   }
 });
 ```
 
-In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding. The bound property will then be called with the arguments `event, elem, args, kwargs`.
+In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding. The bound property will then be called with the arguments `event`, `elem`, `args`, and `kwargs`, like the example does.
 
 A definition object may also be returned from a factory function, which is called with some useful arguments:
 
