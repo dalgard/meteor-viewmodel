@@ -23,7 +23,7 @@ At this moment, browser support is IE9+, because I was tempted to use `Object.de
 
 ### Contents
 
-*Generated with [DocToc](https://github.com/thlorenz/doctoc)*
+*Generated with [DocToc](https://github.com/thlorenz/doctoc).*
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
