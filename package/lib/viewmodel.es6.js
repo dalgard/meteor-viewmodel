@@ -16,17 +16,20 @@ let persist = new ReactiveDict("dalgard:viewmodel");
 
 // Exported class
 ViewModel = class ViewModel {
-  constructor(view, name, props) {
+  constructor(view, name, props, persisted) {
     // Non-enumerable private properties (ES5)
     Object.defineProperties(this, {
       // Save name on viewmodel instance
       _name: { value: name || null },
 
-      // List of child viewmodels
+      // Create list of child viewmodels
       _children: { value: new ReactiveVar([]) },
 
       // Save view on viewmodel instance
-      _view: { value: view }
+      _view: { value: view },
+
+      // Save whether the viewmodel state should be persisted across renderings
+      _persisted: { value: persisted || false }
     });
 
     // Attach to template instance
@@ -36,17 +39,19 @@ ViewModel = class ViewModel {
     let parent = this.parent();
 
     // Register with parent
-    if (parent) {
-      parent._children.curValue.push(this);
-      parent._children.dep.changed();
-    }
-
+    if (parent)
+      parent._addChild(this);
 
     // Add to global list
     ViewModel._add(this);
 
-    // Remove from global list onDestroyed
-    view.onViewDestroyed(() => ViewModel._remove(this));
+    // Remove from parent and global list onDestroyed
+    view.onViewDestroyed(() => {
+      if (parent)
+        parent._removeChild(this);
+
+      ViewModel._remove(this)
+    });
 
 
     // Definition may be a factory
@@ -57,9 +62,14 @@ ViewModel = class ViewModel {
     this.addProps(props);
 
 
+    // Restore viewmodel instance from last time the template was rendered
+    if (persisted === true)
+      this._restore();
+
+
     let hash_id = this._hashId();
 
-    // Always save viewmodel state so it can be restored after hot code push
+    // Always save viewmodel state so it can be restored after a hot code push
     this.autorun(comp => {
       let map = this.serialize();
 
@@ -111,6 +121,14 @@ ViewModel = class ViewModel {
     });
   }
 
+  // Restore persisted viewmodel values to instance
+  _restore() {
+    let hash_id = this._hashId(),
+        map = persist.get(hash_id);
+
+    this.deserialize(map);
+  }
+
 
   // Bind an element
   bind(elem_or_id, type, key, args, kwargs) {
@@ -148,7 +166,9 @@ ViewModel = class ViewModel {
 
           // Only call property if there's no get function or if it returned a value
           // other than undefined
-          if (!binding.get || !_.isUndefined(result))
+          if (!binding.get)
+            prop(event, elem, args, kwargs);
+          else if (!_.isUndefined(result))
             prop(result);
         });
       });
@@ -189,6 +209,21 @@ ViewModel = class ViewModel {
     return this.templateInstance().data;
   }
 
+
+  // Reactively add a child viewmodel to the _children list
+  _addChild(vm) {
+    this._children.curValue.push(vm);
+    this._children.dep.changed();
+  }
+
+  // Reactively remove a child viewmodel from the _children list
+  _removeChild(vm) {
+    let index = this._children.curValue.indexOf(vm);
+
+    // Remove from array
+    this._children.curValue.splice(index, 1);
+    this._children.dep.changed();
+  }
 
   // Reactively get an array of ancestor viewmodels or the first at index (within a depth
   // of levels), optionally filtered by name (string or regex)
@@ -376,11 +411,7 @@ ViewModel = class ViewModel {
 
   // Restore persisted viewmodel values to all current instances
   static _restoreAll() {
-    _.each(all.curValue, vm => {
-      let map = persist.get(vm._hashId());
-
-      vm.deserialize(map);
-    });
+    _.each(all.curValue, vm => vm._restore());
   }
 
 

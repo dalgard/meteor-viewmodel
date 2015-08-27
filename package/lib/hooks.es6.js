@@ -5,9 +5,10 @@ Meteor.startup(() => {
 
 
 // Declare a viewmodel on a template
-Blaze.Template.prototype.viewmodel = function (name, definition) {
+Blaze.Template.prototype.viewmodel = function (name, definition, persisted) {
   // Name argument may be omitted
   if (_.isObject(name)) {
+    persisted = definition;
     definition = name;
     name = null;
   }
@@ -19,12 +20,11 @@ Blaze.Template.prototype.viewmodel = function (name, definition) {
   this.onCreated(function () {
     let vm = this.viewmodel;
 
-    // Create new viewmodel instance on view
+    // Create new viewmodel instance on view or add properties to existing viewmodel
     if (!vm)
-      vm = new ViewModel(this.view, name);
-
-    // Add properties to existing viewmodel
-    vm.addProps(definition);
+      vm = new ViewModel(this.view, name, definition, persisted);
+    else
+      vm.addProps(definition);
 
     // Add autoruns
     if (definition.autorun)
@@ -36,6 +36,7 @@ Blaze.Template.prototype.viewmodel = function (name, definition) {
   // viewmodel definition object (created, rendered, destroyed) are registered
   // on the template and gets called with the current viewmodel instance as context
   _.each(ViewModel._reservedProps.hooks, (blaze_hook, name) => {
+    console.log(definition);
     let callbacks = definition[name];
 
     if (definition[name]) {
@@ -45,7 +46,12 @@ Blaze.Template.prototype.viewmodel = function (name, definition) {
           callbacks = [callbacks];
 
         // Run callbacks with viewmodel as context
-        _.each(callbacks, callback => callback.call(this.viewmodel));
+        _.each(callbacks, callback => {
+          if (!_.isFunction)
+            throw new TypeError("The " + name + " hook must be a function or an array of functions");
+
+          callback.call(this.viewmodel)
+        });
       });
     }
   });
