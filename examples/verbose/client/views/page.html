@@ -6,7 +6,6 @@
   <button {{bind 'toggle: destroy'}}>destroy</button> {{destroy}}
 
   {{#unless destroy}}
-    <p>{{> persisted}}</p>
     <p>{{> value}}</p>
     <p>{{> throttled}}</p>
     <p>{{> startValue startValue='yo'}}</p>
