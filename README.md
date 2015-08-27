@@ -21,11 +21,9 @@ Copy the `package` folder (can be renamed) from this repo into your project's `/
 At this moment, browser support is IE9+, because I was tempted to use `Object.defineProperties`, because it made things easier. Do complain...
 
 
----
-
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
+### Contents
 
 - [Quickstart](#quickstart)
 - [Usage](#usage)
