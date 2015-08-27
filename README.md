@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.1.2
+dalgard:viewmodel 0.2.0
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -9,7 +9,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - Easily extensible
 - Non-intrusive
 
-(2.44 kB minified and gzipped)
+(2.68 kB minified and gzipped)
 
 
 #### Install
@@ -208,7 +208,6 @@ this.descendant([name][, index=0]);
 this.descendants([name][, index][, levels]);
 ```
 
-
 ### Static methods
 
 These methods are mainly for inspection while developing, but may also be used as a means of retrieving a component somewhere in a complex layout.
@@ -225,6 +224,10 @@ ViewModel.find([name][, index]);
 // (string or regex)
 ViewModel.findOne([name][, index]);
 ```
+
+### Persistence
+
+Values in viewmodel instances are automatically persisted across hot code pushes.
 
 ### addBinding
 
@@ -293,6 +296,5 @@ ViewModel.addBinding(name, function (template_data, key, args, kwargs) {
 
 ## Todo
 
-- Persist viewmodels on hot code pushes
 - Optionally persist viewmodel across routes
 - Optionally register bindings as individual helpers (?)
