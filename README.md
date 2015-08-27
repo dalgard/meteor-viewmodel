@@ -248,7 +248,7 @@ this.child([name][, index]);
 ```
 
 ```javascript
-// Reactively get an array of descendant viewmodels or the first at index (within
+// Reactively get an array of child viewmodels or the first at index (within
 // a depth of levels), optionally filtered by name (string or regex)
 this.children([name][, index]);
 ```
@@ -302,6 +302,8 @@ Template.example.viewmodel({
 In order to determine whether an instance is the same as previous, ViewModel looks at 1) the position of the viewmodel in the view hierarchy, 2) the index of the viewmodel in relation to other current viewmodels, and 3) the browser location.
 
 If all these things match, the state of the viewmodel instance will be restored.
+
+**Important:** Any viewmodel that is a direct child or descendant of a viewmodel that is persited across re-rendering is persisted in the same way.
 
 
 ## Bindings
