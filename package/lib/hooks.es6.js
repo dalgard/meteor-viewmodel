@@ -36,10 +36,9 @@ Blaze.Template.prototype.viewmodel = function (name, definition, persisted) {
   // viewmodel definition object (created, rendered, destroyed) are registered
   // on the template and gets called with the current viewmodel instance as context
   _.each(ViewModel._reservedProps.hooks, (blaze_hook, name) => {
-    debugger;
     let callbacks = definition[name];
 
-    if (definition[name]) {
+    if (callbacks) {
       this[blaze_hook](function () {
         // Array or single
         if (!_.isArray(callbacks))
