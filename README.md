@@ -305,7 +305,7 @@ Several standard bindings are included with the package.
 
 Viewmodel declarations and template names are omitted below in order to make the examples easier to read. Arguments are shown in parentheses.
 
-### Value ([throttle])
+#### Value ([throttle])
 
 The `text` property reflects the value of a text input, textarea, or select.
 
@@ -319,7 +319,7 @@ An initial value can be set in the viewmodel. The throttle argument is a number 
 <input type="text" {{bind 'value: text 100'}}>
 ```
 
-### Checked
+#### Checked
 
 The `checked` property reflects the checked state of the checkbox. The inital state of the checkbox can be set in the viewmodel.
 
@@ -331,7 +331,7 @@ The `checked` property reflects the checked state of the checkbox. The inital st
 <input type="checkbox" {{bind 'checked: checked'}}>
 ```
 
-### Click
+#### Click
 
 A function on the viewmodel is run when the element is clicked.
 
@@ -343,7 +343,7 @@ A function on the viewmodel is run when the element is clicked.
 <button {{bind 'click: click'}}></button>
 ```
 
-### Toggle
+#### Toggle
 
 The `toggled` property is negated on each `click` of the button.
 
@@ -355,7 +355,7 @@ The `toggled` property is negated on each `click` of the button.
 <button {{bind 'toggle: toggled'}}></button>
 ```
 
-### Submit ([boolean])
+#### Submit ([boolean])
 
 A function on the viewmodel is run when the form is submitted. If `true` is passed as an argument in the binding, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
 
@@ -367,7 +367,7 @@ A function on the viewmodel is run when the form is submitted. If `true` is pass
 <form {{bind 'submit: submit true'}}></form>
 ```
 
-### Disabled
+#### Disabled
 
 The disabled state of the element reflects a boolean property on the viewmodel. The inital state can be set in the viewmodel.
 
@@ -379,7 +379,7 @@ The disabled state of the element reflects a boolean property on the viewmodel. 
 <input type="text" {{bind 'disabled: disabled'}}>
 ```
 
-### Focused
+#### Focused
 
 The `focused` property reflects whether the element is in focus. An element can be given focus by setting the initial state to `true`.
 
@@ -391,7 +391,7 @@ The `focused` property reflects whether the element is in focus. An element can 
 <input type="text" {{bind 'focused: focused'}}>
 ```
 
-### Hovered
+#### Hovered
 
 The `hovered` property reflects whether the mouse hovers over the element.
 
@@ -403,7 +403,7 @@ The `hovered` property reflects whether the mouse hovers over the element.
 <button {{bind 'hovered: hovered'}}></button>
 ```
 
-### Enter key
+#### Enter key
 
 A function on the viewmodel is run when the enter key is pressed on the element.
 
@@ -415,7 +415,7 @@ A function on the viewmodel is run when the enter key is pressed on the element.
 <input type="text" {{bind 'enterKey: pressed'}}>
 ```
 
-### Key (keyCode)
+#### Key (keyCode)
 
 A function on the viewmodel is run when the specific key, passed as an argument, is pressed on the element. In the example, it's the shift key.
 
@@ -427,7 +427,7 @@ A function on the viewmodel is run when the specific key, passed as an argument,
 <input type="text" {{bind 'key: pressed 16'}}>
 ```
 
-### Files
+#### Files
 
 The `files` property is an array of the currently selected file object(s) from the file picker. The boolean attribute `multiple` is optional on the input element.
 
