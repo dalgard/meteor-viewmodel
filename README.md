@@ -493,7 +493,7 @@ ViewModel.addBinding("enterKey", {
 });
 ```
 
-In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding. The bound property will then be called with the arguments `event`, `elem`, `args`, and `kwargs`, like the example does.
+In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding. The bound property will then be called with the arguments `event`, `elem`, `args`, and `kwargs`.
 
 A definition object may also be returned from a factory function, which is called with some useful arguments:
 
