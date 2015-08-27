@@ -35,7 +35,7 @@ Blaze.Template.prototype.viewmodel = function (name, definition, persisted) {
   // Register lifetime hooks with viewmodel as context – the hooks on the
   // viewmodel definition object (created, rendered, destroyed) are registered
   // on the template and gets called with the current viewmodel instance as context
-  _.each(ViewModel._reservedProps.hooks, (blaze_hook, name) => {
+  _.each(ViewModel._reservedProps.hooks, (name, blaze_hook) => {
     let callbacks = definition[name];
 
     if (callbacks) {
