@@ -311,132 +311,132 @@ The `text` property reflects the value of a text input, textarea, or select.
 
 An initial value can be set in the viewmodel. The throttle argument is a number (in ms) by which the update is [delayed](https://lodash.com/docs#throttle) as long as the user is typing.
 
-```javascript
-{ text: "" }
-```
-
 ```html
 <input type="text" {{bind 'value: text 100'}}>
+```
+
+```javascript
+{ text: "" }
 ```
 
 #### Checked
 
 The `checked` property reflects the checked state of the checkbox. The inital state of the checkbox can be set in the viewmodel.
 
-```javascript
-{ checked: false }
-```
-
 ```html
 <input type="checkbox" {{bind 'checked: checked'}}>
+```
+
+```javascript
+{ checked: false }
 ```
 
 #### Click
 
 A function on the viewmodel is run when the element is clicked.
 
-```javascript
-{ click: function (event, elem, args, kwargs) {} }
-```
-
 ```html
 <button {{bind 'click: click'}}></button>
+```
+
+```javascript
+{ click: function (event, elem, args, kwargs) {} }
 ```
 
 #### Toggle
 
 The `toggled` property is negated on each `click` of the button.
 
-```javascript
-{ toggled: false }
-```
-
 ```html
 <button {{bind 'toggle: toggled'}}></button>
+```
+
+```javascript
+{ toggled: false }
 ```
 
 #### Submit ([boolean])
 
 A function on the viewmodel is run when the form is submitted. If `true` is passed as an argument in the binding, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
 
-```javascript
-{ submit: function (event, elem, args, kwargs) {} }
-```
-
 ```html
 <form {{bind 'submit: submit true'}}></form>
+```
+
+```javascript
+{ submit: function (event, elem, args, kwargs) {} }
 ```
 
 #### Disabled
 
 The disabled state of the element reflects a boolean property on the viewmodel. The inital state can be set in the viewmodel.
 
-```javascript
-{ disabled: false }
-```
-
 ```html
 <input type="text" {{bind 'disabled: disabled'}}>
+```
+
+```javascript
+{ disabled: false }
 ```
 
 #### Focused
 
 The `focused` property reflects whether the element is in focus. An element can be given focus by setting the initial state to `true`.
 
-```javascript
-{ focused: true }
-```
-
 ```html
 <input type="text" {{bind 'focused: focused'}}>
+```
+
+```javascript
+{ focused: true }
 ```
 
 #### Hovered
 
 The `hovered` property reflects whether the mouse hovers over the element.
 
-```javascript
-{ hovered: false }
-```
-
 ```html
 <button {{bind 'hovered: hovered'}}></button>
+```
+
+```javascript
+{ hovered: false }
 ```
 
 #### Enter key
 
 A function on the viewmodel is run when the enter key is pressed on the element.
 
-```javascript
-{ pressed: function (event, elem, args, kwargs) {} }
-```
-
 ```html
 <input type="text" {{bind 'enterKey: pressed'}}>
+```
+
+```javascript
+{ pressed: function (event, elem, args, kwargs) {} }
 ```
 
 #### Key (keyCode)
 
 A function on the viewmodel is run when the specific key, passed as an argument, is pressed on the element. In the example, it's the shift key.
 
-```javascript
-{ pressed: function (event, elem, args, kwargs) {} }
-```
-
 ```html
 <input type="text" {{bind 'key: pressed 16'}}>
+```
+
+```javascript
+{ pressed: function (event, elem, args, kwargs) {} }
 ```
 
 #### Files
 
 The `files` property is an array of the currently selected file object(s) from the file picker. The boolean attribute `multiple` is optional on the input element.
 
-```javascript
-{ files: [] }
-```
-
 ```html
 <input type="file" multiple {{bind 'files: files'}}>
+```
+
+```javascript
+{ files: [] }
 ```
 
 
