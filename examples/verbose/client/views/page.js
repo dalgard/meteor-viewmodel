@@ -1,15 +1,19 @@
 Template.page.viewmodel({
+  destroy: false,
+
   childValue: function () {
     // Get child viewmodel reactively
-    var child = this.child();
+    var child = this.child("value");
 
     // Child may not be ready when this value is used
-    return child && child.value();
+    if (child)
+      return child.value();
   },
 
-  // Runs onRendered
   autorun: function () {
-    // All child viewmodels will be ready
-    console.log("page autorun", this.child().value());
+    var child = this.child("value");
+
+    if (child)
+      console.log("page autorun", child.value());
   }
 });

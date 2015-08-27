@@ -1,0 +1,3 @@
+Template.textarea.viewmodel({
+  value: ""
+});

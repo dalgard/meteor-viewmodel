@@ -1,3 +1,3 @@
-Template.value.viewmodel({
+Template.value.viewmodel("value", {
   value: ""
 });
