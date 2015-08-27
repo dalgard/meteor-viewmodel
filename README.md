@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.3.0
+dalgard:viewmodel 0.3.1
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -360,9 +360,9 @@ The `toggled` property is negated on each `click` of the button.
 { toggled: false }
 ```
 
-#### Submit ([boolean])
+#### Submit ([send])
 
-A function on the viewmodel is run when the form is submitted. If `true` is passed as an argument in the binding, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
+A function on the viewmodel is run when the form is submitted. If `true` is passed as the send argument in the binding, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
 
 ```html
 <form {{bind 'submit: submit true'}}></form>
