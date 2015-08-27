@@ -31,6 +31,7 @@ Package.onUse(function (api) {
     "bindings/hovered.js",
     "bindings/key.js",
     "bindings/enter-key.js",
+    "bindings/submit.js",
     "bindings/toggle.js",
     "bindings/value.js"
   ], "client");
