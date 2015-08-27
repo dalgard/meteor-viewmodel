@@ -92,7 +92,7 @@ ViewModel = class ViewModel {
         let value = new ReactiveVar(prop);
 
         // Each property is a reactive getter-setter
-        prop = function (new_value) {
+        prop = new_value => {
           if (!_.isUndefined(new_value))
             value.set(new_value);
           else
@@ -156,20 +156,21 @@ ViewModel = class ViewModel {
     // current property value and event object as arguments)
     if (binding.on) {
       this.register(function () {
-        let elem = template_instance.$(selector),
-            prop = this[key]
-            vm = this;
+        let elem = template_instance.$(selector);
 
         // Register event
-        elem.on(binding.on, function (event) {
-          let result = binding.get && binding.get.call(vm, event, elem, prop, args, kwargs);
+        elem.on(binding.on, event => {
+          // Call property if there's no get function
+          if (!binding.get) {
+            this[key](event, elem, key, args, kwargs);
+          }
+          else {
+            let result = binding.get.call(this, event, elem, key, args, kwargs);
 
-          // Only call property if there's no get function or if it returned a value
-          // other than undefined
-          if (!binding.get)
-            prop(event, elem, args, kwargs);
-          else if (!_.isUndefined(result))
-            prop(result);
+            // Call property if get returned a value other than undefined
+            if (!_.isUndefined(result))
+              this[key](result);
+          }
         });
       });
     }

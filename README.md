@@ -136,7 +136,8 @@ Template.field.viewmodel("field", function (template_data) {
       console.log("new value of regex", this.regex());
     },
 
-    // Blaze events
+    // Blaze events (if you use this, chances are you are not using ViewModel
+    // in an optimal way – use bindings instead)
     events: {
       "click input": function (event, template_instance) {
         console.log(this instanceof ViewModel);  // true
@@ -290,7 +291,7 @@ To persist the state of a viewmodel across re-renderings, including changing to 
 ```javascript
 Template.example.viewmodel({
   // This property will be restored on re-render
-  value: ""
+  prop: ""
 }, true);
 ```
 
@@ -455,27 +456,31 @@ The job of a binding is to synchronize data between the DOM and the viewmodel. B
 ```javascript
 // All three properties on the definition object are optional
 ViewModel.addBinding(name, {
-  // Apply updated value to the DOM
-  set: function ($elem, new_value, args, kwargs) {
-    // For example
-    $elem.val(new_value);
-  };
-
   // Space separated list of events
   on: "keyup input change",
 
   // Possibly return a value retrieved from the DOM
-  get: function (event, $elem, prop, args, kwargs) {
+  get: function (event, $elem, key, args, kwargs) {
     // For example
     return $elem.val();
+  },
+
+  // Apply updated value to the DOM
+  set: function ($elem, new_value, args, kwargs) {
+    // For example
+    $elem.val(new_value);
   }
 });
 ```
 
-- `$elem` is the element where the `{{bind}}` helper was called, wrapped in jQuery.
-- `prop` is the getter-setter of the viewmodel property, or sometimes a simple function with side effects on the viewmodel.
+Here are the parameters that `get` and `set` receive:
+
+- `event` is the original (jQuery) event object.
+- `$elem` is the element that the `{{bind}}` helper was called on, wrapped in jQuery.
+- `new_value` is the new value that was given to the property.
+- `key` is the name of the property.
 - `args` is a, possibly empty, array containing any space separated values that came after the key in the bind expression.
-- `kwargs` contains the keyword arguments that the `{{bind}}` helper was called with.
+- `kwargs` is an object with the keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
 
@@ -486,14 +491,14 @@ ViewModel.addBinding("enterKey", {
   on: "keyup",
 
   // This function doesn't return anything but calls the property explicitly instead
-  get: function (event, $elem, prop, args, kwargs) {
+  get: function (event, $elem, key, args, kwargs) {
     if (event.which === 13)
-      prop(event, $elem, args, kwargs);
+      this[key](event, $elem, args, kwargs);
   }
 });
 ```
 
-In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding. The bound property will then be called with the arguments `event`, `$elem`, `args`, and `kwargs`.
+In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding. The bound property will then be called with the same arguments as the `get` function.
 
 A definition object may also be returned from a factory function, which is called with some useful arguments:
 
