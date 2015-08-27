@@ -345,7 +345,7 @@ A function on the viewmodel is run when the element is clicked.
 ```
 
 ```javascript
-{ click: function (event, $elem, args, kwargs) {} }
+{ click: function (event, $elem, args, kwhash) {} }
 ```
 
 #### Toggle
@@ -369,7 +369,7 @@ A function on the viewmodel is run when the form is submitted. If `true` is pass
 ```
 
 ```javascript
-{ submit: function (event, $elem, args, kwargs) {} }
+{ submit: function (event, $elem, args, kwhash) {} }
 ```
 
 #### Disabled
@@ -417,7 +417,7 @@ A function on the viewmodel is run when the enter key is pressed on the element.
 ```
 
 ```javascript
-{ pressed: function (event, $elem, args, kwargs) {} }
+{ pressed: function (event, $elem, args, kwhash) {} }
 ```
 
 #### Key (keyCode)
@@ -429,7 +429,7 @@ A function on the viewmodel is run when the specific key, passed as an argument,
 ```
 
 ```javascript
-{ pressed: function (event, $elem, args, kwargs) {} }
+{ pressed: function (event, $elem, args, kwhash) {} }
 ```
 
 #### Files
@@ -470,13 +470,13 @@ ViewModel.addBinding(name, {
   on: "keyup input change",
 
   // Possibly return a value retrieved from the DOM
-  get: function (event, $elem, key, args, kwargs) {
+  get: function (event, $elem, key, args, kwhash) {
     // For example
     return $elem.val();
   },
 
   // Apply updated value to the DOM
-  set: function ($elem, new_value, args, kwargs) {
+  set: function ($elem, new_value, args, kwhash) {
     // For example
     $elem.val(new_value);
   }
@@ -490,7 +490,7 @@ Here are the parameters that `get` and `set` receive:
 - `new_value` is the new value that was given to the property.
 - `key` is the name of the property.
 - `args` is a, possibly empty, array containing any space separated values that came after the key in the bind expression.
-- `kwargs` is an object with the keyword arguments that the `{{bind}}` helper was called with.
+- `kwhash` is the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
 
@@ -501,9 +501,9 @@ ViewModel.addBinding("enterKey", {
   on: "keyup",
 
   // This function doesn't return anything but calls the property explicitly instead
-  get: function (event, $elem, key, args, kwargs) {
+  get: function (event, $elem, key, args, kwhash) {
     if (event.which === 13)
-      this[key](event, $elem, args, kwargs);
+      this[key](event, $elem, args, kwhash);
   }
 });
 ```
@@ -513,7 +513,7 @@ In the case where you want to call the bound property, but not do so with a new 
 A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
 
 ```javascript
-ViewModel.addBinding(name, function (template_data, key, args, kwargs) {
+ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
   // Return definition object
   return {};
 });

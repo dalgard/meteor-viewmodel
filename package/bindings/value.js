@@ -1,5 +1,5 @@
-ViewModel.addBinding("value", function (data, key, args, kwargs) {
-  var throttle = args[0] || kwargs.hash.throttle,
+ViewModel.addBinding("value", function (data, key, args, kwhash) {
+  var throttle = args[0] || kwhash && kwhash.throttle,
       get = function (event, elem, key) {
         this[key](elem.val());
       };

@@ -110,10 +110,19 @@ ViewModel = class ViewModel {
       let helper = {};
 
       // Create a Blaze helper for the property
-      helper[key] = function () {
-        let vm = Template.instance().viewmodel;
+      helper[key] = function (...args) {
+        let vm = Template.instance().viewmodel,
+            kwargs = args.pop(),  // Keywords argument
+            spread = [];
 
-        return vm[key]();
+        // Use hash of Spacebars keywords arguments object if it has any properties
+        if (kwargs instanceof Spacebars.kw && _.keys(kwargs.hash).length)
+          spread.push(kwargs.hash);
+
+        // Add arguments
+        spread.unshift(...args);
+
+        return vm[key](...spread);
       };
 
       // Register helper
@@ -131,7 +140,7 @@ ViewModel = class ViewModel {
 
 
   // Bind an element
-  bind(elem_or_id, binding, key, args, kwargs) {
+  bind(elem_or_id, binding, key, args, kwhash) {
     let template_instance = this.templateInstance(),
         selector = _.isElement(elem_or_id) ? elem_or_id : "[vm-bind-id=" + elem_or_id + "]";
 
@@ -140,7 +149,7 @@ ViewModel = class ViewModel {
 
     // Binding may be a factory
     if (_.isFunction(binding))
-      binding = binding.call(template_instance.view, template_instance.data, key, args, kwargs);
+      binding = binding.call(template_instance.view, template_instance.data, key, args, kwhash);
 
     // Wrap set function and add it to list of autoruns (gets called with viewmodel
     // as context and jQuery element and new property value as arguments)
@@ -149,7 +158,7 @@ ViewModel = class ViewModel {
         let elem = template_instance.$(selector),
             new_value = binding.free ? null : key && this[key]();
 
-        binding.set.call(this, elem, new_value, args, kwargs);
+        binding.set.call(this, elem, new_value, args, kwhash);
       });
     }
 
@@ -165,10 +174,10 @@ ViewModel = class ViewModel {
         elem.on(binding.on, event => {
           // Call property if there's no get function
           if (!binding.free && !binding.get) {
-            this[key](event, elem, key, args, kwargs);
+            this[key](event, elem, key, args, kwhash);
           }
           else {
-            let result = binding.get.call(this, event, elem, key, args, kwargs);
+            let result = binding.get.call(this, event, elem, key, args, kwhash);
 
             // Call property if get returned a value other than undefined
             if (!binding.free && !_.isUndefined(result))
@@ -443,8 +452,13 @@ ViewModel = class ViewModel {
 
   // The Blaze helper that is bound to templates with a viewmodel {{bind 'binding: key'}}
   static _bindHelper(...pairs) {
-    // Keywords argument
-    let kwargs = pairs.pop();
+    let kwargs = pairs.pop(),  // Keywords argument
+        spread = [];
+
+    // Use hash of Spacebars keywords arguments object if it has any properties
+    if (kwargs instanceof Spacebars.kw && _.keys(kwargs.hash).length)
+      spread.push(kwargs.hash);
+
 
     // Unique id for current element
     let bind_id = ViewModel._uniqueId();
@@ -456,12 +470,17 @@ ViewModel = class ViewModel {
           args = pair[1].split(/\s+/g),
           key = args.shift(),
           template_instance = Template.instance(),
-          view = template_instance.view,
-          spread = [bind_id, binding, key, args, kwargs];
+          view = template_instance.view;
+
+      // Add arguments
+      spread.unshift(key, args);
 
       // Binding may be a factory
       if (_.isFunction(binding))
-        binding = binding.call(view, this, key, args, kwargs);
+        binding = binding.call(view, this, ...spread);
+
+      // Add more arguments
+      spread.unshift(bind_id, binding);
 
       // Some bindings may not use a viewmodel at all
       if (binding.free) {
