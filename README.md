@@ -507,5 +507,6 @@ ViewModel.addBinding(name, function (template_data, key, args, kwargs) {
 
 ## Todo
 
-- Optionally persist viewmodel across routes
+~~- Persist viewmodels on hot code pushes~~
+~~- Optionally persist viewmodel across routes~~
 - Optionally register bindings as individual helpers (?)
