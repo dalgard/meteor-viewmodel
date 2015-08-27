@@ -14,7 +14,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 ### Install
 
-*(Atmosphere coming soon)*
+*Atmosphere coming soon.*
 
 Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add it with `meteor install dalgard:viewmodel`.
 
