@@ -63,11 +63,9 @@ ViewModel = class ViewModel {
 
 
     // Restore viewmodel instance from last time the template was rendered
-    if (persisted === true)
+    if (this._isPersisted())
       this._restore();
 
-
-    let hash_id = this._hashId();
 
     // Always save viewmodel state so it can be restored after a hot code push
     this.autorun(comp => {
@@ -75,7 +73,7 @@ ViewModel = class ViewModel {
 
       // Wait for actual changes to arrive
       if (!comp.firstRun)
-        persist.set(hash_id, map);
+        persist.set(this._hashId(), map);
     });
   }
 
@@ -128,6 +126,13 @@ ViewModel = class ViewModel {
       // Register helper
       this._view.template.helpers(helper);
     });
+  }
+
+  // Check whether this viewmodel or any ancestor is persisted across re-rendering
+  _isPersisted() {
+    let parent = this.parent();
+
+    return this._persisted || parent && parent._isPersisted();
   }
 
   // Restore persisted viewmodel values to instance
@@ -369,12 +374,13 @@ ViewModel = class ViewModel {
   _hashId() {
     let view = this._view,
         index = _.indexOf(ViewModel.all(), this),
-        view_names = [];
+        view_names = [],
+        href = location.href;
 
     do view_names.push(view.name);
     while (view = view.parentView);
 
-    return SHA256(index + view_names.join("/") + location.href);
+    return SHA256(index + view_names.join("/") + href);
   }
 
 
