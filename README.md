@@ -34,9 +34,24 @@ At this moment, browser support is IE9+, because I was tempted to use `Object.de
 - [API](#api)
   - [{{bind}}](#bind)
   - [Viewmodel instances](#viewmodel-instances)
+    - [Templates](#templates)
+    - [Serialization](#serialization)
+    - [Traversal](#traversal)
   - [Static methods](#static-methods)
   - [Persistence](#persistence)
-  - [addBinding](#addbinding)
+- [Bindings](#bindings)
+  - [Value ([throttle])](#value-throttle)
+  - [Checked](#checked)
+  - [Click](#click)
+  - [Toggle](#toggle)
+  - [Submit ([boolean])](#submit-boolean)
+  - [Disabled](#disabled)
+  - [Focused](#focused)
+  - [Hovered](#hovered)
+  - [Enter key](#enter-key)
+  - [Key (keyCode)](#key-keycode)
+  - [Files](#files)
+- [addBinding](#addbinding)
 - [Todo](#todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -178,52 +193,68 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a declarative approach.
 
-*Templates*
+#### Templates
 
 ```javascript
 // Get the current template instance
 this.templateInstance();
+```
 
+```javascript
 // Reactively get the data context of the current template instance
 this.getData();
 ```
 
-*Serialization*
+#### Serialization
 
 ```javascript
 // Get a snapshot of the viewmodel, ready for serialization
 this.serialize();
+```
 
+```javascript
 // Apply a snapshot to the viewmodel
 this.deserialize(object);
 ```
 
-*Traversal*
+#### Traversal
 
 ```javascript
 // Reactively get the parent viewmodel, optionally filtered by name (string or regex)
 this.parent([name]);
+```
 
+```javascript
 // Reactively get the first ancestor viewmodel at index, optionally filtered
 // by name (string or regex)
 this.ancestor([name][, index=0]);
+```
 
+```javascript
 // Reactively get an array of ancestor viewmodels or the first at index (within
 // a depth of levels), optionally filtered by name (string or regex)
 this.ancestors([name][, index][, levels]);
+```
 
+```javascript
 // Reactively get the first child viewmodel at index, optionally filtered
 // by name (string or regex)
 this.child([name][, index]);
+```
 
+```javascript
 // Reactively get an array of descendant viewmodels or the first at index (within
 // a depth of levels), optionally filtered by name (string or regex)
 this.children([name][, index]);
+```
 
+```javascript
 // Reactively get the first descendant viewmodel at index, optionally filtered
 // by name (string or regex)
 this.descendant([name][, index=0]);
+```
 
+```javascript
 // Reactively get an array of descendant viewmodels or the first at index (within
 // a depth of levels), optionally filtered by name (string or regex)
 this.descendants([name][, index][, levels]);
@@ -236,11 +267,15 @@ These methods are mainly for inspection while developing, but may also be used a
 ```javascript
 // Reactively get global list of current viewmodels
 ViewModel.all();
+```
 
+```javascript
 // Reactively get an array of current viewmodels or the first at index, optionally
 // filtered by name (string or regex)
 ViewModel.find([name][, index]);
+```
 
+```javascript
 // Reactively get the first current viewmodel at index, optionally filtered by name
 // (string or regex)
 ViewModel.findOne([name][, index]);
@@ -270,7 +305,7 @@ Several standard bindings are included with the package.
 
 Viewmodel declarations and template names are omitted below in order to make the examples easier to read. Arguments are shown in parentheses.
 
-*Value ([throttle])*
+### Value ([throttle])
 
 The `text` property reflects the value of a text input, textarea, or select.
 
@@ -284,7 +319,7 @@ An initial value can be set in the viewmodel. The throttle argument is a number 
 <input type="text" {{bind 'value: text 100'}}>
 ```
 
-*Checked*
+### Checked
 
 The `checked` property reflects the checked state of the checkbox. The inital state of the checkbox can be set in the viewmodel.
 
@@ -296,7 +331,7 @@ The `checked` property reflects the checked state of the checkbox. The inital st
 <input type="checkbox" {{bind 'checked: checked'}}>
 ```
 
-*Click*
+### Click
 
 A function on the viewmodel is run when the element is clicked.
 
@@ -308,7 +343,7 @@ A function on the viewmodel is run when the element is clicked.
 <button {{bind 'click: click'}}></button>
 ```
 
-*Toggle*
+### Toggle
 
 The `toggled` property is negated on each `click` of the button.
 
@@ -320,7 +355,7 @@ The `toggled` property is negated on each `click` of the button.
 <button {{bind 'toggle: toggled'}}></button>
 ```
 
-*Submit ([boolean])*
+### Submit ([boolean])
 
 A function on the viewmodel is run when the form is submitted. If `true` is passed as an argument in the binding, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
 
@@ -332,7 +367,7 @@ A function on the viewmodel is run when the form is submitted. If `true` is pass
 <form {{bind 'submit: submit true'}}></form>
 ```
 
-*Disabled*
+### Disabled
 
 The disabled state of the element reflects a boolean property on the viewmodel. The inital state can be set in the viewmodel.
 
@@ -344,7 +379,7 @@ The disabled state of the element reflects a boolean property on the viewmodel. 
 <input type="text" {{bind 'disabled: disabled'}}>
 ```
 
-*Focused*
+### Focused
 
 The `focused` property reflects whether the element is in focus. An element can be given focus by setting the initial state to `true`.
 
@@ -356,7 +391,7 @@ The `focused` property reflects whether the element is in focus. An element can 
 <input type="text" {{bind 'focused: focused'}}>
 ```
 
-*Hovered*
+### Hovered
 
 The `hovered` property reflects whether the mouse hovers over the element.
 
@@ -368,7 +403,7 @@ The `hovered` property reflects whether the mouse hovers over the element.
 <button {{bind 'hovered: hovered'}}></button>
 ```
 
-*Enter key*
+### Enter key
 
 A function on the viewmodel is run when the enter key is pressed on the element.
 
@@ -380,7 +415,7 @@ A function on the viewmodel is run when the enter key is pressed on the element.
 <input type="text" {{bind 'enterKey: pressed'}}>
 ```
 
-*Key (keyCode)*
+### Key (keyCode)
 
 A function on the viewmodel is run when the specific key, passed as an argument, is pressed on the element. In the example, it's the shift key.
 
@@ -392,7 +427,7 @@ A function on the viewmodel is run when the specific key, passed as an argument,
 <input type="text" {{bind 'key: pressed 16'}}>
 ```
 
-*Files*
+### Files
 
 The `files` property is an array of the currently selected file object(s) from the file picker. The boolean attribute `multiple` is optional on the input element.
 
@@ -404,7 +439,8 @@ The `files` property is an array of the currently selected file object(s) from t
 <input type="file" multiple {{bind 'files: files'}}>
 ```
 
-### addBinding
+
+## addBinding
 
 This is the full definition of the `click` binding:
 
