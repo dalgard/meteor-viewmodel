@@ -136,8 +136,8 @@ Template.field.viewmodel("field", function (template_data) {
       console.log("new value of regex", this.regex());
     },
 
-    // Blaze events (if you use this, chances are you are not using ViewModel
-    // in an optimal way – use bindings instead)
+    // Blaze events. If you use this, chances are you are not using ViewModel
+    // in an optimal way – use bindings instead.
     events: {
       "click input": function (event, template_instance) {
         console.log(this instanceof ViewModel);  // true
@@ -147,9 +147,9 @@ Template.field.viewmodel("field", function (template_data) {
 });
 ```
 
-Never create a viewmodel on a template that doesn't contain a `{{bind}}` statement and doesn't need properties from ancestors or descendants. Too many viewmodels clutters up the global viewmodel space and makes it more difficult to traverse the hierarchy.
+Avoid creating a viewmodel on templates that neither contain a `{{bind}}` statement nor use properties from ancestors or descendants. Having too many viewmodels clutters up the global space and makes it more difficult to traverse the hierarchy.
 
-Since traversal methods are reactive, removing and adding viewmodel instances to the page may result in autoruns running more times than necessary.
+Since traversal methods are reactive, removing and adding viewmodel instances to the page may also result in autoruns running more times than necessary.
 
 
 ## API
