@@ -462,10 +462,9 @@ The job of a binding is to synchronize data between the DOM and the viewmodel. B
 ```javascript
 // All four properties on the definition object are optional
 ViewModel.addBinding(name, {
-  // Omitted in the great majority of cases. If true, the binding doesn't need a viewmodel,
-  // and consequently, neither viewmodel nor property will be created if missing.
-  // The get and set functions will then be called with the view as contex instead of
-  // the viewmodel.
+  // Omitted in almost all cases. If true, the binding doesn't need a viewmodel,
+  // and consequently, neither viewmodel nor property will be created automatically.
+  // The get and set functions are then called with the view as contex instead of a viewmodel.
   free: false,
 
   // Space separated list of events
