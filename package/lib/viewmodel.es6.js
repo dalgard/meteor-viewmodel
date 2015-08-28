@@ -16,26 +16,41 @@ let persist = new ReactiveDict("dalgard:viewmodel");
 
 // Exported class
 ViewModel = class ViewModel {
-  constructor(view, name, props, persisted) {
+  constructor(view, name, props, options = {}) {
+    // For some reason, the arrow functions below doesn't preserve the lexical scope
+    // after transpilation, so a closure is used
+    let vm = this;
+
+
     // Non-enumerable private properties (ES5)
     Object.defineProperties(this, {
-      // Save name on viewmodel instance
-      _name: { value: name || null },
+      // Viewmodel name
+      _name: { value: name || null, writable: true },
 
-      // Create list of child viewmodels
+      // List of child viewmodels
       _children: { value: new ReactiveVar([]) },
 
-      // Save view on viewmodel instance
-      _view: { value: view },
-
-      // Save whether the viewmodel state should be persisted across renderings
-      _persisted: { value: persisted || false }
+      // Reference to view
+      _view: { value: view }
     });
+
+    // Whether the viewmodel state should be persisted across re-rendering
+    if (options.persist)
+      Object.defineProperties(this, {
+        _persisted: { value: true }
+      });
+
+    // Whether the viewmodel is transcluded
+    if (options.transclude)
+      Object.defineProperties(this, {
+        _transcluded: { value: true }
+      });
 
     // Attach to template instance
     this.templateInstance().viewmodel = this;
 
 
+    // Get parent for non-transcluded viewmodels
     let parent = this.parent();
 
     // Register with parent
@@ -45,12 +60,14 @@ ViewModel = class ViewModel {
     // Add to global list
     ViewModel._add(this);
 
-    // Remove from parent and global list onDestroyed
+    // Tear down viewmodel
     view.onViewDestroyed(() => {
+      // Remove from parent
       if (parent)
-        parent._removeChild(this);
+        parent._removeChild(vm);
 
-      ViewModel._remove(this)
+      // Remove from global list
+      ViewModel._remove(vm)
     });
 
 
@@ -59,12 +76,9 @@ ViewModel = class ViewModel {
       props = props.call(this, this.getData());
 
     // Add properties
-    this.addProps(props);
+    if (props)
+      this.addProps(props);
 
-
-    // Somehow the arrow function below doesn't preserve the lexical scope
-    // after transpilation, so a closure is used
-    let vm = this;
 
     // Enable persistence on hot code push and across re-rendering
     view.onViewReady(() => {
@@ -266,6 +280,14 @@ ViewModel = class ViewModel {
     return this.templateInstance().data;
   }
 
+  // Get or set the name of the viewmodel
+  name(new_name) {
+    if (new_name)
+      this._name = new_name;
+
+    return this._name;
+  }
+
 
   // Reactively add a child viewmodel to the _children list
   _addChild(vm) {
@@ -285,6 +307,10 @@ ViewModel = class ViewModel {
   // Reactively get an array of ancestor viewmodels or the first at index (within a depth
   // of levels), optionally filtered by name (string or regex)
   ancestors(name, index, levels) {
+    // Transcluded viewmodels have no ancestors
+    if (this._transcluded)
+      return null;
+
     // Name argument may be omitted or replaced by null
     if (!_.isString(name) && !_.isNull(name) && !_.isRegExp(name))
       levels = index, index = name, name = null;
@@ -296,7 +322,7 @@ ViewModel = class ViewModel {
     // Find closest view that has a template
     do if (view.template) {
       let vm = view.templateInstance().viewmodel,
-          is_match = !!vm;
+          is_match = vm && !vm._transcluded;
 
       // Possibly remove results with the wrong name
       if (is_match && name) {
@@ -309,7 +335,7 @@ ViewModel = class ViewModel {
       if (is_match)
         results.push(vm);
 
-      if (results.length > index || ++level > levels)
+      if (results.length > index || is_match && ++level > levels)
         break;
     }
     while (view = view.parentView);
