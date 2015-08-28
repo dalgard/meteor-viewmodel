@@ -5,10 +5,10 @@ Meteor.startup(() => {
 
 
 // Declare a viewmodel on a template
-Blaze.Template.prototype.viewmodel = function (name, definition, persisted) {
+Blaze.Template.prototype.viewmodel = function (name, definition, options) {
   // Name argument may be omitted
   if (_.isObject(name)) {
-    persisted = definition;
+    options = definition;
     definition = name;
     name = null;
   }
@@ -22,7 +22,7 @@ Blaze.Template.prototype.viewmodel = function (name, definition, persisted) {
 
     // Create new viewmodel instance on view or add properties to existing viewmodel
     if (!vm)
-      vm = new ViewModel(this.view, name, definition, persisted);
+      vm = new ViewModel(this.view, name, definition, options);
     else
       vm.addProps(definition);
 

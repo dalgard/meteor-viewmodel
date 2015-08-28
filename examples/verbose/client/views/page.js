@@ -16,4 +16,4 @@ Template.page.viewmodel({
     if (child)
       console.log("page autorun", child.value());
   }
-}, true);  // Persist this viewmodel and descendant viewmodels across re-rendering
+}, { persist: true });  // Persist this viewmodel and descendant viewmodels across re-rendering

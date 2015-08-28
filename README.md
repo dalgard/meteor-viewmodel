@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.3.3
+dalgard:viewmodel 0.4.0
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -110,7 +110,7 @@ Template.page.viewmodel({
   created: function () {
     console.log(this instanceof ViewModel);  // true
   }
-});
+}, options);  // An options object may be passed
 
 // Instead of a definition object, a factory function may be used. Unrelated
 // to the factory, this viewmodel is also given a name.
@@ -197,6 +197,11 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 ### Viewmodel instances
 
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a declarative approach.
+
+```javascript
+// Get or set the name of the viewmodel
+this.name([new_name]);
+```
 
 ##### Templates
 
@@ -286,17 +291,31 @@ ViewModel.find([name][, index]);
 ViewModel.findOne([name][, index]);
 ```
 
+### Transclude
+
+To take a viewmodel out of the viewmodel hierarchy, set the `transclude` flag when declaring it:
+
+```javascript
+Template.example.viewmodel({
+  prop: ""
+}, { transclude: true });
+```
+
+A viewmodels that is transcluded becomes "invisible" to its parent and its children. Instead, the children of the transcluded viewmodel become children of the transcluded viewmodel's parent.
+
+This is useful when wrapping a component in a template, which has some internal state, but isn't otherwise relevant to the rest of the view.
+
 ### Persistence
 
 Values in viewmodel instances are automatically persisted across hot code pushes.
 
-To persist the state of a viewmodel across re-renderings, including changing to another route and going back to a previous view, pass `true` as the last argument when declaring a new viewmodel:
+To persist the state of a viewmodel across re-renderings, including changing to another route and going back to a previous one, set the `persist` flag when declaring the viewmodel:
 
 ```javascript
 Template.example.viewmodel({
   // This property will be restored on re-render
   prop: ""
-}, true);
+}, { persist: true });
 ```
 
 In order to determine whether an instance is the same as a previous one, ViewModel looks at 1) the position of the viewmodel in the view hierarchy, 2) the index of the viewmodel in relation to other current viewmodels, and 3) the browser location.
@@ -526,4 +545,5 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 
 - ~~Persist viewmodels on hot code pushes~~
 - ~~Optionally persist viewmodel across routes~~
+- ~~Optionally transclude viewmodel~
 - Optionally share state between two instances of the same viewmodel
