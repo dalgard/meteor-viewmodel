@@ -23,7 +23,7 @@ ViewModel = class ViewModel {
 
 
     // Non-enumerable private properties (ES5)
-    Object.defineProperties(this, {
+    defineProperties(this, {
       // Viewmodel name
       _name: { value: name || null, writable: true },
 
@@ -34,17 +34,14 @@ ViewModel = class ViewModel {
       _view: { value: view }
     });
 
-    // Whether the viewmodel state should be persisted across re-rendering
-    if (options.persist)
-      Object.defineProperties(this, {
-        _persisted: { value: true }
-      });
-
-    // Whether the viewmodel is transcluded
-    if (options.transclude)
-      Object.defineProperties(this, {
-        _transcluded: { value: true }
-      });
+    // Save options
+    _.each({
+      persist: "_persisted",
+      transclude: "_transcluded",
+      share: "_shared"
+    }, (key, option) => options[option] && defineProperties(this, {
+      [key]: { value: true }
+    }));
 
     // Attach to template instance
     this.templateInstance().viewmodel = this;
@@ -225,7 +222,7 @@ ViewModel = class ViewModel {
 
   // Reactively get properties for serialization
   serialize() {
-    let primitives = _.pick(this, prop => prop.isPrimitive),
+    let primitives = _.pick(this, prop => _.isFunction(prop) && prop.isPrimitive),
         map = _.mapValues(primitives, prop => prop());
 
     return map;
@@ -564,31 +561,46 @@ ViewModel = class ViewModel {
 }
 
 // Reserved property names
-Object.defineProperty(ViewModel, "_reservedProps", { value: {
-  // Lifetime hooks
-  hooks: {
-    onCreated: "created",
-    onRendered: "rendered",
-    onDestroyed: "destroyed"
-  },
+defineProperties(ViewModel, {
+  _reservedProps: {
+    value: {
+      // Lifetime hooks
+      hooks: {
+        onCreated: "created",
+        onRendered: "rendered",
+        onDestroyed: "destroyed"
+      },
 
-  // Other special names
-  other: [
-    "autorun",
-    "events"
-  ]
-}});
+      // Other special names
+      other: [
+        "autorun",
+        "events"
+      ]
+    }
+  }
+});
 
 
 // The name used for the bind helper
 ViewModel.helperName = "bind";
 
 
-// Utility function for getting the current path, taking FlowRouter into account
+/*
+  Hoisted utility functions
+*/
+
+// Get the current path, taking FlowRouter into account
 // https://github.com/kadirahq/flow-router/issues/293
 function getPath() {
-  if (typeof FlowRouter !== "undefined")
+  if (!_.isUndefined(FlowRouter))
     return FlowRouter.current().path;
 
   return location.pathname + location.search;
+}
+
+function defineProperties(obj, props) {
+  if (_.isFunction(Object.defineProperties))
+    Object.defineProperties(obj, props);
+  else
+    _.each(props, (prop, key) => obj[key] = prop.value);
 }

@@ -11,15 +11,11 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 (3.05 kB minified and gzipped)
 
-
 ### Install
 
 *Atmosphere coming soon.*
 
 Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add the package with `meteor install dalgard:viewmodel`.
-
-Browser support is IE9+ because of `Object.defineProperties`. I'll change it if someone complains.
-
 
 ### Contents
 
@@ -38,19 +34,20 @@ Browser support is IE9+ because of `Object.defineProperties`. I'll change it if 
       - [Serialization](#serialization)
       - [Traversal](#traversal)
   - [Static methods](#static-methods)
+  - [Transclude](#transclude)
   - [Persistence](#persistence)
 - [Bindings](#bindings)
-  - [Value ([throttle])](#value-throttle)
-  - [Checked](#checked)
-  - [Click](#click)
-  - [Toggle](#toggle)
-  - [Submit ([boolean])](#submit-boolean)
-  - [Disabled](#disabled)
-  - [Focused](#focused)
-  - [Hovered](#hovered)
-  - [Enter key](#enter-key)
-  - [Key (keyCode)](#key-keycode)
-  - [Files](#files)
+    - [Value ([throttle])](#value-throttle)
+    - [Checked](#checked)
+    - [Click](#click)
+    - [Toggle](#toggle)
+    - [Submit ([send])](#submit-send)
+    - [Disabled](#disabled)
+    - [Focused](#focused)
+    - [Hovered](#hovered)
+    - [Enter key](#enter-key)
+    - [Key (keyCode)](#key-keycode)
+    - [Files](#files)
 - [addBinding](#addbinding)
 - [Todo](#todo)
 
@@ -543,7 +540,8 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 
 ## Todo
 
-- ~~Persist viewmodels on hot code pushes~~
-- ~~Optionally persist viewmodel across routes~~
-- ~~Optionally transclude viewmodel~
+- ~~Persist viewmodels on hot code pushes~~ (0.2.0)
+- ~~Optionally persist viewmodel across routes~~ (0.3.0)
+- ~~Optionally transclude viewmodel~~ (0.4.0)
+- ~~Only use Object.defineProperties when present for <IE9 support~~ (0.4.1)
 - Optionally share state between two instances of the same viewmodel
