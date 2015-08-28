@@ -18,7 +18,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add the package with `meteor install dalgard:viewmodel`.
 
-Browser support is IE9+ because of `Object.defineProperties`. I'll change it if someone complains...
+Browser support is IE9+ because of `Object.defineProperties`. I'll change it if someone complains.
 
 
 ### Contents
@@ -147,9 +147,9 @@ Template.field.viewmodel("field", function (template_data) {
 });
 ```
 
-Try not to create a viewmodel on a template that doesn't contain a `{{bind}}` statement and doesn't need computed properties that use an ancestor or descendant viewmodel.
+Never create a viewmodel on a template that doesn't contain a `{{bind}}` statement and doesn't need properties from ancestors or descendants. Too many viewmodels clutters up the global viewmodel space and makes it more difficult to traverse the hierarchy.
 
-Too many viewmodels clutters up the global viewmodel space and makes it more difficult to traverse the hierarchy. Since traversal methods are reactive, too many viewmodels may result in autoruns running more times than necessary.
+Since traversal methods are reactive, removing and adding viewmodel instances to the page may result in autoruns running more times than necessary.
 
 
 ## API
