@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.3.2
+dalgard:viewmodel 0.3.3
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
