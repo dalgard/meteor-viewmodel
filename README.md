@@ -485,7 +485,7 @@ ViewModel.addBinding(name, {
 });
 ```
 
-Here are the parameters that `get` and `set` receive:
+The parameters for `get` and `set` are:
 
 - `event` is the original (jQuery) event object.
 - `$elem` is the element that the `{{bind}}` helper was called on, wrapped in jQuery.
@@ -496,7 +496,7 @@ Here are the parameters that `get` and `set` receive:
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
 
-Here's an example:
+An example:
 
 ```javascript
 ViewModel.addBinding("enterKey", {
