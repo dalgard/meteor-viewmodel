@@ -62,18 +62,28 @@ ViewModel = class ViewModel {
     this.addProps(props);
 
 
-    // Restore viewmodel instance from last time the template was rendered
-    if (this._isPersisted())
-      this._restore();
+    // Somehow the arrow function below doesn't preserve the lexical scope
+    // after transpilation, so a closure is used
+    let vm = this;
 
+    // Enable persistence on hot code push and across re-rendering
+    view.onViewReady(() => {
+      // Would have used an arrow function, preserving `this`, but somehow the lexical
+      // scope  isn't achieved after transpilation
+      let hash_id = vm._hashId();
 
-    // Always save viewmodel state so it can be restored after a hot code push
-    this.autorun(comp => {
-      let map = this.serialize();
+      // Restore viewmodel instance from last time the template was rendered
+      if (vm._isPersisted())
+        vm._restore(hash_id);
 
-      // Wait for actual changes to arrive
-      if (!comp.firstRun)
-        persist.set(this._hashId(), map);
+      // Always save viewmodel state so it can be restored after a hot code push
+      vm.autorun(comp => {
+        let map = vm.serialize();
+
+        // Wait for actual changes to arrive
+        if (!comp.firstRun)
+          persist.set(hash_id, map);
+      });
     });
   }
 
@@ -126,21 +136,6 @@ ViewModel = class ViewModel {
       // Register helper
       this._view.template.helpers(helper);
     });
-  }
-
-  // Check whether this viewmodel or any ancestor is persisted across re-rendering
-  _isPersisted() {
-    let parent = this.parent();
-
-    return this._persisted || parent && parent._isPersisted();
-  }
-
-  // Restore persisted viewmodel values to instance
-  _restore() {
-    let hash_id = this._hashId(),
-        map = persist.get(hash_id);
-
-    this.deserialize(map);
   }
 
 
@@ -211,6 +206,48 @@ ViewModel = class ViewModel {
       listener.call(this);
     else
       view.onViewReady(() => listener.call(this));
+  }
+
+
+  // Reactively get properties for serialization
+  serialize() {
+    let primitives = _.pick(this, prop => prop.isPrimitive),
+        map = _.mapValues(primitives, prop => prop());
+
+    return map;
+  }
+
+  // Restore serialized values
+  deserialize(map) {
+    _.each(map, (value, key) => this[key] && this[key](value));
+  }
+
+  // Get an id that is a hash of the viewmodel instance's index in the global list,
+  // its position in the view hierarchy, and the current browser location
+  _hashId() {
+    let path = getPath(),
+        index = _.indexOf(all.curValue, this),
+        view_names = [],
+        view = this._view;
+
+    do view_names.push(view.name);
+    while (view = view.parentView);
+
+    return SHA256(path + index + view_names.join("/"));
+  }
+
+  // Check whether this viewmodel or any ancestor is persisted across re-rendering
+  _isPersisted() {
+    let parent = this.parent();
+
+    return this._persisted || parent && parent._isPersisted();
+  }
+
+  // Restore persisted viewmodel values to instance
+  _restore(hash_id = this._hashId()) {
+    let map = persist.get(hash_id);
+
+    this.deserialize(map);
   }
 
 
@@ -356,34 +393,6 @@ ViewModel = class ViewModel {
   }
 
 
-  // Reactively get properties for serialization
-  serialize() {
-    let primitives = _.pick(this, prop => prop.isPrimitive),
-        map = _.mapValues(primitives, prop => prop());
-
-    return map;
-  }
-
-  // Restore serialized values
-  deserialize(map) {
-    _.each(map, (value, key) => this[key] && this[key](value));
-  }
-
-  // Get an id that is a hash of the viewmodel instance's index in the global list,
-  // its position in the view hierarchy, and the current browser location
-  _hashId() {
-    let view = this._view,
-        index = _.indexOf(ViewModel.all(), this),
-        view_names = [],
-        href = location.href;
-
-    do view_names.push(view.name);
-    while (view = view.parentView);
-
-    return SHA256(index + view_names.join("/") + href);
-  }
-
-
   // Reactively get global list of current viewmodels
   static all() {
     return all.get();
@@ -515,9 +524,7 @@ ViewModel = class ViewModel {
   }
 
   // Register the bind helper globally
-  static registerHelper(name) {
-    name = name || ViewModel.helperName;
-
+  static registerHelper(name = ViewModel.helperName) {
     Template.registerHelper(name, ViewModel._bindHelper);
 
     ViewModel.helperName = name;
@@ -549,3 +556,13 @@ Object.defineProperty(ViewModel, "_reservedProps", { value: {
 
 // The name used for the bind helper
 ViewModel.helperName = "bind";
+
+
+// Utility function for getting the current path, taking FlowRouter into account
+// https://github.com/kadirahq/flow-router/issues/293
+function getPath() {
+  if (typeof FlowRouter !== "undefined")
+    return FlowRouter.current().path;
+
+  return location.pathname + location.search;
+}

@@ -487,12 +487,12 @@ ViewModel.addBinding(name, {
 
 The parameters for `get` and `set` are:
 
-- `event`: The original (jQuery) event object.
-- `$elem`: The element that the `{{bind}}` helper was called on, wrapped in jQuery.
-- `new_value`: The new value that was passed to the property.
-- `key`: The name of the property.
-- `args`: An array (possibly empty) containing any space separated values that came after the key in the bind expression.
-- `kwhash`: The hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
+- `event` – the original (jQuery) event object.
+- `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
+- `new_value` – the new value that was passed to the property.
+- `key` – the name of the property.
+- `args` – an array (possibly empty) containing any space separated values that came after the key in the bind expression.
+- `kwhash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
 
