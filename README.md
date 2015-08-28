@@ -248,8 +248,8 @@ this.child([name][, index]);
 ```
 
 ```javascript
-// Reactively get an array of child viewmodels or the first at index (within
-// a depth of levels), optionally filtered by name (string or regex)
+// Reactively get an array of child viewmodels or the first at index,
+// optionally filtered by name (string or regex)
 this.children([name][, index]);
 ```
 
