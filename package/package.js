@@ -1,6 +1,6 @@
 Package.describe({
   name: "dalgard:viewmodel",
-  version: "0.3.2",
+  version: "0.3.3",
   summary: "Minimalist VM for Meteor – inspired by manuel:viewmodel and nikhizzle:session-bind"
 });
 
