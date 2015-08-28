@@ -248,8 +248,8 @@ this.child([name][, index]);
 ```
 
 ```javascript
-// Reactively get an array of child viewmodels or the first at index,
-// optionally filtered by name (string or regex)
+// Reactively get an array of child viewmodels or the first at index, optionally
+// filtered by name (string or regex)
 this.children([name][, index]);
 ```
 
@@ -267,7 +267,7 @@ this.descendants([name][, index][, levels]);
 
 ### Static methods
 
-These methods are mainly for inspection while developing, but may also be used as a means of retrieving a component somewhere in a complex layout.
+These methods are mainly for inspection while developing, but may also be used as a more convenient way of retrieving a component in a complex layout.
 
 ```javascript
 // Reactively get global list of current viewmodels
