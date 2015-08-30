@@ -1,22 +1,22 @@
 // Counter for unique ids
-let uuid = 0;
+let uid = 0;
 
 // Global list of current viewmodel instances
 let all = new ReactiveVar([]);
 
-// Store bindings
+// Store for bindings
 let bindings = new ReactiveVar({});
 
 // Whether the bind helper has been registered globally
-let global = false;
+let global = new ReactiveVar(false);
 
-// Global ReactiveDict for persistence after hot code push
+// ReactiveDict for persistence after hot code push and optionally across re-rendering
 let persist = new ReactiveDict("dalgard:viewmodel");
 
 
 // Exported class
 ViewModel = class ViewModel {
-  constructor(view, name, props, options = {}) {
+  constructor(view, id, name, props, options) {
     // For some reason, the arrow functions below doesn't preserve the lexical scope
     // after transpilation, so a closure is used
     let vm = this;
@@ -24,24 +24,29 @@ ViewModel = class ViewModel {
 
     // Non-enumerable private properties (ES5)
     defineProperties(this, {
-      // Viewmodel name
-      _name: { value: name || null, writable: true },
+      // Reference to view
+      _view: { value: view },
+
+      // Viewmodel id
+      _id: { value: id },
 
       // List of child viewmodels
       _children: { value: new ReactiveVar([]) },
 
-      // Reference to view
-      _view: { value: view }
+      // Viewmodel name
+      _name: { value: new ReactiveVar(null) },
+
+      // List of child viewmodels
+      _options: { value: new ReactiveDict() }
     });
 
-    // Save options
-    _.each({
-      persist: "_persisted",
-      transclude: "_transcluded",
-      share: "_shared"
-    }, (key, option) => options[option] && defineProperties(this, {
-      [key]: { value: true }
-    }));
+    // Save the viewmodel name
+    if (_.isString(name))
+      this.name(name);
+
+    // Save configuration options
+    if (_.isObject(options))
+      _.each(options, (value, name) => this.option(name, value));
 
     // Attach to template instance
     this.templateInstance().viewmodel = this;
@@ -73,7 +78,7 @@ ViewModel = class ViewModel {
       props = props.call(this, this.getData());
 
     // Add properties
-    if (props)
+    if (_.isObject(props))
       this.addProps(props);
 
 
@@ -98,22 +103,47 @@ ViewModel = class ViewModel {
     });
   }
 
+  // Reactively get or set the name of the viewmodel
+  name(new_name) {
+    if (!_.isUndefined(new_name))
+      this._name.set(new_name);
+    else
+      return this._name.get();
+  }
+
+  // Reactively get or set configuration options of the viewmodel
+  option(name, new_value) {
+    if (!_.isUndefined(new_value))
+      this._options.set(name, new_value);
+    else
+      return this._options.get(name);
+  }
+
   // Add proper properties to the viewmodel
   addProps(props) {
     // Omit special reserved names
-    props = _.omit(props, _.values(ViewModel._reservedProps.hooks), ViewModel._reservedProps.other);
+    props = _.omit(props, "created", "rendered", "destroyed", "autorun", "events");
 
     _.each(props, (prop, key) => {
-      let is_primitive = !_.isFunction(prop);
+      let is_primitive = !_.isFunction(prop),
+          value = null;
 
       if (is_primitive) {
         // The actual value is stored here in the property functions' closure
-        let value = new ReactiveVar(prop);
+        value = new ReactiveVar(prop);
 
         // Each property is a reactive getter-setter
         prop = new_value => {
-          if (!_.isUndefined(new_value))
+          if (!_.isUndefined(new_value)) {
             value.set(new_value);
+
+            // Write to other viewmodels if shared
+            if (this.option("share")) {
+              let shared = ViewModel.find(vm => vm._id === this._id);
+
+              _.each(shared, vm => vm[key]._value.set(new_value));
+            }
+          }
           else
             return value.get();
         };
@@ -124,6 +154,10 @@ ViewModel = class ViewModel {
 
       // Mark getter-setter with type (primitive values as opposed to computed properties)
       this[key].isPrimitive = is_primitive;
+
+      // Save reference to value
+      if (value)
+        this[key]._value = value;
 
 
       let helper = {};
@@ -150,10 +184,30 @@ ViewModel = class ViewModel {
   }
 
 
+  // Run a callback when the view is rendered
+  _onReady(callback) {
+    let view = this instanceof ViewModel ? this._view : this;
+
+    if (view.isRendered)
+      callback.call(this);
+    else
+      view.onViewReady(() => callback.call(this));
+  }
+
+  // Register autorun(s) when the view is rendered
+  autorun(autorun) {
+    if (_.isArray(autorun))
+      _.each(autorun, this.autorun, this);
+    else if (this._view.isRendered)
+      this._view.autorun(autorun.bind(this));
+    else
+      this._view.onViewReady(() => this._view.autorun(autorun.bind(this)));
+  }
+
   // Bind an element
   bind(elem_or_id, binding, key, args, kwhash) {
     let template_instance = this.templateInstance(),
-        selector = _.isElement(elem_or_id) ? elem_or_id : "[vm-bind-id=" + elem_or_id + "]";
+        selector = _.isElement(elem_or_id) ? elem_or_id : "[" + ViewModel.bindAttr + "=" + elem_or_id + "]";
 
     if (_.isString(binding))
       binding = ViewModel._bindings()[binding];
@@ -178,15 +232,14 @@ ViewModel = class ViewModel {
     // current property value and event object as arguments)
     if (binding.on) {
       // The context here may be a Blaze view, in case of a free binding
-      ViewModel.prototype.register.call(this, function () {
+      ViewModel.prototype._onReady.call(this, function () {
         let elem = template_instance.$(selector);
 
         // Register event
         elem.on(binding.on, event => {
           // Call property if there's no get function
-          if (!binding.free && !binding.get) {
+          if (!binding.free && !binding.get)
             this[key](event, elem, key, args, kwhash);
-          }
           else {
             let result = binding.get.call(this, event, elem, key, args, kwhash);
 
@@ -197,26 +250,6 @@ ViewModel = class ViewModel {
         });
       });
     }
-  }
-
-  // Register autorun(s) when the view is rendered
-  autorun(autorun) {
-    if (_.isArray(autorun))
-      _.each(autorun, this.autorun, this);
-    else if (this._view.isRendered)
-      this._view.autorun(autorun.bind(this));
-    else
-      this._view.onViewReady(() => this._view.autorun(autorun.bind(this)));
-  }
-
-  // Register listener when the view is rendered
-  register(listener) {
-    let view = this instanceof ViewModel ? this._view : this;
-
-    if (view.isRendered)
-      listener.call(this);
-    else
-      view.onViewReady(() => listener.call(this));
   }
 
 
@@ -251,7 +284,7 @@ ViewModel = class ViewModel {
   _isPersisted() {
     let parent = this.parent();
 
-    return this._persisted || parent && parent._isPersisted();
+    return this.option("persist") || parent && parent._isPersisted();
   }
 
   // Restore persisted viewmodel values to instance
@@ -277,14 +310,16 @@ ViewModel = class ViewModel {
     return this.templateInstance().data;
   }
 
-  // Get or set the name of the viewmodel
-  name(new_name) {
-    if (new_name)
-      this._name = new_name;
 
-    return this._name;
+  // Test this viewmodel (predicate function) or its name (string or regex)
+  _test(test) {
+    if (_.isRegExp(test))
+      return test.test(this.name())
+    else if (_.isFunction(test))
+      return test(this);
+
+    return test === this.name();
   }
-
 
   // Reactively add a child viewmodel to the _children list
   _addChild(vm) {
@@ -301,150 +336,143 @@ ViewModel = class ViewModel {
     this._children.dep.changed();
   }
 
-  // Reactively get an array of ancestor viewmodels or the first at index (within a depth
-  // of levels), optionally filtered by name (string or regex)
-  ancestors(name, index, levels) {
-    // Transcluded viewmodels have no ancestors
-    if (this._transcluded)
-      return null;
-
+  // Reactively get an array of ancestor viewmodels, optionally within a depth
+  // and filtered by name
+  ancestors(name, depth) {
     // Name argument may be omitted or replaced by null
-    if (!_.isString(name) && !_.isNull(name) && !_.isRegExp(name))
-      levels = index, index = name, name = null;
+    if (_.isNumber(name))
+      depth = name, name = null;
 
-    let view = this.templateInstance().view.parentView,
-        level = 1,
-        results = [];
+    if (!_.isNumber(depth))
+      depth = Infinity;
 
-    // Find closest view that has a template
-    do if (view.template) {
-      let vm = view.templateInstance().viewmodel,
-          is_match = vm && !vm._transcluded;
+    let ancestors = [];
 
-      // Possibly remove results with the wrong name
-      if (is_match && name) {
-        if (_.isRegExp(name))
-          is_match = name.test(vm._name);
-        else
-          is_match = vm._name === name;
+    if (depth > 0) {
+      let parent = this.parent();
+
+      if (parent) {
+        ancestors.push(parent);
+
+        ancestors = ancestors.concat(parent.ancestors(depth - 1));
       }
-
-      if (is_match)
-        results.push(vm);
-
-      if (results.length > index || is_match && ++level > levels)
-        break;
     }
-    while (view = view.parentView);
-
-    // Return a single viewmodel or a list
-    return _.isNumber(index) ? results[index] || null : results;
-  }
-
-  // Reactively get the first ancestor viewmodel at index, optionally filtered by name
-  // (string or regex)
-  ancestor(name, index) {
-    if (_.isNumber(name))
-      index = name, name = null;
-
-    return this.ancestors(name || null, index || 0);
-  }
-
-  // Reactively get the parent viewmodel, optionally filtered by name (string or regex)
-  parent(name) {
-    return this.ancestors(name || null, 0, 1);
-  }
-
-  // Reactively get an array of descendant viewmodels or the first at index (within a depth
-  // of levels), optionally filtered by name (string or regex)
-  descendants(name, index, levels) {
-    // Name argument may be omitted or replaced by null
-    if (!_.isString(name) && !_.isNull(name) && !_.isRegExp(name))
-      levels = index, index = name, name = null;
-
-    let results = [];
-
-    // Recursively collect descendant viewmodels
-    (function next(children, level) {
-      if (!_.isNumber(levels) || level <= levels) {
-        _.each(children, vm => {
-          if (!_.isNumber(index) || results.length <= index) {
-            let is_match = true;
-
-            if (name) {
-              if (_.isRegExp(name))
-                is_match = name.test(vm._name);
-              else
-                is_match = vm._name === name;
-            }
-
-            if (is_match)
-              results.push(vm);
-
-            next(vm._children.get(), level++);
-          }
-        });
-      }
-    })(this._children.get(), 1);
-
-    // Return a single viewmodel or a list
-    return _.isNumber(index) ? results[index] || null : results;
-  }
-
-  // Reactively get the first descendant viewmodel at index, optionally filtered by name
-  // (string or regex)
-  descendant(name, index) {
-    if (_.isNumber(name))
-      index = name, name = null;
-
-    return this.descendants(name || null, index || 0);
-  }
-
-  // Reactively get an array of descendant viewmodels or the first at index (within a depth
-  // of levels), optionally filtered by name (string or regex)
-  children(name, index) {
-    return this.descendants(name || null, index, 1);
-  }
-
-  // Reactively get the first child viewmodel at index, optionally filtered by name
-  // (string or regex)
-  child(name, index) {
-    if (_.isNumber(name))
-      index = name, name = null;
-
-    return this.children(name || null, index || 0);
-  }
-
-
-  // Reactively get global list of current viewmodels
-  static all() {
-    return all.get();
-  }
-
-  // Reactively get an array of current viewmodels or the first at index,
-  // optionally filtered by name (string or regex)
-  static find(name, index) {
-    // Name argument may be omitted or replaced by null
-    if (!_.isString(name) && !_.isNull(name) && !_.isRegExp(name))
-      index = name, name = null;
-
-    let results = this.all();
 
     // Remove results with the wrong name
     if (name)
-      results = _.filter(results, vm => _.isRegExp(name) ? name.test(vm._name) : vm._name === name);
+      return _.filter(ancestors, ancestor => ancestor._test(name));
 
-    // Return a single viewmodel or a list
-    return _.isNumber(index) ? results[index] || null : results;
+    return ancestors;
+  }
+
+  // Reactively get a single descendant viewmodel, optionally within a depth,
+  // at an index, and filtered by name
+  ancestor(name, index, depth) {
+    // Name argument may be omitted or replaced by null
+    if (_.isNumber(name))
+      depth = index, index = name, name = null;
+
+    return this.ancestors(name, depth)[index || 0] || null;
+  }
+
+  // Reactively get the parent viewmodel, optionally filtered by name
+  parent(name) {
+    // Transcluded viewmodels have no ancestors
+    if (this.option("transclude"))
+      return null;
+
+    let parent_view = this._view.parentView;
+
+    do if (parent_view.template) {
+      let vm = parent_view.templateInstance().viewmodel;
+
+      if (vm && !vm.option("transclude"))
+        return !name || vm._test(name) ? vm : null;
+    }
+    while (parent_view = parent_view.parentView);
+
+    return null;
+  }
+
+  // Reactively get an array of child viewmodels, optionally filtered by name
+  children(name) {
+    let children = this._children.get();
+
+    // Remove results with the wrong name
+    if (name)
+      return _.filter(children, child => child._test(name));
+
+    return children;
+  }
+
+  // Reactively get a single child viewmodel, optionally at an index and filtered by name
+  child(name, index) {
+    // Name argument may be omitted or replaced by null
+    if (_.isNumber(name))
+      index = name, name = null;
+
+    return this.children(name)[index || 0] || null;
+  }
+
+  // Reactively get an array of descendant viewmodels, optionally within a depth
+  // and filtered by name
+  descendants(name, depth) {
+    // Name argument may be omitted or replaced by null
+    if (_.isNumber(name))
+      depth = name, name = null;
+
+    if (!_.isNumber(depth))
+      depth = Infinity;
+
+    let descendants = [];
+
+    if (depth > 0) {
+      _.each(this.children(), child => {
+        descendants.push(child);
+
+        descendants = descendants.concat(child.descendants(depth - 1));
+      });
+    }
+
+    // Remove results with the wrong name
+    if (name)
+      return _.filter(descendants, descendant => descendant._test(name));
+
+    return descendants;
+  }
+
+  // Reactively get a single descendant viewmodel, optionally within a depth,
+  // at an index, and filtered by name
+  descendant(name, index, depth) {
+    // Name argument may be omitted or replaced by null
+    if (_.isNumber(name))
+      depth = index, index = name, name = null;
+
+    return this.descendants(name, depth)[index || 0] || null;
+  }
+
+
+  // Reactively get an array of current viewmodels, optionally filtered by name
+  static find(name) {
+    // Name argument may be omitted or replaced by null
+    if (_.isNumber(name))
+      index = name, name = null;
+
+    let results = all.get();
+
+    // Remove results with the wrong name
+    if (name)
+      return _.filter(results, result => result._test(name));
+
+    return results;
   }
 
   // Reactively get the first current viewmodel at index, optionally filtered by name
-  // (string or regex)
   static findOne(name, index) {
     if (_.isNumber(name))
       index = name, name = null;
 
-    return this.find(name || null, index || 0);
+    return this.find(name)[index || 0] || null;
   }
 
   // Add a viewmodel to the global list
@@ -478,6 +506,7 @@ ViewModel = class ViewModel {
     if (!_.isString(name))
       throw new TypeError("The name of the binding must be supplied as the first argument");
 
+    // Set a new property on the bindings object stored in a reactive-var
     bindings.curValue[name] = definition;
     bindings.dep.changed();
   }
@@ -485,7 +514,7 @@ ViewModel = class ViewModel {
 
   // Get next unique id
   static _uniqueId() {
-    return ++uuid;
+    return ++uid;
   }
 
   // The Blaze helper that is bound to templates with a viewmodel {{bind 'binding: key'}}
@@ -521,10 +550,9 @@ ViewModel = class ViewModel {
       spread.unshift(bind_id, binding);
 
       // Some bindings may not use a viewmodel at all
-      if (binding.free) {
+      if (binding.free)
         // Use view as the context for the bind method
         Tracker.afterFlush(() => ViewModel.prototype.bind.call(view, ...spread));
-      }
       else {
         let vm = template_instance.viewmodel;
 
@@ -541,9 +569,7 @@ ViewModel = class ViewModel {
       }
     });
 
-    return {
-      "vm-bind-id": bind_id
-    };
+    return { [ViewModel.bindAttr]: bind_id };
   }
 
   // Register the bind helper globally
@@ -551,38 +577,20 @@ ViewModel = class ViewModel {
     Template.registerHelper(name, ViewModel._bindHelper);
 
     ViewModel.helperName = name;
-    global = true;
+    global.set(true);
   }
 
   // Returns whether the bind helper has been registered globally
   static _isGlobal() {
-    return global;
+    return global.get();
   }
 }
 
-// Reserved property names
-defineProperties(ViewModel, {
-  _reservedProps: {
-    value: {
-      // Lifetime hooks
-      hooks: {
-        onCreated: "created",
-        onRendered: "rendered",
-        onDestroyed: "destroyed"
-      },
-
-      // Other special names
-      other: [
-        "autorun",
-        "events"
-      ]
-    }
-  }
-});
-
-
 // The name used for the bind helper
 ViewModel.helperName = "bind";
+
+// The name of the attribute that is used by the bind helper
+ViewModel.bindAttr = "vm-bind-id";
 
 
 /*
@@ -592,12 +600,13 @@ ViewModel.helperName = "bind";
 // Get the current path, taking FlowRouter into account
 // https://github.com/kadirahq/flow-router/issues/293
 function getPath() {
-  if (!_.isUndefined(FlowRouter))
+  if (typeof FlowRouter !== "undefined")
     return FlowRouter.current().path;
 
   return location.pathname + location.search;
 }
 
+// Use ES5 property definitions when available
 function defineProperties(obj, props) {
   if (_.isFunction(Object.defineProperties))
     Object.defineProperties(obj, props);
