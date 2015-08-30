@@ -236,6 +236,8 @@ The recommended pattern with this package is to retrieve values from child viewm
 
 Consequently, the `parent`, `ancestor`, and `ancestors` methods should generally be avoided.
 
+The optional `name` argument in the methods below can either be a string or regex that will be compared to the name of the viewmodel, if present, or it can be a predicate function, which is called with the viewmodel as its first argument.
+
 ```javascript
 // Reactively get the parent viewmodel, optionally filtered by name
 this.parent([name]);
@@ -280,14 +282,12 @@ this.descendants([name][, depth]);
 These methods are mainly for inspection while developing, but may also be used as a more convenient way of retrieving a component in a complex layout.
 
 ```javascript
-// Reactively get an array of current viewmodels or the first at index, optionally
-// filtered by name (string or regex)
+// Reactively get an array of current viewmodels, optionally filtered by name
 ViewModel.find([name][, index]);
 ```
 
 ```javascript
 // Reactively get the first current viewmodel at index, optionally filtered by name
-// (string or regex)
 ViewModel.findOne([name][, index]);
 ```
 
@@ -493,9 +493,9 @@ The job of a binding is to synchronize data between the DOM and the viewmodel. B
 ```javascript
 // All four properties on the definition object are optional
 ViewModel.addBinding(name, {
-  // Almost always omitted. If true, the binding doesn't need a viewmodel, and
-  // consequently, viewmodels or properties will not be created automatically,
-  // and the get and set functions are called with the view as contex instead
+  // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
+  // consequently, viewmodels or properties will not be created automatically.
+  // The get and set functions will be called with the view as contex instead
   // of a viewmodel.
   free: false,
 
