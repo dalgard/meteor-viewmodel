@@ -7,11 +7,11 @@ Meteor.startup(() => {
 // Declare a viewmodel on a template
 Blaze.Template.prototype.viewmodel = function (name, definition, options) {
   // Name argument may be omitted
-  if (_.isObject(name)) {
-    options = definition;
-    definition = name;
-    name = null;
-  }
+  if (_.isObject(name))
+    options = definition, definition = name, name = null;
+
+  // Give the viewmodel a unique id that is used for sharing
+  let id = ViewModel._uniqueId();
 
 
   // Create viewmodel instance – a function is added to the template's onCreated
@@ -22,7 +22,7 @@ Blaze.Template.prototype.viewmodel = function (name, definition, options) {
 
     // Create new viewmodel instance on view or add properties to existing viewmodel
     if (!vm)
-      vm = new ViewModel(this.view, name, definition, options);
+      vm = new ViewModel(this.view, id, name, definition, options);
     else
       vm.addProps(definition);
 
@@ -35,7 +35,11 @@ Blaze.Template.prototype.viewmodel = function (name, definition, options) {
   // Register lifetime hooks with viewmodel as context – the hooks on the
   // viewmodel definition object (created, rendered, destroyed) are registered
   // on the template and gets called with the current viewmodel instance as context
-  _.each(ViewModel._reservedProps.hooks, (name, blaze_hook) => {
+  _.each({
+    onCreated: "created",
+    onRendered: "rendered",
+    onDestroyed: "destroyed"
+  }, (name, blaze_hook) => {
     let callbacks = definition[name];
 
     if (callbacks) {

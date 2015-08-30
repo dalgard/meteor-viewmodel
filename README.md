@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.4.0
+dalgard:viewmodel 0.5.0
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -9,17 +9,13 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - Easily extensible
 - Non-intrusive
 
-(3.05 kB minified and gzipped)
-
+(3.34 kB minified and gzipped)
 
 ### Install
 
 *Atmosphere coming soon.*
 
 Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add the package with `meteor install dalgard:viewmodel`.
-
-Browser support is IE9+ because of `Object.defineProperties`. I'll change it if someone complains.
-
 
 ### Contents
 
@@ -38,19 +34,21 @@ Browser support is IE9+ because of `Object.defineProperties`. I'll change it if 
       - [Serialization](#serialization)
       - [Traversal](#traversal)
   - [Static methods](#static-methods)
+  - [Transclude](#transclude)
   - [Persistence](#persistence)
+  - [Shared state](#shared-state)
 - [Bindings](#bindings)
-  - [Value ([throttle])](#value-throttle)
-  - [Checked](#checked)
-  - [Click](#click)
-  - [Toggle](#toggle)
-  - [Submit ([boolean])](#submit-boolean)
-  - [Disabled](#disabled)
-  - [Focused](#focused)
-  - [Hovered](#hovered)
-  - [Enter key](#enter-key)
-  - [Key (keyCode)](#key-keycode)
-  - [Files](#files)
+    - [Value ([throttle])](#value-throttle)
+    - [Checked](#checked)
+    - [Click](#click)
+    - [Toggle](#toggle)
+    - [Submit ([send])](#submit-send)
+    - [Disabled](#disabled)
+    - [Focused](#focused)
+    - [Hovered](#hovered)
+    - [Enter key](#enter-key)
+    - [Key (keyCode)](#key-keycode)
+    - [Files](#files)
 - [addBinding](#addbinding)
 - [Todo](#todo)
 
@@ -199,8 +197,13 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a declarative approach.
 
 ```javascript
-// Get or set the name of the viewmodel
+// Reactively get or set the name of the viewmodel programmatically
 this.name([new_name]);
+```
+
+```javascript
+// Reactively get or set an option of the viewmodel programmatically
+this.option(name[, new_value]);
 ```
 
 ##### Templates
@@ -229,55 +232,52 @@ this.deserialize(object);
 
 ##### Traversal
 
+The recommended pattern with this package is to retrieve values from child viewmodels, rather than having the child viewmodels write values to their parent.
+
+Consequently, the `parent`, `ancestor`, and `ancestors` methods should generally be avoided.
+
 ```javascript
-// Reactively get the parent viewmodel, optionally filtered by name (string or regex)
+// Reactively get the parent viewmodel, optionally filtered by name
 this.parent([name]);
 ```
 
 ```javascript
-// Reactively get the first ancestor viewmodel at index, optionally filtered
-// by name (string or regex)
-this.ancestor([name][, index=0]);
+// Reactively get a single descendant viewmodel, optionally within a depth,
+// at an index, and filtered by name
+this.ancestor([name][, index=0][, depth]);
 ```
 
 ```javascript
-// Reactively get an array of ancestor viewmodels or the first at index (within
-// a depth of levels), optionally filtered by name (string or regex)
-this.ancestors([name][, index][, levels]);
+// Reactively get an array of ancestor viewmodels, optionally within a depth
+// and filtered by name
+this.ancestors([name][, depth]);
 ```
 
 ```javascript
-// Reactively get the first child viewmodel at index, optionally filtered
-// by name (string or regex)
-this.child([name][, index]);
+// Reactively get a single child viewmodel, optionally at an index and filtered by name
+this.child([name][, index=0]);
 ```
 
 ```javascript
-// Reactively get an array of child viewmodels or the first at index, optionally
-// filtered by name (string or regex)
-this.children([name][, index]);
+// Reactively get an array of child viewmodels, optionally filtered by name
+this.children([name]);
 ```
 
 ```javascript
-// Reactively get the first descendant viewmodel at index, optionally filtered
-// by name (string or regex)
-this.descendant([name][, index=0]);
+// Reactively get a single descendant viewmodel, optionally within a depth,
+// at an index, and filtered by name
+this.descendant([name][, index=0][, depth]);
 ```
 
 ```javascript
-// Reactively get an array of descendant viewmodels or the first at index (within
-// a depth of levels), optionally filtered by name (string or regex)
-this.descendants([name][, index][, levels]);
+// Reactively get an array of descendant viewmodels, optionally within a depth
+// and filtered by name
+this.descendants([name][, depth]);
 ```
 
 ### Static methods
 
 These methods are mainly for inspection while developing, but may also be used as a more convenient way of retrieving a component in a complex layout.
-
-```javascript
-// Reactively get global list of current viewmodels
-ViewModel.all();
-```
 
 ```javascript
 // Reactively get an array of current viewmodels or the first at index, optionally
@@ -323,6 +323,18 @@ In order to determine whether an instance is the same as a previous one, ViewMod
 If all these things match, the state of the viewmodel instance will be restored.
 
 **Important:** Any viewmodel that is a direct child or descendant of a viewmodel that is persisted across re-rendering is persisted in the same way.
+
+### Shared state
+
+To have multiple instances of the same viewmodel share their state, set the `share` flag when declaring it:
+
+```javascript
+Template.example.viewmodel({
+  prop: ""
+}, { share: true });
+```
+
+If this component is then repeated on the page, its state will always be in sync. An example could be a pagination widget that is repeated at the top and bottom of the page.
 
 
 ## Bindings
@@ -543,7 +555,8 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 
 ## Todo
 
-- ~~Persist viewmodels on hot code pushes~~
-- ~~Optionally persist viewmodel across routes~~
-- ~~Optionally transclude viewmodel~
-- Optionally share state between two instances of the same viewmodel
+- ~~Persist viewmodels on hot code pushes~~ (0.2.0)
+- ~~Optionally persist viewmodel across routes~~ (0.3.0)
+- ~~Optionally transclude viewmodel~~ (0.4.0)
+- ~~Only use Object.defineProperties when present (to support <IE9)~~ (0.5.0)
+- ~~Optionally share state between two instances of the same viewmodel~~ (0.5.0)

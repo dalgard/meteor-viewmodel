@@ -3,7 +3,7 @@
 
   <p>childValue: {{childValue}}</p>
 
-  <button {{bind 'toggle: destroy'}}>destroy</button> {{destroy}}
+  <button {{bind 'toggle: destroy'}}>destroy views</button> {{destroy}}
 
   {{#unless destroy}}
     <p>{{> value}}</p>
@@ -17,6 +17,7 @@
     <p>{{> hovered}}</p>
     <p>{{> enterKey}}</p>
     <p>{{> key}}</p>
+    <p>{{> value}}</p>
     <p>{{> files}}</p>
     <p>{{> textarea}}</p>
     <p>{{> select}}</p>
