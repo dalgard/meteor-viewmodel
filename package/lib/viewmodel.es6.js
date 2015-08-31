@@ -141,7 +141,7 @@ ViewModel = class ViewModel {
             if (this.option("share")) {
               let shared = ViewModel.find(vm => vm._id === this._id);
 
-              _.each(shared, vm => vm[key]._value.set(new_value));
+              _.each(shared, vm => vm[key].value.set(new_value));
             }
           }
           else
@@ -157,7 +157,7 @@ ViewModel = class ViewModel {
 
       // Save reference to value
       if (value)
-        this[key]._value = value;
+        this[key].value = value;
 
 
       let helper = {};
