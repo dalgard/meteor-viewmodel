@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.5.2
+dalgard:viewmodel 0.5.3
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -13,9 +13,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 ### Install
 
-*Atmosphere coming soon.*
-
-Copy the `package` folder (can be renamed) from this repo into your project's `/packages` and add the package with `meteor install dalgard:viewmodel`.
+`meteor install dalgard:viewmodel`
 
 ### Contents
 
@@ -69,8 +67,8 @@ ViewModel.registerHelper("bind");
   <input type="checkbox" {{bind 'checked: show'}}>
 
   {{#if show}}
-    <p style="{{#if red}}color: red;{{/if}}">{{text}}</p>
     <button {{bind 'toggle: red'}}>Toggle red</button>
+    <p style="{{#if red}}color: red;{{/if}}">{{text}}</p>
   {{/if}}
 </template>
 ```

@@ -189,7 +189,7 @@ ViewModel = class ViewModel {
     let view = this instanceof ViewModel ? this._view : this;
 
     if (view.isRendered)
-      callback.call(this);
+      !view.isDestroyed && callback.call(this);
     else
       view.onViewReady(() => callback.call(this));
   }
@@ -199,7 +199,7 @@ ViewModel = class ViewModel {
     if (_.isArray(autorun))
       _.each(autorun, this.autorun, this);
     else if (this._view.isRendered)
-      this._view.autorun(autorun.bind(this));
+      !this._view.isDestroyed && this._view.autorun(autorun.bind(this));
     else
       this._view.onViewReady(() => this._view.autorun(autorun.bind(this)));
   }
