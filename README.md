@@ -232,7 +232,7 @@ this.deserialize(object);
 
 ##### Traversal
 
-The recommended pattern with this package is to retrieve values from child viewmodels, rather than having the child viewmodels write values to their parent.
+The recommended pattern with this package is to retrieve values from child viewmodels, rather than having the child viewmodels write values to their parent, as well as to use Spacebars keywords arguments to pass values down to children.
 
 Consequently, the `parent`, `ancestor`, and `ancestors` methods should generally be avoided.
 
@@ -334,7 +334,7 @@ Template.example.viewmodel({
 }, { share: true });
 ```
 
-If this component is then repeated on the page, its state will always be in sync. An example could be a pagination widget that is repeated at the top and bottom of the page.
+If this component is then repeated on the page, their state will always be in sync. An example could be a pagination widget that is repeated at the top and bottom of the page.
 
 
 ## Bindings
