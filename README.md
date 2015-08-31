@@ -444,7 +444,7 @@ The property reflects whether the mouse hovers over the element.
 
 #### Enter key
 
-A function on the viewmodel is run when the enter key is pressed on the element.
+A method on the viewmodel is run when the enter key is pressed on the element.
 
 ```html
 <input type="text" {{bind 'enterKey: pressed'}}>
@@ -456,7 +456,7 @@ A function on the viewmodel is run when the enter key is pressed on the element.
 
 #### Key (keyCode)
 
-A function on the viewmodel is run when the specific key, passed as an argument, is pressed on the element. In the example, it's the shift key.
+A method on the viewmodel is run when the specific key, passed as an argument, is pressed on the element. In the example, it's the shift key.
 
 ```html
 <input type="text" {{bind 'key: pressed 16'}}>
