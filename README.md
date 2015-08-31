@@ -335,14 +335,14 @@ Template.example.viewmodel({
 }, { share: true });
 ```
 
-The effect is that if a component is repeated on a page, the state of the two instances will automatically be kept in sync. This is useful for something like a pagination widget that is duplicated at the top and bottom of a page.
+If a component is repeated on a page, the `share` flag makes sure that the state of the two instances is kept in sync automatically. This is useful for something like a pagination widget that is duplicated at the top and bottom of a page.
 
 
 ## Bindings
 
-Several standard bindings are included with the package – you are encouraged, however, to add some more specialized bindings to your project in order to improve the readability of its code.
+Several standard bindings are included with the package, but you are highly encouraged to add  more specialized bindings to your project in order to improve the readability of the code.
 
-(Declaration statements and template names are omitted below; arguments are shown in parentheses.)
+(Boilerplate code is omitted below; possible arguments are shown in parentheses.)
 
 #### Value ([throttle])
 
