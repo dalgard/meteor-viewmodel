@@ -528,16 +528,16 @@ ViewModel = class ViewModel {
 
 
     // Unique id for current element
-    let bind_id = ViewModel._uniqueId();
+    let bind_id = ViewModel._uniqueId(),
+        template_instance = Template.instance(),
+        view = template_instance.view;
 
     _.each(pairs, pair => {
       pair = pair.trim().split(/\s*:\s*/);
 
       let binding = ViewModel._bindings()[pair[0]],
           args = pair[1].split(/\s+/g),
-          key = args.shift(),
-          template_instance = Template.instance(),
-          view = template_instance.view;
+          key = args.shift();
 
       // Add arguments
       spread.unshift(key, args);
@@ -557,8 +557,12 @@ ViewModel = class ViewModel {
         let vm = template_instance.viewmodel;
 
         // Possibly create new viewmodel instance on view
-        if (!vm)
-          vm = new ViewModel(Blaze.getView());
+        if (!vm) {
+          // Give the viewmodel a unique id that is used for sharing
+          let id = ViewModel._uniqueId();
+
+          vm = new ViewModel(view, id);
+        }
 
         // Create properties on viewmodel if needed (initialized as undefined)
         if (!vm[key])
