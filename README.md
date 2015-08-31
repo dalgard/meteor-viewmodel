@@ -164,7 +164,7 @@ This is an extract of the full API – take five minutes to explore the ViewMode
 
 ### {{bind}}
 
-As a starting point, the Blaze bind helper only gets registered on templates with a declared viewmodel. The name of the helper may be changed like this:
+To begin with, the Blaze bind helper only gets registered on templates with a declared viewmodel. The name of the helper may be changed like this:
 
 ```javascript
 ViewModel.helperName = "myBind";
@@ -178,7 +178,7 @@ ViewModel.registerHelper(name);  // name is optional
 
 The advantage of registering `{{bind}}` globally is that you may use it inside any template without first declaring a viewmodel.
 
-The helper then automatically creates a new viewmodel instance (if none existed) on the template and immediately registers the bound key as a Blaze helper – this helper can then be used anywhere ***after*** the call to `{{bind}}`, but not before. If you want to be able to place a property helper *anywhere* in the template, declare the viewmodel explicitly.
+The helper then automatically creates a new viewmodel instance (if none existed) on the template and immediately registers the bound key as a Blaze helper – this helper can then be used anywhere ***after*** the call to `{{bind}}`, but not before. If you want to be able to use a property *anywhere* in the template, declare the viewmodel explicitly.
 
 The syntax of the bind helper looks like this:
 
