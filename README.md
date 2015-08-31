@@ -197,12 +197,12 @@ Any space separated values placed after the viewmodel key (i.e. the name of a pr
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a declarative approach.
 
 ```javascript
-// Reactively get or set the name of the viewmodel programmatically
+// Reactively get or set the name of the viewmodel
 this.name([new_name]);
 ```
 
 ```javascript
-// Reactively get or set an option of the viewmodel programmatically
+// Reactively get or set an option of the viewmodel
 this.option(name[, new_value]);
 ```
 
@@ -232,7 +232,7 @@ this.deserialize(object);
 
 ##### Traversal
 
-The recommended pattern with this package is to retrieve values from child viewmodels, rather than having the child viewmodels write values to their parent, as well as to use Spacebars keywords arguments to pass values down to children.
+The recommended pattern with this package is to retrieve values from child viewmodels, rather than having the child viewmodels write values to their parent, as well as to use Spacebars keyword arguments to pass values down to children.
 
 Consequently, the `parent`, `ancestor`, and `ancestors` methods should generally be avoided.
 
@@ -256,7 +256,8 @@ this.ancestors([name][, depth]);
 ```
 
 ```javascript
-// Reactively get a single child viewmodel, optionally at an index and filtered by name
+// Reactively get a single child viewmodel, optionally at an index
+// and filtered by name
 this.child([name][, index=0]);
 ```
 
