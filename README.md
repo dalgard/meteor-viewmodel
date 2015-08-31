@@ -76,7 +76,7 @@ ViewModel.registerHelper("bind");
 
 ## Usage
 
-The example below is fairly verbose compared with normal use, but demonstrates the core features of ViewModel.
+The example below is fairly verbose compared to normal use, but demonstrates the core features of ViewModel.
 
 Viewmodel declarations may sometimes be omitted altogether – the `{{bind}}` helper automatically creates what it needs, if registered globally (like in the quickstart example).
 
@@ -178,7 +178,7 @@ ViewModel.registerHelper(name);  // name is optional
 
 The advantage of registering `{{bind}}` globally is that you may use it inside any template without first declaring a viewmodel.
 
-The helper then automatically creates a new viewmodel instance (if none existed) on the template and immediately registers the bound key as a Blaze helper – this helper can then be used anywhere *after* the call to `{{bind}}`, but not before. If you want to be able to place a property helper *anywhere* in the template, declare the viewmodel explicitly.
+The helper then automatically creates a new viewmodel instance (if none existed) on the template and immediately registers the bound key as a Blaze helper – this helper can then be used anywhere ***after*** the call to `{{bind}}`, but not before. If you want to be able to place a property helper *anywhere* in the template, declare the viewmodel explicitly.
 
 The syntax of the bind helper looks like this:
 
