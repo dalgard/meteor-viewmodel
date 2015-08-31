@@ -27,6 +27,7 @@ Copy the `package` folder (can be renamed) from this repo into your project's `/
 
 - [Quickstart](#quickstart)
 - [Usage](#usage)
+  - [Jade](#jade)
 - [API](#api)
   - [{{bind}}](#bind)
   - [Viewmodel instances](#viewmodel-instances)
@@ -68,7 +69,8 @@ ViewModel.registerHelper("bind");
   <input type="checkbox" {{bind 'checked: show'}}>
 
   {{#if show}}
-    {{text}}
+    <p style="{{#if red}}color: red;{{/if}}">{{text}}</p>
+    <button {{bind 'toggle: red'}}>Toggle red</button>
   {{/if}}
 </template>
 ```
@@ -148,6 +150,14 @@ Template.field.viewmodel("field", function (template_data) {
 Avoid creating a viewmodel on templates that neither contain a `{{bind}}` statement nor use properties from ancestors or descendants. Having too many viewmodels clutters up the global space and makes it more difficult to traverse the hierarchy.
 
 Since traversal methods are reactive, removing and adding viewmodel instances to the page may also result in autoruns running more times than necessary.
+
+### Jade
+
+To attach a binding in a Jade template, this syntax should work:
+
+```jade
+button($dyn='{{bind "openModal: myModal"}}')
+```
 
 
 ## API
