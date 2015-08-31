@@ -186,7 +186,7 @@ The syntax of the bind helper looks like this:
 {{bind expression ...}}
 ```
 
-... where `expression` is a string formatted as a key/value pair:
+... where `expression` is a string, formatted as a key/value pair:
 
 ```javascript
 'binding: key'
