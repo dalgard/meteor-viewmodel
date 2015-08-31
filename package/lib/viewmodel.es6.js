@@ -596,6 +596,9 @@ ViewModel.helperName = "bind";
 // The name of the attribute that is used by the bind helper
 ViewModel.bindAttr = "vm-bind-id";
 
+// Whether to try to restore viewmodels in this project after a hot code push
+ViewModel.restoreAfterHCP = true;
+
 
 /*
   Hoisted utility functions

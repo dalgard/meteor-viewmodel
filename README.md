@@ -154,7 +154,7 @@ Since traversal methods are reactive, removing and adding viewmodel instances to
 To attach a binding in a Jade template, this syntax should work:
 
 ```jade
-button($dyn='{{bind "openModal: myModal"}}')
+button($dyn='{{bind "click: click"}}')
 ```
 
 
