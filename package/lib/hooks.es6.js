@@ -1,6 +1,7 @@
 Meteor.startup(() => {
-  // Restore viewmodel values after a hot code push
-  Template.body.onRendered(() => ViewModel._restoreAll());
+  if (ViewModel.restoreAfterHCP)
+    // Restore viewmodel values after a hot code push
+    Template.body.onRendered(() => ViewModel._restoreAll());
 });
 
 
