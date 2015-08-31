@@ -7,6 +7,7 @@
   <input type="checkbox" {{bind 'checked: show'}}>
 
   {{#if show}}
-    {{text}}
+    <p style="{{#if red}}color: red;{{/if}}">{{text}}</p>
+    <button {{bind 'toggle: red'}}>Toggle red</button>
   {{/if}}
 </template>
