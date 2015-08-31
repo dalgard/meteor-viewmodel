@@ -221,7 +221,7 @@ ViewModel = class ViewModel {
     if (binding.set) {
       this.autorun(function () {
         let elem = template_instance.$(selector),
-            new_value = binding.free ? null : key && this[key]();
+            new_value = binding.detached ? null : key && this[key]();
 
         binding.set.call(this, elem, new_value, args, kwhash);
       });
@@ -231,20 +231,20 @@ ViewModel = class ViewModel {
     // of get function (gets called with viewmodel as context and the jQuery element,
     // current property value and event object as arguments)
     if (binding.on) {
-      // The context here may be a Blaze view, in case of a free binding
+      // The context here may be a Blaze view, in case of a detached binding
       ViewModel.prototype._onReady.call(this, function () {
         let elem = template_instance.$(selector);
 
         // Register event
         elem.on(binding.on, event => {
           // Call property if there's no get function
-          if (!binding.free && !binding.get)
+          if (!binding.detached && !binding.get)
             this[key](event, elem, key, args, kwhash);
           else {
             let result = binding.get.call(this, event, elem, key, args, kwhash);
 
             // Call property if get returned a value other than undefined
-            if (!binding.free && !_.isUndefined(result))
+            if (!binding.detached && !_.isUndefined(result))
               this[key](result);
           }
         });
@@ -550,7 +550,7 @@ ViewModel = class ViewModel {
       spread.unshift(bind_id, binding);
 
       // Some bindings may not use a viewmodel at all
-      if (binding.free)
+      if (binding.detached)
         // Use view as the context for the bind method
         Tracker.afterFlush(() => ViewModel.prototype.bind.call(view, ...spread));
       else {
