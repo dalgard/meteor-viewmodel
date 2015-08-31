@@ -346,7 +346,7 @@ Several standard bindings are included with the package, but you are highly enco
 
 #### Value ([throttle])
 
-The `text` property reflects the value of a text input, textarea, or select.
+The property reflects the value of a text input, textarea, or select.
 
 An initial value can be set in the viewmodel. The throttle argument is a number (in ms) by which the update is [delayed](https://lodash.com/docs#throttle) as long as the user is typing.
 
@@ -360,7 +360,7 @@ An initial value can be set in the viewmodel. The throttle argument is a number 
 
 #### Checked
 
-The `checked` property reflects the state of the checkbox. The inital state of the checkbox can be set in the viewmodel.
+The property reflects the state of the checkbox. The inital state of the checkbox can be set in the viewmodel.
 
 ```html
 <input type="checkbox" {{bind 'checked: checked'}}>
@@ -384,7 +384,7 @@ A method on the viewmodel is called when the element is clicked.
 
 #### Toggle
 
-The `toggled` property is negated on each `click` of the button.
+The property is negated on each `click` of the button.
 
 ```html
 <button {{bind 'toggle: toggled'}}></button>
@@ -396,7 +396,7 @@ The `toggled` property is negated on each `click` of the button.
 
 #### Submit ([send])
 
-A function on the viewmodel is run when the form is submitted. If `true` is passed as the send argument in the binding, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
+A method on the viewmodel is run when the form is submitted. If `true` is passed as the send argument in the binding, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
 
 ```html
 <form {{bind 'submit: submit true'}}></form>
@@ -420,7 +420,7 @@ The disabled state of the element reflects a boolean property on the viewmodel. 
 
 #### Focused
 
-The `focused` property reflects whether the element is in focus. An element can be given focus by setting the initial state to `true`.
+The property reflects whether the element is in focus. An element can be given focus by setting the initial state to `true`.
 
 ```html
 <input type="text" {{bind 'focused: focused'}}>
@@ -432,7 +432,7 @@ The `focused` property reflects whether the element is in focus. An element can 
 
 #### Hovered
 
-The `hovered` property reflects whether the mouse hovers over the element.
+The property reflects whether the mouse hovers over the element.
 
 ```html
 <button {{bind 'hovered: hovered'}}></button>
@@ -468,7 +468,7 @@ A function on the viewmodel is run when the specific key, passed as an argument,
 
 #### Files
 
-The `files` property is an array of the currently selected file object(s) from the file picker. The boolean attribute `multiple` is optional on the input element.
+The property is an array of the currently selected file object(s) from the file picker. The boolean attribute `multiple` is optional on the input element.
 
 ```html
 <input type="file" multiple {{bind 'files: files'}}>
@@ -542,7 +542,7 @@ ViewModel.addBinding("enterKey", {
 });
 ```
 
-In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding. The bound property will then be called with the same arguments as the `get` function.
+In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding above. The bound property will then be called with the same arguments as the `get` function.
 
 A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
 
