@@ -302,9 +302,9 @@ Template.example.viewmodel({
 }, { transclude: true });
 ```
 
-A viewmodels that is transcluded becomes "invisible" to its parent and its children. Instead, the children of the transcluded viewmodel become children of the transcluded viewmodel's parent.
+A viewmodel that is transcluded becomes "invisible" to its parent and children. Instead, the children of the transcluded viewmodel become children of the transcluded viewmodel's parent.
 
-This is useful when wrapping a component in a template, which has some internal state, but isn't otherwise relevant to the rest of the view.
+This is useful when placing some component in a template, which has its own internal state, but which isn't otherwise relevant to the rest of the view hierarchy.
 
 ### Persistence
 
@@ -323,11 +323,11 @@ In order to determine whether an instance is the same as a previous one, ViewMod
 
 If all these things match, the state of the viewmodel instance will be restored.
 
-**Important:** Any viewmodel that is a direct child or descendant of a viewmodel that is persisted across re-rendering is persisted in the same way.
+**Important:** Any viewmodel that is a descendant of a viewmodel that has the `persist` flag set, is persisted in the same way.
 
 ### Shared state
 
-To have multiple instances of the same viewmodel share their state, set the `share` flag when declaring it:
+Multiple instances of the same viewmodel can share their state – set the `share` flag in the declaration:
 
 ```javascript
 Template.example.viewmodel({
@@ -335,14 +335,14 @@ Template.example.viewmodel({
 }, { share: true });
 ```
 
-If this component is then repeated on the page, their state will always be in sync. An example could be a pagination widget that is repeated at the top and bottom of the page.
+The effect is that if a component is repeated on a page, the state of the two instances will automatically be kept in sync. This is useful for something like a pagination widget that is duplicated at the top and bottom of a page.
 
 
 ## Bindings
 
-Several standard bindings are included with the package.
+Several standard bindings are included with the package – you are encouraged, however, to add some more specialized bindings to your project in order to improve the readability of its code.
 
-Viewmodel declarations and template names are omitted below in order to make the examples easier to read. Arguments are shown in parentheses.
+(Declaration statements and template names are omitted below; arguments are shown in parentheses.)
 
 #### Value ([throttle])
 
@@ -372,14 +372,14 @@ The `checked` property reflects the state of the checkbox. The inital state of t
 
 #### Click
 
-A function on the viewmodel is run when the element is clicked.
+A method on the viewmodel is called when the element is clicked.
 
 ```html
 <button {{bind 'click: click'}}></button>
 ```
 
 ```javascript
-{ click: function (event, $elem, args, kwhash) {} }
+{ click: function (event, $elem, args, kwhash) { ... } }
 ```
 
 #### Toggle
@@ -403,7 +403,7 @@ A function on the viewmodel is run when the form is submitted. If `true` is pass
 ```
 
 ```javascript
-{ submit: function (event, $elem, args, kwhash) {} }
+{ submit: function (event, $elem, args, kwhash) { ... } }
 ```
 
 #### Disabled
@@ -451,7 +451,7 @@ A function on the viewmodel is run when the enter key is pressed on the element.
 ```
 
 ```javascript
-{ pressed: function (event, $elem, args, kwhash) {} }
+{ pressed: function (event, $elem, args, kwhash) { ... } }
 ```
 
 #### Key (keyCode)
@@ -463,7 +463,7 @@ A function on the viewmodel is run when the specific key, passed as an argument,
 ```
 
 ```javascript
-{ pressed: function (event, $elem, args, kwhash) {} }
+{ pressed: function (event, $elem, args, kwhash) { ... } }
 ```
 
 #### Files
@@ -496,9 +496,9 @@ The job of a binding is to synchronize data between the DOM and the viewmodel. B
 ViewModel.addBinding(name, {
   // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
   // consequently, viewmodels or properties will not be created automatically.
-  // The get and set functions will be called with the view as contex instead
+  // The get and set functions will be called with the view as contex, instead
   // of a viewmodel.
-  free: false,
+  detached: false,
 
   // Space separated list of events
   on: "keyup input change",
