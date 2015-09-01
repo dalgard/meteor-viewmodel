@@ -204,7 +204,7 @@ ViewModel = class ViewModel {
       this._view.onViewReady(() => this._view.autorun(autorun.bind(this)));
   }
 
-  // Bind an element
+  // Bind an element (called with either the view or a new viewmodel as context)
   bind(elem_or_id, binding, key, args, kwhash) {
     let template_instance = this.templateInstance(),
         selector = _.isElement(elem_or_id) ? elem_or_id : "[" + ViewModel.bindAttr + "=" + elem_or_id + "]";
@@ -239,9 +239,15 @@ ViewModel = class ViewModel {
         elem.on(binding.on, event => {
           // Call property if there's no get function
           if (!binding.detached && !binding.get && !_.isUndefined(key))
-            this[key](event, elem, key, args, kwhash);
+            this[key](event, elem, this[key], args, kwhash);
           else {
-            let result = binding.get.call(this, event, elem, key, args, kwhash);
+            let is_vm = this instanceof ViewModel,
+                prop;
+
+            if (is_vm)
+              prop = this[key];
+
+            let result = binding.get.call(this, event, elem, prop, args, kwhash);
 
             // Call property if get returned a value other than undefined
             if (!binding.detached && !_.isUndefined(result) && !_.isUndefined(key))
