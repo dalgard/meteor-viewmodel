@@ -26,6 +26,7 @@ Package.onUse(function (api) {
 
   api.addFiles([
     "bindings/checked.js",
+    "bindings/classes.js",
     "bindings/click.js",
     "bindings/disabled.js",
     "bindings/files.js",

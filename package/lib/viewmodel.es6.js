@@ -221,7 +221,7 @@ ViewModel = class ViewModel {
     if (binding.set) {
       this.autorun(function () {
         let elem = template_instance.$(selector),
-            new_value = binding.detached ? null : key && this[key]();
+            new_value = binding.detached ? null : !_.isUndefined(key) && this[key]();
 
         binding.set.call(this, elem, new_value, args, kwhash);
       });
@@ -238,13 +238,13 @@ ViewModel = class ViewModel {
         // Register event
         elem.on(binding.on, event => {
           // Call property if there's no get function
-          if (!binding.detached && !binding.get)
+          if (!binding.detached && !binding.get && !_.isUndefined(key))
             this[key](event, elem, key, args, kwhash);
           else {
             let result = binding.get.call(this, event, elem, key, args, kwhash);
 
             // Call property if get returned a value other than undefined
-            if (!binding.detached && !_.isUndefined(result))
+            if (!binding.detached && !_.isUndefined(result) && !_.isUndefined(key))
               this[key](result);
           }
         });
@@ -536,7 +536,7 @@ ViewModel = class ViewModel {
       pair = pair.trim().split(/\s*:\s*/);
 
       let binding = ViewModel._bindings()[pair[0]],
-          args = pair[1].split(/\s+/g),
+          args = _.isString(pair[1]) ? pair[1].split(/\s+/g) : [],
           key = args.shift();
 
       // Add arguments
@@ -565,7 +565,7 @@ ViewModel = class ViewModel {
         }
 
         // Create properties on viewmodel if needed (initialized as undefined)
-        if (!vm[key])
+        if (!_.isUndefined(key) && !vm[key])
           vm.addProps(_.zipObject([key]));
 
         // Bind elements after they have been properly added to the view
