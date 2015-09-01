@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.5.7
+dalgard:viewmodel 0.5.8
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -602,7 +602,8 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 
 ## History
 
-- 0.5.7: Small API change – `args` argument now holds the key as the first value
+- 0.5.8: API change – passing viewmodel property to `get` function instead of key
+- 0.5.7: API change – `args` argument now holds the key as the first value
 - 0.5.0: Optionally share state between two instances of the same viewmodel
 - 0.5.0: Only use Object.defineProperties when present (to support <IE9)
 - 0.4.0: Optionally transclude viewmodel
