@@ -518,13 +518,12 @@ ViewModel = class ViewModel {
   }
 
   // The Blaze helper that is bound to templates with a viewmodel {{bind 'binding: key'}}
-  static _bindHelper(...pairs) {
-    let kwargs = pairs.pop(),  // Keywords argument
-        spread = [];
+  static _bindHelper(...bind_exps) {
+    let kwhash = bind_exps.pop();  // Keywords argument
 
     // Use hash of Spacebars keywords arguments object if it has any properties
-    if (kwargs instanceof Spacebars.kw && _.keys(kwargs.hash).length)
-      spread.push(kwargs.hash);
+    if (kwhash instanceof Spacebars.kw && _.keys(kwhash.hash).length)
+      kwhash = kwhash.hash;
 
 
     // Unique id for current element
@@ -532,12 +531,14 @@ ViewModel = class ViewModel {
         template_instance = Template.instance(),
         view = template_instance.view;
 
-    _.each(pairs, pair => {
-      pair = pair.trim().split(/\s*:\s*/);
+    _.each(bind_exps, bind_exp => {
+      let spread = [kwhash];
 
-      let binding = ViewModel._bindings()[pair[0]],
-          args = _.isString(pair[1]) ? pair[1].split(/\s+/g) : [],
-          key = args.shift();
+      bind_exp = bind_exp.trim().split(/\s*:\s*/);
+
+      let binding = ViewModel._bindings()[bind_exp[0]],
+          args = _.isString(bind_exp[1]) ? bind_exp[1].split(/\s+/g) : [],
+          key = args[0];
 
       // Add arguments
       spread.unshift(key, args);
