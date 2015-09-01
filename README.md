@@ -602,10 +602,10 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 
 ## History
 
-- 0.5.8: API change – passing viewmodel property to `get` function instead of key
-- 0.5.7: API change – `args` argument now holds the key as the first value
-- 0.5.0: Optionally share state between two instances of the same viewmodel
-- 0.5.0: Only use Object.defineProperties when present (to support <IE9)
-- 0.4.0: Optionally transclude viewmodel
-- 0.3.0: Optionally persist viewmodel across routes
-- 0.2.0: Persist viewmodels on hot code pushes
+- 0.5.8 – API change: passing viewmodel property to `get` function instead of key
+- 0.5.7 – API change: `args` argument now holds the key as the first value
+- 0.5.0 – Optionally share state between two instances of the same viewmodel
+- 0.5.0 – Only use Object.defineProperties when present (to support <IE9)
+- 0.4.0 – Optionally transclude viewmodel
+- 0.3.0 – Optionally persist viewmodel across routes
+- 0.2.0 – Persist viewmodels on hot code pushes
