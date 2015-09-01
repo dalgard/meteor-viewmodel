@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.5.7
+dalgard:viewmodel 0.5.8
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -182,7 +182,7 @@ The advantage of registering `{{bind}}` globally is that you may use it inside a
 
 The helper then automatically creates a new viewmodel instance (if none existed) on the template and immediately registers the bound key as a Blaze helper – this helper can then be used anywhere ***after*** the call to `{{bind}}`, but not before. If you want to be able to use a property *anywhere* in the template, declare the viewmodel explicitly.
 
-The syntax of the bind helper looks like this:
+The basic syntax of the bind helper looks like this:
 
 ```html
 {{bind expression ...}}
@@ -194,7 +194,7 @@ The syntax of the bind helper looks like this:
 'binding: key'
 ```
 
-You may pass multiple bind expressions to the helper. In special cases, like with the `classes` binding, the bind expression only contains the name of the binding.
+You may pass multiple bind expressions to the helper. In special cases, like with the `classes` binding, the key may be omitted or multiple keys may be listed.
 
 Any space separated values placed after the viewmodel key (i.e. the name of a property) inside the bind expression are passed as arguments to the binding – for instance, delay:
 
@@ -491,7 +491,7 @@ A method on the viewmodel is run when the specific key, passed as an argument, i
 
 #### Classes
 
-Instead of having a single property name, this bind expression may refer to any number of boolean properties, the names of which determine what class names are toggled on the element.
+This bind expression may take any number of keys, including zero (the colon is omitted), that refer to boolean properties. The keys determine, which class names are toggled on the element.
 
 ```html
 <p {{bind 'classes: red large'}}></p>
@@ -504,11 +504,13 @@ Instead of having a single property name, this bind expression may refer to any 
 }
 ```
 
-For an alternative approach, the property name may be omitted altogether, and instead an object is passed as the keyword argument `classes`, where class names are keys and toggle state of the class is a boolean value:
+An object may also be as the keyword argument `classes` with class names as keys and toggle state as a boolean value.
 
 ```html
 <p {{bind 'classes' classes=classes}}></p>
 ```
+
+Class names passed as an object take precedence over those inside the bind expression.
 
 #### Files
 
@@ -548,7 +550,7 @@ ViewModel.addBinding(name, {
   on: "keyup input change",
 
   // Get a value from the DOM
-  get: function (event, $elem, key, args, kwhash) {
+  get: function (event, $elem, prop, args, kwhash) {
     // For example
     return $elem.val();
   },
@@ -566,7 +568,7 @@ The parameters for `get` and `set` are:
 - `event` – the original (jQuery) event object.
 - `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
 - `new_value` – the new value that was passed to the property.
-- `key` – the name of the property.
+- `prop` – the property on the viewmodel, if available.
 - `args` – an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
 - `kwhash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
 
@@ -579,9 +581,9 @@ ViewModel.addBinding("enterKey", {
   on: "keyup",
 
   // This function doesn't return anything but calls the property explicitly instead
-  get: function (event, $elem, key, args, kwhash) {
+  get: function (event, $elem, prop, args, kwhash) {
     if (event.which === 13)
-      this[key](event, $elem, args, kwhash);
+      prop(event, $elem, prop, args, kwhash);
   }
 });
 ```
@@ -600,7 +602,8 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 
 ## History
 
-- 0.5.7: Small API change – `args` argument now holds the key as the first value
+- 0.5.8: API change – passing viewmodel property to `get` function instead of key
+- 0.5.7: API change – `args` argument now holds the key as the first value
 - 0.5.0: Optionally share state between two instances of the same viewmodel
 - 0.5.0: Only use Object.defineProperties when present (to support <IE9)
 - 0.4.0: Optionally transclude viewmodel

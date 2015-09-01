@@ -1,8 +1,8 @@
 ViewModel.addBinding("enterKey", {
   on: "keyup",
 
-  get: function (event, elem, key, args, kwhash) {
+  get: function (event, elem, prop, args, kwhash) {
     if (event.which === 13 || event.keyCode === 13)
-      this[key](event, elem, key, args, kwhash);
+      prop(event, elem, prop, args, kwhash);
   }
 });

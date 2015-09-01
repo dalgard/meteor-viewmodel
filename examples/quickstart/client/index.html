@@ -1,3 +1,7 @@
+<body>
+  {{> example}}
+</body>
+
 <template name="example">
   <input type="text" {{bind 'value: text'}}>
   <input type="checkbox" {{bind 'checked: show'}}>
@@ -7,5 +11,3 @@
     <p style="{{#if red}}color: red;{{/if}}">{{text}}</p>
   {{/if}}
 </template>
-
-<template name="test"></template>
