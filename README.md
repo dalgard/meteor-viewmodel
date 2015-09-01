@@ -378,6 +378,19 @@ The property reflects the state of the checkbox. The inital state of the checkbo
 { checked: false }
 ```
 
+#### Radio
+
+The property reflects the value of the radio button. The inital state of the group of radiobuttons (i.e. with the same `name` attribute) can be set in the viewmodel.
+
+```html
+<input type="radio" name="radio" value="first" {{bind 'radio: value'}}>
+<input type="radio" name="radio" value="second" {{bind 'radio: value'}}>
+```
+
+```javascript
+{ value: "first" }
+```
+
 #### Click
 
 A method on the viewmodel is called when the element is clicked.
