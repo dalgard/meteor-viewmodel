@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.5.5
+dalgard:viewmodel 0.5.6
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -192,7 +192,7 @@ The syntax of the bind helper looks like this:
 'binding: key'
 ```
 
-You may pass multiple bind expressions to the helper.
+You may pass multiple bind expressions to the helper. In special cases, like with the `classes` binding, the bind expression only contains the name of the binding.
 
 Any space separated values placed after the viewmodel key (i.e. the name of a property) inside the bind expression are passed as arguments to the binding – for instance, delay:
 
@@ -485,6 +485,23 @@ A method on the viewmodel is run when the specific key, passed as an argument, i
 
 ```javascript
 { pressed: function (event, $elem, args, kwhash) { ... } }
+```
+
+#### Classes
+
+This bind expression doesn't have a property name. Instead, it uses the keyword argument `classes`, which must be assigned an object with class names as keys and whether the class should be on or off as a boolean value.
+
+```html
+<p {{bind 'classes' classes=classes}}>
+```
+
+```javascript
+{
+  red: true,
+  classes: function () {
+    return { red: this.red() };
+  }
+}
 ```
 
 #### Files

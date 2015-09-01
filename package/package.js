@@ -1,6 +1,6 @@
 Package.describe({
   name: "dalgard:viewmodel",
-  version: "0.5.5",
+  version: "0.5.6",
   summary: "Minimalist VM for Meteor",
   git: "https://github.com/dalgard/meteor-viewmodel",
   documentation: "../README.md"
@@ -26,6 +26,7 @@ Package.onUse(function (api) {
 
   api.addFiles([
     "bindings/checked.js",
+    "bindings/classes.js",
     "bindings/click.js",
     "bindings/disabled.js",
     "bindings/files.js",
