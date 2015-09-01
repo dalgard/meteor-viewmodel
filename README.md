@@ -491,19 +491,23 @@ A method on the viewmodel is run when the specific key, passed as an argument, i
 
 #### Classes
 
-This bind expression doesn't have a property name. Instead, it uses the keyword argument `classes`, which must be assigned an object with class names as keys and whether the class should be on or off as a boolean value.
+Instead of having a single property name, this bind expression may refer to any number of boolean properties, the names of which determine what class names are toggled on the element.
 
 ```html
-<p {{bind 'classes' classes=classes}}>
+<p {{bind 'classes: red large'}}></p>
 ```
 
 ```javascript
 {
   red: true,
-  classes: function () {
-    return { red: this.red() };
-  }
+  large: false
 }
+```
+
+For an alternative approach, the property name may be omitted altogether, and instead an object is passed as the keyword argument `classes`, where class names are keys and toggle state of the class is a boolean value:
+
+```html
+<p {{bind 'classes' classes=classes}}></p>
 ```
 
 #### Files
@@ -563,7 +567,7 @@ The parameters for `get` and `set` are:
 - `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
 - `new_value` – the new value that was passed to the property.
 - `key` – the name of the property.
-- `args` – an array (possibly empty) containing any space separated values that came after the key in the bind expression.
+- `args` – an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
 - `kwhash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
@@ -594,10 +598,11 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 ```
 
 
-## Todo
+## History
 
-- ~~Persist viewmodels on hot code pushes~~ (0.2.0)
-- ~~Optionally persist viewmodel across routes~~ (0.3.0)
-- ~~Optionally transclude viewmodel~~ (0.4.0)
-- ~~Only use Object.defineProperties when present (to support <IE9)~~ (0.5.0)
-- ~~Optionally share state between two instances of the same viewmodel~~ (0.5.0)
+- 0.5.7: Small API change – `args` argument now holds the key as the first value
+- 0.5.0: Optionally share state between two instances of the same viewmodel
+- 0.5.0: Only use Object.defineProperties when present (to support <IE9)
+- 0.4.0: Optionally transclude viewmodel
+- 0.3.0: Optionally persist viewmodel across routes
+- 0.2.0: Persist viewmodels on hot code pushes

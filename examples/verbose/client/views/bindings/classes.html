@@ -1,4 +1,6 @@
 <template name="classes">
-  <input type="checkbox" {{bind 'checked: red'}}>
-  <span {{bind 'classes' classes=classes}}>text with classes</span>
+  <label><input type="checkbox" {{bind 'checked: red'}}>red</label>
+  <label><input type="checkbox" {{bind 'checked: bold'}}>bold</label>
+
+  <span {{bind 'classes: red bold'}}>text with classes</span>
 </template>
