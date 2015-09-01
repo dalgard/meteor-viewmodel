@@ -78,7 +78,7 @@ ViewModel.registerHelper("bind");
 
 ## Usage
 
-The example below is fairly verbose compared to normal use, but demonstrates the core features of ViewModel.
+The example below is fairly verbose compared to normal use, but demonstrates the core features of the package.
 
 Viewmodel declarations may sometimes be omitted altogether – the `{{bind}}` helper automatically creates what it needs, if registered globally (like in the quickstart example).
 
@@ -136,7 +136,7 @@ Template.field.viewmodel("field", function (template_data) {
       console.log("new value of regex", this.regex());
     },
 
-    // Blaze events. If you use this, chances are you are not using ViewModel
+    // Blaze events. If you use this, chances are you are not using this package
     // in an optimal way – use bindings instead.
     events: {
       "click input": function (event, template_instance) {
@@ -162,7 +162,7 @@ button($dyn='{{bind "click: click"}}')
 
 ## API
 
-This is an extract of the full API – take five minutes to explore the ViewModel class with `dir(ViewModel)` and viewmodel instances with `debugger` or `ViewModel.find()` in your dev tools of choice.
+This is an extract of the full API – take five minutes to explore the ViewModel class with `dir(ViewModel)` and viewmodel instances with `ViewModel.find()` in your dev tools of choice.
 
 ### {{bind}}
 
