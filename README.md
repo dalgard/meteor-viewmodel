@@ -446,7 +446,7 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 
 ## Standard bindings
 
-Several standard bindings are included with the package, but you are highly encouraged to add  more specialized bindings to your project in order to improve the readability of the code.
+Several bindings are included with the package, but you are highly encouraged to add  more specialized bindings to your project in order to improve the readability of the code.
 
 (Boilerplate code is omitted below; possible arguments are shown in parentheses.)
 
