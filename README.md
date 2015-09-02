@@ -41,7 +41,7 @@ If you want to use Jade with the `$bind` extension, type this instead:
   - [Persistence](#persistence)
   - [Shared state](#shared-state)
 - [addBinding](#addbinding)
-- [Standard bindings](#bindings)
+- [Standard bindings](#standard-bindings)
     - [Value ([throttle])](#value-throttle)
     - [Checked](#checked)
     - [Radio](#radio)
