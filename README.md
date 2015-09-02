@@ -172,7 +172,7 @@ input(type='text' $bind='value: value 500')
 <input type="text" {{bind 'value: value 500'}}>
 ```
 
-The new syntax doesn't support keyword arguments yet, but they can still be used with the old syntax:
+The new syntax doesn't support keyword arguments yet, but they still work using the old syntax:
 
 ```jade
 input(type='text' $dyn='{{bind "value: value 500" keyword=arg}}')
