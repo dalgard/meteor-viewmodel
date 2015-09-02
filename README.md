@@ -15,7 +15,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 `meteor install dalgard:viewmodel`
 
-If you want to use Jade with the special ViewModel extension, do this instead:
+If you want to use Jade with the `$bind` extension, type this instead:
 
 `meteor install dalgard:viewmodel-jade`  (includes `mquandalle:jade`)
 
