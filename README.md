@@ -40,7 +40,8 @@ If you want to use Jade with the `$bind` extension, type this instead:
   - [Transclude](#transclude)
   - [Persistence](#persistence)
   - [Shared state](#shared-state)
-- [Bindings](#bindings)
+- [addBinding](#addbinding)
+- [Standard bindings](#bindings)
     - [Value ([throttle])](#value-throttle)
     - [Checked](#checked)
     - [Radio](#radio)
@@ -54,7 +55,6 @@ If you want to use Jade with the `$bind` extension, type this instead:
     - [Key (keyCode)](#key-keycode)
     - [Classes](#classes)
     - [Files](#files)
-- [addBinding](#addbinding)
 - [History](#history)
   - [Todo](#todo)
 
@@ -369,7 +369,82 @@ Template.example.viewmodel({
 If a component is repeated on a page, the `share` flag makes sure that the state of the two instances is kept in sync automatically. This is useful for something like a pagination widget that is duplicated at the top and bottom of a page.
 
 
-## Bindings
+## addBinding
+
+This is the full definition of the `click` binding:
+
+```javascript
+ViewModel.addBinding("click", {
+  on: "click"
+});
+```
+
+The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through definition objects:
+
+```javascript
+// All four properties on the definition object are optional
+ViewModel.addBinding(name, {
+  // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
+  // consequently, viewmodels or properties will not be created automatically.
+  // The get and set functions will be called with the view as contex, instead
+  // of a viewmodel.
+  detached: false,
+
+  // Space separated list of events
+  on: "keyup input change",
+
+  // Get a value from the DOM
+  get: function (event, $elem, prop, args, kwhash) {
+    // For example
+    return $elem.val();
+  },
+
+  // Apply a new value to the DOM
+  set: function ($elem, new_value, args, kwhash) {
+    // For example
+    $elem.val(new_value);
+  }
+});
+```
+
+The parameters for `get` and `set` are:
+
+- `event` – the original (jQuery) event object.
+- `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
+- `new_value` – the new value that was passed to the property.
+- `prop` – the property on the viewmodel, if available.
+- `args` – an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
+- `kwhash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
+
+The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
+
+An example:
+
+```javascript
+ViewModel.addBinding("enterKey", {
+  on: "keyup",
+
+  // This function doesn't return anything but calls the property explicitly instead
+  get: function (event, $elem, prop, args, kwhash) {
+    if (event.which === 13)
+      prop(event, $elem, prop, args, kwhash);
+  }
+});
+```
+
+In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding above. The bound property will then be called with the same arguments as the `get` function.
+
+A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
+
+```javascript
+ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
+  // Return definition object
+  return {};
+});
+```
+
+
+## Standard bindings
 
 Several standard bindings are included with the package, but you are highly encouraged to add  more specialized bindings to your project in order to improve the readability of the code.
 
@@ -543,81 +618,6 @@ The property is an array of the currently selected file object(s) from the file 
 
 ```javascript
 { files: [] }
-```
-
-
-## addBinding
-
-This is the full definition of the `click` binding:
-
-```javascript
-ViewModel.addBinding("click", {
-  on: "click"
-});
-```
-
-The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through definition objects:
-
-```javascript
-// All four properties on the definition object are optional
-ViewModel.addBinding(name, {
-  // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
-  // consequently, viewmodels or properties will not be created automatically.
-  // The get and set functions will be called with the view as contex, instead
-  // of a viewmodel.
-  detached: false,
-
-  // Space separated list of events
-  on: "keyup input change",
-
-  // Get a value from the DOM
-  get: function (event, $elem, prop, args, kwhash) {
-    // For example
-    return $elem.val();
-  },
-
-  // Apply a new value to the DOM
-  set: function ($elem, new_value, args, kwhash) {
-    // For example
-    $elem.val(new_value);
-  }
-});
-```
-
-The parameters for `get` and `set` are:
-
-- `event` – the original (jQuery) event object.
-- `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
-- `new_value` – the new value that was passed to the property.
-- `prop` – the property on the viewmodel, if available.
-- `args` – an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
-- `kwhash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
-
-The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
-
-An example:
-
-```javascript
-ViewModel.addBinding("enterKey", {
-  on: "keyup",
-
-  // This function doesn't return anything but calls the property explicitly instead
-  get: function (event, $elem, prop, args, kwhash) {
-    if (event.which === 13)
-      prop(event, $elem, prop, args, kwhash);
-  }
-});
-```
-
-In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding above. The bound property will then be called with the same arguments as the `get` function.
-
-A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
-
-```javascript
-ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
-  // Return definition object
-  return {};
-});
 ```
 
 
