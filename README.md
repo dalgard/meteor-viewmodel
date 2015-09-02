@@ -166,13 +166,13 @@ Consequently, this code in Spacebars:
 <input {{bind 'value: value 500'}}>
 ```
 
-... would look like this with the Jade extension:
+... will look like this with the Jade extension:
 
 ```jade
 input($bind='value: value 500')
 ```
 
-The new syntax doesn't support keyword arguments yet, but they still work using the old syntax:
+The extended syntax doesn't support keyword arguments yet, but they still work using the old syntax:
 
 ```jade
 input($dyn='{{bind "value: value 500" keyword=arg}}')
