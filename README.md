@@ -160,16 +160,16 @@ Since traversal methods are reactive, removing and adding viewmodel instances to
 
 The package `dalgard:viewmodel-jade` extends Jade's syntax so that any attribute beginning with a dollar sign – except for `$dyn` – gets converted directly to a dynamic attribute helper.
 
-Consequently, this code:
-
-```jade
-input(type='text' $bind='value: value 500')
-```
-
-... would look like this in Spacebars:
+Consequently, this code in Spacebars:
 
 ```html
 <input type="text" {{bind 'value: value 500'}}>
+```
+
+... would look like this with the Jade extension:
+
+```jade
+input(type='text' $bind='value: value 500')
 ```
 
 The new syntax doesn't support keyword arguments yet, but they still work using the old syntax:
