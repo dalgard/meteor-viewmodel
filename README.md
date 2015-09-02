@@ -163,19 +163,19 @@ The package `dalgard:viewmodel-jade` extends Jade's syntax so that any attribute
 Consequently, this code in Spacebars:
 
 ```html
-<input type="text" {{bind 'value: value 500'}}>
+<input {{bind 'value: value 500'}}>
 ```
 
 ... would look like this with the Jade extension:
 
 ```jade
-input(type='text' $bind='value: value 500')
+input($bind='value: value 500')
 ```
 
 The new syntax doesn't support keyword arguments yet, but they still work using the old syntax:
 
 ```jade
-input(type='text' $dyn='{{bind "value: value 500" keyword=arg}}')
+input($dyn='{{bind "value: value 500" keyword=arg}}')
 ```
 
 
