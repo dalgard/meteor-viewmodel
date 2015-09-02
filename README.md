@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.5.8
+dalgard:viewmodel 0.5.9
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -15,6 +15,10 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 `meteor install dalgard:viewmodel`
 
+Or, if you want to use Jade with the special ViewModel extension:
+
+`meteor install dalgard:viewmodel-jade` (includes `mquandalle:jade`)
+
 ### Contents
 
 *Generated with [DocToc](https://github.com/thlorenz/doctoc).*
@@ -25,7 +29,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 - [Quickstart](#quickstart)
 - [Usage](#usage)
-  - [Jade](#jade)
+  - [Jade extension](#jade-extension)
 - [API](#api)
   - [{{bind}}](#bind)
   - [Viewmodel instances](#viewmodel-instances)
@@ -52,6 +56,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
     - [Files](#files)
 - [addBinding](#addbinding)
 - [History](#history)
+  - [Todo](#todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -151,12 +156,26 @@ Avoid creating a viewmodel on templates that neither contain a `{{bind}}` statem
 
 Since traversal methods are reactive, removing and adding viewmodel instances to the page may also result in autoruns running more times than necessary.
 
-### Jade
+### Jade extension
 
-To attach a binding in a Jade template, this syntax should work:
+The package `dalgard:viewmodel-jade` extends Jade's syntax so that any attribute beginning with a dollar sign – except for `$dyn` – gets converted directly to a dynamic attribute helper.
+
+Consequently, this code:
 
 ```jade
-button($dyn='{{bind "click: click"}}')
+input(type='text' $bind='value: value 500')
+```
+
+... would look like this in Spacebars:
+
+```html
+<input type="text" {{bind 'value: value 500'}}>
+```
+
+The new syntax doesn't support keyword arguments yet, but they can still be used with the old syntax:
+
+```jade
+input(type='text' $dyn='{{bind "value: value 500" keyword=arg}}')
 ```
 
 
@@ -194,7 +213,9 @@ The basic syntax of the bind helper looks like this:
 'binding: key'
 ```
 
-You may pass multiple bind expressions to the helper. In special cases, like with the `classes` binding, the key may be omitted or multiple keys may be listed.
+You may pass multiple bind expressions to the helper – either inside one string, separated by commas, or as multiple positional arguments.
+
+In special cases, like with the `classes` binding, the key may be omitted or multiple keys may be listed.
 
 Any space separated values placed after the viewmodel key (i.e. the name of a property) inside the bind expression are passed as arguments to the binding – for instance, delay:
 
@@ -602,6 +623,7 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 
 ## History
 
+- 0.5.9 – Multiple comma separated bind expressions in one string (for Jade extension) 
 - 0.5.8 – API change: Passing viewmodel property to `get` function instead of key
 - 0.5.7 – API change: `args` argument now holds the key as the first value
 - 0.5.0 – Optionally share state between two instances of the same viewmodel
@@ -609,3 +631,7 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 - 0.4.0 – Optionally transclude viewmodel
 - 0.3.0 – Optionally persist viewmodel across routes
 - 0.2.0 – Persist viewmodels on hot code pushes
+
+### Todo
+
+- Add keyword arguments in Jade

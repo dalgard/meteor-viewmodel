@@ -524,12 +524,16 @@ ViewModel = class ViewModel {
   }
 
   // The Blaze helper that is bound to templates with a viewmodel {{bind 'binding: key'}}
-  static _bindHelper(...bind_exps) {
-    let kwhash = bind_exps.pop();  // Keywords argument
+  static _bindHelper(...args) {
+    let kwhash = args.pop(),  // Keywords argument
+        bind_exps = [];
 
     // Use hash of Spacebars keywords arguments object if it has any properties
     if (kwhash instanceof Spacebars.kw && _.keys(kwhash.hash).length)
       kwhash = kwhash.hash;
+
+    // Support multiple bind expressions separated by comma
+    _.each(args, arg => bind_exps = bind_exps.concat(arg.split(/\s*,\s*/g)));
 
 
     // Unique id for current element

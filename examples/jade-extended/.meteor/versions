@@ -7,6 +7,7 @@ boilerplate-generator@1.0.3
 callback-hook@1.0.3
 check@1.0.5
 dalgard:viewmodel@0.5.9
+dalgard:viewmodel-jade@0.5.9
 ddp@1.1.0
 deps@1.0.7
 ejson@1.0.6
@@ -28,6 +29,7 @@ minifiers@1.1.5
 minimongo@1.0.8
 mobile-status-bar@1.0.3
 mongo@1.1.0
+mquandalle:jade-compiler@0.4.3
 observe-sequence@1.0.6
 ordered-dict@1.0.3
 random@1.0.3
