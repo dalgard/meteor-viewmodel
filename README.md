@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.5.9
+dalgard:viewmodel 0.6.0
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -18,6 +18,8 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 If you want to use Jade with the `$bind` extension, type this instead:
 
 `meteor install dalgard:viewmodel-jade`  (includes `mquandalle:jade`)
+
+If you are migrating from `manuel:viewmodel`, read the [Migration](#migration) section.
 
 ### Contents
 
@@ -55,6 +57,7 @@ If you want to use Jade with the `$bind` extension, type this instead:
     - [Key (keyCode)](#key-keycode)
     - [Classes](#classes)
     - [Files](#files)
+- [Migration](#migration)
 - [History](#history)
   - [Todo](#todo)
 
@@ -621,8 +624,29 @@ The property is an array of the currently selected file object(s) from the file 
 ```
 
 
+## Migration
+
+If you are migrating gradually from `manuel:viewmodel` or any other package that exports a `ViewModel` and/or overwrites `Blaze.Template.prototype.viewmodel`, there are a couple of steps you need to take to remedy conflicts:
+
+1. Make sure `dalgard:viewmodel` is included *before* any package fitting the description above.
+2. Reassign the needed functionality to whichever names you like, directly from the package.
+
+Like this:
+
+```javascript
+// E.g. /client/lib/dalgard-viewmodel.js
+DalgardViewModel = Package["dalgard:viewmodel"].ViewModel;
+Blaze.Template.prototype.dalgardViewmodel = DalgardViewModel.viewmodelHook;
+```
+
+You can now use the two packages side by side, until everything is migrated.
+
+Pro tip: Choose unique names that can be search-and-replace'd globally, when the time comes.
+
+
 ## History
 
+- 0.6.0  –  Make migration possible by storing the `viewmodel` hook as a property on `ViewModel`
 - 0.5.9  –  Multiple comma separated bind expressions in one string (for Jade extension) 
 - 0.5.8  –  API change: Passing viewmodel property to `get` function instead of key
 - 0.5.7  –  API change: `args` argument now holds the key as the first value
@@ -634,4 +658,4 @@ The property is an array of the currently selected file object(s) from the file 
 
 ### Todo
 
-- Add keyword arguments in Jade version
+- Enable keyword arguments in Jade version
