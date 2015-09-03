@@ -1,8 +1,0 @@
-label
-  input(type='checkbox' $bind='checked: checked')
-  | checked
-
-if checked
-  input(type='text' placeholder='inside if' $bind='value: value')
-else
-  | #{value}
