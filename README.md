@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.5.8
+dalgard:viewmodel 0.5.9
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -9,11 +9,13 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - Easily extensible
 - Non-intrusive
 
-(3.34 kB minified and gzipped)
+(3.49 kB minified and gzipped)
 
 ### Install
 
 `meteor install dalgard:viewmodel`
+
+If you are migrating from `manuel:viewmodel`, read the [Migration](#migration) section.
 
 ### Contents
 
@@ -36,7 +38,8 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
   - [Transclude](#transclude)
   - [Persistence](#persistence)
   - [Shared state](#shared-state)
-- [Bindings](#bindings)
+- [addBinding](#addbinding)
+- [Standard bindings](#standard-bindings)
     - [Value ([throttle])](#value-throttle)
     - [Checked](#checked)
     - [Radio](#radio)
@@ -50,7 +53,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
     - [Key (keyCode)](#key-keycode)
     - [Classes](#classes)
     - [Files](#files)
-- [addBinding](#addbinding)
+- [Migration](#migration)
 - [History](#history)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -78,7 +81,7 @@ ViewModel.registerHelper("bind");
 
 ## Usage
 
-The example below is fairly verbose compared to normal use, but demonstrates the core features of ViewModel.
+The example below is fairly verbose compared to normal use, but demonstrates the core features of the package.
 
 Viewmodel declarations may sometimes be omitted altogether – the `{{bind}}` helper automatically creates what it needs, if registered globally (like in the quickstart example).
 
@@ -136,7 +139,7 @@ Template.field.viewmodel("field", function (template_data) {
       console.log("new value of regex", this.regex());
     },
 
-    // Blaze events. If you use this, chances are you are not using ViewModel
+    // Blaze events. If you use this, chances are you are not using this package
     // in an optimal way – use bindings instead.
     events: {
       "click input": function (event, template_instance) {
@@ -162,7 +165,7 @@ button($dyn='{{bind "click: click"}}')
 
 ## API
 
-This is an extract of the full API – take five minutes to explore the ViewModel class with `dir(ViewModel)` and viewmodel instances with `debugger` or `ViewModel.find()` in your dev tools of choice.
+This is an extract of the full API – take five minutes to explore the ViewModel class with `dir(ViewModel)` and viewmodel instances with `ViewModel.find()` in your dev tools of choice.
 
 ### {{bind}}
 
@@ -194,7 +197,9 @@ The basic syntax of the bind helper looks like this:
 'binding: key'
 ```
 
-You may pass multiple bind expressions to the helper. In special cases, like with the `classes` binding, the key may be omitted or multiple keys may be listed.
+You may pass multiple bind expressions to the helper – either inside one string, separated by commas, or as multiple positional arguments.
+
+In special cases, like with the `classes` binding, the key may be omitted or multiple keys may be listed.
 
 Any space separated values placed after the viewmodel key (i.e. the name of a property) inside the bind expression are passed as arguments to the binding – for instance, delay:
 
@@ -348,9 +353,84 @@ Template.example.viewmodel({
 If a component is repeated on a page, the `share` flag makes sure that the state of the two instances is kept in sync automatically. This is useful for something like a pagination widget that is duplicated at the top and bottom of a page.
 
 
-## Bindings
+## addBinding
 
-Several standard bindings are included with the package, but you are highly encouraged to add  more specialized bindings to your project in order to improve the readability of the code.
+This is the full definition of the `click` binding:
+
+```javascript
+ViewModel.addBinding("click", {
+  on: "click"
+});
+```
+
+The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through definition objects:
+
+```javascript
+// All four properties on the definition object are optional
+ViewModel.addBinding(name, {
+  // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
+  // consequently, viewmodels or properties will not be created automatically.
+  // The get and set functions will be called with the view as contex, instead
+  // of a viewmodel.
+  detached: false,
+
+  // Space separated list of events
+  on: "keyup input change",
+
+  // Get a value from the DOM
+  get: function (event, $elem, prop, args, kwhash) {
+    // For example
+    return $elem.val();
+  },
+
+  // Apply a new value to the DOM
+  set: function ($elem, new_value, args, kwhash) {
+    // For example
+    $elem.val(new_value);
+  }
+});
+```
+
+The parameters for `get` and `set` are:
+
+- `event` – the original (jQuery) event object.
+- `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
+- `new_value` – the new value that was passed to the property.
+- `prop` – the property on the viewmodel, if available.
+- `args` – an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
+- `kwhash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
+
+The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
+
+An example:
+
+```javascript
+ViewModel.addBinding("enterKey", {
+  on: "keyup",
+
+  // This function doesn't return anything but calls the property explicitly instead
+  get: function (event, $elem, prop, args, kwhash) {
+    if (event.which === 13)
+      prop(event, $elem, prop, args, kwhash);
+  }
+});
+```
+
+In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding above. The bound property will then be called with the same arguments as the `get` function.
+
+A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
+
+```javascript
+ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
+  // Return definition object
+  return {};
+});
+```
+
+
+## Standard bindings
+
+Several bindings are included with the package, but you are highly encouraged to add  more specialized bindings to your project in order to improve the readability of the code.
 
 (Boilerplate code is omitted below; possible arguments are shown in parentheses.)
 
@@ -525,87 +605,34 @@ The property is an array of the currently selected file object(s) from the file 
 ```
 
 
-## addBinding
+## Migration
 
-This is the full definition of the `click` binding:
+If you are migrating gradually from `manuel:viewmodel` or any other package that exports a `ViewModel` and/or overwrites `Blaze.Template.prototype.viewmodel`, there are a couple of steps you need to take to remedy conflicts:
 
-```javascript
-ViewModel.addBinding("click", {
-  on: "click"
-});
-```
+1. Make sure `dalgard:viewmodel` is included *before* any package fitting the description above.
+2. Reassign the needed functionality to whichever names you like, directly from the package.
 
-The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through definition objects:
+Like this:
 
 ```javascript
-// All four properties on the definition object are optional
-ViewModel.addBinding(name, {
-  // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
-  // consequently, viewmodels or properties will not be created automatically.
-  // The get and set functions will be called with the view as contex, instead
-  // of a viewmodel.
-  detached: false,
-
-  // Space separated list of events
-  on: "keyup input change",
-
-  // Get a value from the DOM
-  get: function (event, $elem, prop, args, kwhash) {
-    // For example
-    return $elem.val();
-  },
-
-  // Apply a new value to the DOM
-  set: function ($elem, new_value, args, kwhash) {
-    // For example
-    $elem.val(new_value);
-  }
-});
+// E.g. /client/lib/dalgard-viewmodel.js
+DalgardViewModel = Package["dalgard:viewmodel"].ViewModel;
+Blaze.Template.prototype.dalgardViewmodel = DalgardViewModel.viewmodelHook;
 ```
 
-The parameters for `get` and `set` are:
+You can now use the two packages side by side, until everything is migrated.
 
-- `event` – the original (jQuery) event object.
-- `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
-- `new_value` – the new value that was passed to the property.
-- `prop` – the property on the viewmodel, if available.
-- `args` – an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
-- `kwhash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
-
-The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
-
-An example:
-
-```javascript
-ViewModel.addBinding("enterKey", {
-  on: "keyup",
-
-  // This function doesn't return anything but calls the property explicitly instead
-  get: function (event, $elem, prop, args, kwhash) {
-    if (event.which === 13)
-      prop(event, $elem, prop, args, kwhash);
-  }
-});
-```
-
-In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding above. The bound property will then be called with the same arguments as the `get` function.
-
-A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
-
-```javascript
-ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
-  // Return definition object
-  return {};
-});
-```
+Pro tip: Choose unique names that can be search-and-replace'd globally, when the time comes.
 
 
 ## History
 
-- 0.5.8: API change – passing viewmodel property to `get` function instead of key
-- 0.5.7: API change – `args` argument now holds the key as the first value
-- 0.5.0: Optionally share state between two instances of the same viewmodel
-- 0.5.0: Only use Object.defineProperties when present (to support <IE9)
-- 0.4.0: Optionally transclude viewmodel
-- 0.3.0: Optionally persist viewmodel across routes
-- 0.2.0: Persist viewmodels on hot code pushes
+- 0.5.9  –  Migration made possible by storing the `viewmodel` hook as a property on `ViewModel`
+- 0.5.9  –  Multiple comma separated bind expressions in one string (for future Jade extension)
+- 0.5.8  –  API change: Passing viewmodel property to `get` function instead of key
+- 0.5.7  –  API change: `args` argument now holds the key as the first value
+- 0.5.0  –  Optionally share state between two instances of the same viewmodel
+- 0.5.0  –  Only use Object.defineProperties when present (to support <IE9)
+- 0.4.0  –  Optionally transclude viewmodel
+- 0.3.0  –  Optionally persist viewmodel across routes
+- 0.2.0  –  Persist viewmodels on hot code pushes

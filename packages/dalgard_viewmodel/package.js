@@ -1,6 +1,6 @@
 Package.describe({
   name: "dalgard:viewmodel",
-  version: "0.5.8",
+  version: "0.5.9",
   summary: "Minimalist VM for Meteor",
   git: "https://github.com/dalgard/meteor-viewmodel",
   documentation: "../README.md"
@@ -16,13 +16,11 @@ Package.onUse(function (api) {
     "reactive-dict",
     "sha",
     "blaze",
+    "templating",
     "stevezhu:lodash@3.10.1"
   ], "client");
 
-  api.addFiles([
-    "lib/viewmodel.es6.js",
-    "lib/hooks.es6.js"
-  ], "client");
+  api.addFiles("lib/viewmodel.es6.js", "client");
 
   api.addFiles([
     "bindings/checked.js",
@@ -40,5 +38,7 @@ Package.onUse(function (api) {
     "bindings/value.js"
   ], "client");
 
+  api.addFiles("init.js", "client");
+  
   api.export("ViewModel", "client");
 });

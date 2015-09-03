@@ -1,0 +1,8 @@
+label
+  input(type='checkbox' $dyn='{{bind "checked: checked"}}')
+  | checked
+
+if checked
+  input(type='text' placeholder='inside if' $dyn='{{bind "value: value"}}')
+else
+  | #{value}
