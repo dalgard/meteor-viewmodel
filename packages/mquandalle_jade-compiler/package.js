@@ -28,19 +28,8 @@ Package.onUse(function(api) {
   ]);
   api.export('JadeCompiler');
 
-
-  /*!
-    Added – Kristian Dalgård (dalgard)
-
-    (This is the only modification of this package)
-  */
-
+  //! Line inserted as the only modification of this package – Kristian Dalgård (dalgard)
   api.export('TemplateCompiler');
-
-  /*
-    End of added
-  */
-
 });
 
 Package.onTest(function (api) {
