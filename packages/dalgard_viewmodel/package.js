@@ -3,7 +3,7 @@ Package.describe({
   version: "0.5.9",
   summary: "Minimalist VM for Meteor",
   git: "https://github.com/dalgard/meteor-viewmodel",
-  documentation: "../README.md"
+  documentation: "../../README.md"
 });
 
 Package.onUse(function (api) {
