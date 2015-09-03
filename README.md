@@ -39,7 +39,7 @@ If you are migrating from `manuel:viewmodel`, read the [Migration](#migration) s
   - [Persistence](#persistence)
   - [Shared state](#shared-state)
 - [addBinding](#addbinding)
-- [Standard bindings](#standard-bindings)
+- [Built-in bindings](#built-in-bindings)
     - [Value ([throttle])](#value-throttle)
     - [Checked](#checked)
     - [Radio](#radio)
@@ -428,7 +428,7 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 ```
 
 
-## Standard bindings
+## Built-in bindings
 
 Several bindings are included with the package, but you are highly encouraged to add  more specialized bindings to your project in order to improve the readability of the code.
 
@@ -609,7 +609,7 @@ The property is an array of the currently selected file object(s) from the file 
 
 If you are migrating gradually from `manuel:viewmodel` or any other package that exports a `ViewModel` and/or overwrites `Blaze.Template.prototype.viewmodel`, there are a couple of steps you need to take to remedy conflicts:
 
-1. Make sure `dalgard:viewmodel` is included *before* any package fitting the description above.
+1. Make sure `dalgard:viewmodel` is included *before* any package that fits the description above.
 2. Reassign the needed functionality to whichever names you like, directly from the package.
 
 Like this:
