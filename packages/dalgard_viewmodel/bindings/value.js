@@ -8,12 +8,12 @@ ViewModel.addBinding("value", function (data, prop, args, kwhash) {
     get = _.throttle(get, throttle, { leading: false });
 
   return {
-    on: "cut paste keyup input change",
-
-    get: get,
-
     set: function (elem, new_value) {
       elem.val(new_value);
-    }
+    },
+    
+    on: "cut paste keyup input change",
+
+    get: get
   };
 });

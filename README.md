@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.5.9
+dalgard:viewmodel 0.6.0
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -9,7 +9,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - Easily extensible
 - Non-intrusive
 
-(3.49 kB minified and gzipped)
+(3.57 kB minified and gzipped)
 
 ### Install
 
@@ -39,7 +39,7 @@ If you are migrating from `manuel:viewmodel`, read the [Migration](#migration) s
   - [Persistence](#persistence)
   - [Shared state](#shared-state)
 - [addBinding](#addbinding)
-- [Standard bindings](#standard-bindings)
+- [Built-in bindings](#built-in-bindings)
     - [Value ([throttle])](#value-throttle)
     - [Checked](#checked)
     - [Radio](#radio)
@@ -156,12 +156,13 @@ Since traversal methods are reactive, removing and adding viewmodel instances to
 
 ### Jade
 
-To attach a binding in a Jade template, this syntax should work:
+To attach a binding in a Jade template, use this syntax:
 
 ```jade
 button($dyn='{{bind "click: click"}}')
 ```
 
+Also check out the Jade example in `/examples/jade`.
 
 ## API
 
@@ -366,7 +367,7 @@ ViewModel.addBinding("click", {
 The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through definition objects:
 
 ```javascript
-// All four properties on the definition object are optional
+// All properties on the definition object are optional
 ViewModel.addBinding(name, {
   // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
   // consequently, viewmodels or properties will not be created automatically.
@@ -374,19 +375,27 @@ ViewModel.addBinding(name, {
   // of a viewmodel.
   detached: false,
 
-  // Space separated list of events
-  on: "keyup input change",
-
-  // Get a value from the DOM
-  get: function (event, $elem, prop, args, kwhash) {
+  // Run once when the element is rendered, right before the first call to set.
+  // Used to initalize a jQuery plugin or similar. When creating a binding
+  // that only contains this init function, remember to set detached: true.
+  init: function ($elem, orig_value, args, kwhash) {
     // For example
-    return $elem.val();
+    $elem.init("plugin", kwhash.options);
   },
 
-  // Apply a new value to the DOM
+  // Apply the original value and new values to the DOM
   set: function ($elem, new_value, args, kwhash) {
     // For example
     $elem.val(new_value);
+  },
+
+  // Space separated list of events
+  on: "keyup input change",
+
+  // Get the changed value from the DOM
+  get: function (event, $elem, prop, args, kwhash) {
+    // For example
+    return $elem.val();
   }
 });
 ```
@@ -395,7 +404,7 @@ The parameters for `get` and `set` are:
 
 - `event` – the original (jQuery) event object.
 - `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
-- `new_value` – the new value that was passed to the property.
+- `orig_value`/`new_value` – the new value that was passed to the property.
 - `prop` – the property on the viewmodel, if available.
 - `args` – an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
 - `kwhash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
@@ -428,7 +437,7 @@ ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
 ```
 
 
-## Standard bindings
+## Built-in bindings
 
 Several bindings are included with the package, but you are highly encouraged to add  more specialized bindings to your project in order to improve the readability of the code.
 
@@ -609,7 +618,7 @@ The property is an array of the currently selected file object(s) from the file 
 
 If you are migrating gradually from `manuel:viewmodel` or any other package that exports a `ViewModel` and/or overwrites `Blaze.Template.prototype.viewmodel`, there are a couple of steps you need to take to remedy conflicts:
 
-1. Make sure `dalgard:viewmodel` is included *before* any package fitting the description above.
+1. Make sure `dalgard:viewmodel` is included *before* any package that fits the description above.
 2. Reassign the needed functionality to whichever names you like, directly from the package.
 
 Like this:
@@ -627,12 +636,11 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
-- 0.5.9  –  Migration made possible by storing the `viewmodel` hook as a property on `ViewModel`
-- 0.5.9  –  Multiple comma separated bind expressions in one string (for future Jade extension)
-- 0.5.8  –  API change: Passing viewmodel property to `get` function instead of key
-- 0.5.7  –  API change: `args` argument now holds the key as the first value
-- 0.5.0  –  Optionally share state between two instances of the same viewmodel
-- 0.5.0  –  Only use Object.defineProperties when present (to support <IE9)
-- 0.4.0  –  Optionally transclude viewmodel
-- 0.3.0  –  Optionally persist viewmodel across routes
-- 0.2.0  –  Persist viewmodels on hot code pushes
+- 0.6.0  –  Added `init` function to binding definition. `ViewModel.bindHelper` now part of public API.
+- 0.5.9  –  Migration made possible by storing the `viewmodel` hook as a property on `ViewModel`. Multiple comma separated bind expressions in one string (for future Jade extension).
+- 0.5.8  –  API change: Passing viewmodel property to `get` function instead of key.
+- 0.5.7  –  API change: `args` argument now holds the key as the first value.
+- 0.5.0  –  Optionally share state between two instances of the same viewmodel. Only use Object.defineProperties when present (to support <IE9).
+- 0.4.0  –  Optionally transclude viewmodel.
+- 0.3.0  –  Optionally persist viewmodel across routes.
+- 0.2.0  –  Persist viewmodels on hot code pushes.

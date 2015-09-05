@@ -165,12 +165,13 @@ ViewModel = class ViewModel {
       // Create a Blaze helper for the property
       helper[key] = function (...args) {
         let vm = Template.instance().viewmodel,
-            kwargs = args.pop(),  // Keywords argument
-            spread = [];
+            kwhash = args.pop();  // Keywords argument;
 
         // Use hash of Spacebars keywords arguments object if it has any properties
-        if (kwargs instanceof Spacebars.kw && _.keys(kwargs.hash).length)
-          spread.push(kwargs.hash);
+        if (kwhash instanceof Spacebars.kw)
+          kwhash = kwhash.hash;
+
+        let spread = [kwhash];
 
         // Add arguments
         spread.unshift(...args);
@@ -216,44 +217,55 @@ ViewModel = class ViewModel {
     if (_.isFunction(binding))
       binding = binding.call(template_instance.view, template_instance.data, key, args, kwhash);
 
-    // Wrap set function and add it to list of autoruns (gets called with viewmodel
-    // as context and jQuery element and new property value as arguments)
-    if (binding.set) {
-      this.autorun(function () {
-        let elem = template_instance.$(selector),
-            new_value = binding.detached ? null : !_.isUndefined(key) && this[key]();
-
-        binding.set.call(this, elem, new_value, args, kwhash);
-      });
-    }
-
-    // Add listener (registered inside onRendered) that calls property with result
-    // of get function (gets called with viewmodel as context and the jQuery element,
-    // current property value and event object as arguments)
-    if (binding.on) {
-      // The context here may be a Blaze view, in case of a detached binding
+    // Register event and run init function on ready
+    if (binding.on || binding.init) {
+      // In case of a detached binding, the context here may be a Blaze view
       ViewModel.prototype._onReady.call(this, function () {
         let elem = template_instance.$(selector);
 
-        // Register event
-        elem.on(binding.on, event => {
-          // Call property if there's no get function
-          if (!binding.detached && !binding.get && !_.isUndefined(key))
-            this[key](event, elem, this[key], args, kwhash);
-          else {
-            let is_vm = this instanceof ViewModel,
-                prop;
+        // Run init function only once
+        if (binding.init) {
+          let prop = !_.isUndefined(key) && this[key],
+              orig_value = binding.detached ? null : _.isFunction(prop) && prop();
 
-            if (is_vm)
-              prop = this[key];
+          binding.init.call(this, elem, orig_value, args, kwhash);
+        }
 
-            let result = binding.get.call(this, event, elem, prop, args, kwhash);
+        // Add listener (registered inside onRendered) that calls property with result
+        // of get function (gets called with viewmodel as context and the jQuery element,
+        // current property value and event object as arguments)
+        if (binding.on) {
+          elem.on(binding.on, event => {
+            // Call property if there's no get function
+            if (!binding.detached && !binding.get && !_.isUndefined(key))
+              this[key](event, elem, this[key], args, kwhash);
+            else {
+              let is_vm = this instanceof ViewModel,
+                  prop;
 
-            // Call property if get returned a value other than undefined
-            if (!binding.detached && !_.isUndefined(result) && !_.isUndefined(key))
-              this[key](result);
-          }
-        });
+              if (is_vm)
+                prop = this[key];
+
+              let result = binding.get.call(this, event, elem, prop, args, kwhash);
+
+              // Call property if get returned a value other than undefined
+              if (!binding.detached && !_.isUndefined(result) && !_.isUndefined(key))
+                this[key](result);
+            }
+          });
+        }
+      });
+    }
+
+    // Wrap set function and add it to list of autoruns (gets called with viewmodel
+    // as context and jQuery element and new property value as arguments)
+    if (binding.set) {
+      this.autorun(function (comp) {
+        let elem = template_instance.$(selector),
+            prop = !_.isUndefined(key) && this[key],
+            new_value = binding.detached ? null : _.isFunction(prop) && prop();
+
+        binding.set.call(this, elem, new_value, args, kwhash);
       });
     }
   }
@@ -520,12 +532,12 @@ ViewModel = class ViewModel {
   }
 
   // The Blaze helper that is bound to templates with a viewmodel {{bind 'binding: key'}}
-  static _bindHelper(...args) {
+  static bindHelper(...args) {
     let kwhash = args.pop(),  // Keywords argument
         bind_exps = [];
 
     // Use hash of Spacebars keywords arguments object if it has any properties
-    if (kwhash instanceof Spacebars.kw && _.keys(kwhash.hash).length)
+    if (kwhash instanceof Spacebars.kw)
       kwhash = kwhash.hash;
 
     // Support multiple bind expressions separated by comma
@@ -585,7 +597,7 @@ ViewModel = class ViewModel {
 
   // Register the bind helper globally
   static registerHelper(name = ViewModel.helperName) {
-    Template.registerHelper(name, ViewModel._bindHelper);
+    Template.registerHelper(name, ViewModel.bindHelper);
 
     ViewModel.helperName = name;
     global.set(true);
@@ -680,7 +692,7 @@ ViewModel = class ViewModel {
     if (!ViewModel._isGlobal()) {
       let bind = {};
 
-      bind[ViewModel.helperName] = ViewModel._bindHelper;
+      bind[ViewModel.helperName] = ViewModel.bindHelper;
 
       this.helpers(bind);
     }
