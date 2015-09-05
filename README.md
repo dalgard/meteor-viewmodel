@@ -9,7 +9,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - Easily extensible
 - Non-intrusive
 
-(3.49 kB minified and gzipped)
+(3.57 kB minified and gzipped)
 
 ### Install
 
