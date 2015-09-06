@@ -15,7 +15,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 `meteor install dalgard:viewmodel`
 
-If you are migrating from `manuel:viewmodel`, read the [Migration](#migration) section.
+If you are migrating from `manuel:viewmodel` or would like to try both packages side by side, read the [Migration](#migration) section.
 
 ### Contents
 
