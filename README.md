@@ -109,29 +109,29 @@ Check out the other `/examples` in the repo.
 
 ```html
 <template name="page">
-  {{> field startValue='yo'}} {{fieldProp}}
+  {{> field startValue='Hello world'}} {{myFieldValue}}
 </template>
 
 <template name="field">
-  <input type="text" {{bind 'value: prop'}}>
+  <input type="text" {{bind 'value: myValue'}}>
 </template>
 ```
 
 ```javascript
 Template.page.viewmodel({
   // All properties are registered as Blaze helpers
-  fieldProp: function () {
+  myFieldValue: function () {
     // Get child viewmodel reactively by name
     var field = this.child("field");
 
-    // Child may not be ready the first time around
-    return field && field.prop();
+    // Get the value of the myValue property if/when the field is rendered
+    return field && field.myValue();
   },
 
   // Blaze onCreated hook (similar for rendered and destroyed)
   // – can be an array of functions
   created: function () {
-    console.log(this instanceof ViewModel);  // true
+    // `this` refers to the current viewmodel instance
   }
 }, options);  // An options object may be passed
 
@@ -142,12 +142,12 @@ Template.field.viewmodel("field", function (template_data) {
 
   return {
     // Primitive property
-    prop: start_value,
+    myValue: start_value,
 
     // Computed property
     regex: function () {
       // Get value of prop reactively
-      var value = this.prop();
+      var value = this.myValue();
 
       return new RexExp(value);
     },
@@ -156,14 +156,14 @@ Template.field.viewmodel("field", function (template_data) {
     // – can be an array of functions
     autorun: function () {
       // Log every time the computed regex property changes
-      console.log("new value of regex", this.regex());
+      console.log("New value of regex:", this.regex());
     },
 
     // Blaze events. If you use this, chances are you are not using this package
     // in an optimal way – use bindings instead.
     events: {
       "click input": function (event, template_instance) {
-        console.log(this instanceof ViewModel);  // true
+        // `this` refers to the current viewmodel instance
       }
     }
   };
