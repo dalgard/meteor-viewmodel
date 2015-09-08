@@ -15,7 +15,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 `meteor install dalgard:viewmodel`
 
-If you are migrating from `manuel:viewmodel` or would like to try both packages side by side, read the [Migration](#migration) section.
+If you are migrating from `manuel:viewmodel` or want to try both packages side by side, read the [Migration](#migration) section.
 
 ### Contents
 
@@ -25,6 +25,7 @@ If you are migrating from `manuel:viewmodel` or would like to try both packages 
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
+- [Intro](#intro)
 - [Quickstart](#quickstart)
 - [Usage](#usage)
   - [Jade](#jade)
@@ -59,6 +60,25 @@ If you are migrating from `manuel:viewmodel` or would like to try both packages 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 
+## Intro
+
+A modern webapp typically consists of various components, tied together in a view hierarchy. Some of these components have state, some of them expose a value, and some have actions.
+
+Examples:
+
+- A filter panel, which might be folded or unfolded and expose a regex depending on an input field.
+- A pagination widget, which might have a currently selected page, expose an index range, and have the ability to change page.
+- A login form with username, password, and a submit button, which logs in the user.
+
+Traditionally, the state of a component is held implicitly in the DOM. An element that is hidden simply has `display: none`. Values are retrieved manually upon use, and events are registered manually – in both cases through an element's class or id.
+
+With the viewmodel pattern, the state, value, and methods of a component is stored in an object – the component's **viewmodel** – which can be persisted across sessions or routes and read or written to by other components. The state and values in the viewmodel are automatically synchronized between this object and the DOM through something called **bindings**.
+
+This principle reduces the amount of code in a project, because bindings are declarative, and at the same time makes components more loosely coupled, because other parts of the view hierarchy don't have to know about a component's actual markup.
+
+The goal of `dalgard:viewmodel` is to cut down to the core of this pattern and provide the leanest possible API for gaining the largest possible advantage from it.
+
+
 ## Quickstart
 
 ```javascript
@@ -89,29 +109,30 @@ Check out the other `/examples` in the repo.
 
 ```html
 <template name="page">
-  {{> field startValue='yo'}} {{fieldProp}}
+  {{> field startValue='Hello world'}} {{myFieldValue}}
 </template>
 
 <template name="field">
-  <input type="text" {{bind 'value: prop'}}>
+  <input type="text" {{bind 'value: myValue'}}>
 </template>
 ```
 
 ```javascript
+// Declare a viewmodel on this template
 Template.page.viewmodel({
   // All properties are registered as Blaze helpers
-  fieldProp: function () {
+  myFieldValue: function () {
     // Get child viewmodel reactively by name
     var field = this.child("field");
 
-    // Child may not be ready the first time around
-    return field && field.prop();
+    // Get the value of the myValue property if/when the field is rendered
+    return field && field.myValue();
   },
 
   // Blaze onCreated hook (similar for rendered and destroyed)
   // – can be an array of functions
   created: function () {
-    console.log(this instanceof ViewModel);  // true
+    // `this` refers to the current viewmodel instance
   }
 }, options);  // An options object may be passed
 
@@ -120,14 +141,15 @@ Template.page.viewmodel({
 Template.field.viewmodel("field", function (template_data) {
   var start_value = template_data && template_data.startValue || "";
 
+  // Return the new viewmodel definition
   return {
     // Primitive property
-    prop: start_value,
+    myValue: start_value,
 
     // Computed property
     regex: function () {
       // Get value of prop reactively
-      var value = this.prop();
+      var value = this.myValue();
 
       return new RexExp(value);
     },
@@ -136,14 +158,14 @@ Template.field.viewmodel("field", function (template_data) {
     // – can be an array of functions
     autorun: function () {
       // Log every time the computed regex property changes
-      console.log("new value of regex", this.regex());
+      console.log("New value of regex:", this.regex());
     },
 
     // Blaze events. If you use this, chances are you are not using this package
     // in an optimal way – use bindings instead.
     events: {
       "click input": function (event, template_instance) {
-        console.log(this instanceof ViewModel);  // true
+        // `this` refers to the current viewmodel instance
       }
     }
   };
@@ -202,7 +224,7 @@ You may pass multiple bind expressions to the helper – either inside one strin
 
 In special cases, like with the `classes` binding, the key may be omitted or multiple keys may be listed.
 
-Any space separated values placed after the viewmodel key (i.e. the name of a property) inside the bind expression are passed as arguments to the binding – for instance, delay:
+Any space separated values after the colon inside the bind expression are passed as arguments to the binding – for instance, key and delay:
 
 ```html
 <input type="text" {{bind 'value: search 1500'}}>
@@ -400,7 +422,7 @@ ViewModel.addBinding(name, {
 });
 ```
 
-The parameters for `get` and `set` are:
+The parameters for `init`, `set`, and `get` are:
 
 - `event` – the original (jQuery) event object.
 - `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
