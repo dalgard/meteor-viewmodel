@@ -118,14 +118,14 @@ Check out the other `/examples` in the repo.
 ```
 
 ```javascript
-// Declare a viewmodel on this template
+// Declare a viewmodel on this template (all properties are registered as Blaze helpers)
 Template.page.viewmodel({
-  // All properties are registered as Blaze helpers
+  // Computed property from child viewmodel
   myFieldValue: function () {
     // Get child viewmodel reactively by name
     var field = this.child("field");
 
-    // Get the value of the myValue property if/when the field is rendered
+    // Get the value of myValue reactively when the field is rendered
     return field && field.myValue();
   },
 
@@ -148,7 +148,7 @@ Template.field.viewmodel("field", function (template_data) {
 
     // Computed property
     regex: function () {
-      // Get value of prop reactively
+      // Get the value of myValue reactively
       var value = this.myValue();
 
       return new RexExp(value);
@@ -658,6 +658,7 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
+- 0.6.1  –  Bug fix: Prevent bind helper from being rerun. `hashId` now part of public API.
 - 0.6.0  –  Added `init` function to binding definition. `ViewModel.bindHelper` now part of public API.
 - 0.5.9  –  Migration made possible by storing the `viewmodel` hook as a property on `ViewModel`. Multiple comma separated bind expressions in one string (for future Jade extension).
 - 0.5.8  –  API change: Passing viewmodel property to `get` function instead of key.
