@@ -15,7 +15,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 `meteor install dalgard:viewmodel`
 
-If you are migrating from `manuel:viewmodel` or would like to try both packages side by side, read the [Migration](#migration) section.
+If you are migrating from `manuel:viewmodel` or want to try both packages side by side, read the [Migration](#migration) section.
 
 ### Contents
 
@@ -25,6 +25,7 @@ If you are migrating from `manuel:viewmodel` or would like to try both packages 
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
+- [Intro](#intro)
 - [Quickstart](#quickstart)
 - [Usage](#usage)
   - [Jade](#jade)
@@ -57,6 +58,25 @@ If you are migrating from `manuel:viewmodel` or would like to try both packages 
 - [History](#history)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
+## Intro
+
+A modern webapp typically consists of various components, tied together in a view hierarchy. Some of these components have state, some of them expose a value, and some have actions.
+
+Examples:
+
+- A filter panel, which might be folded or unfolded and expose a regex depending on an input field.
+- A pagination widget, which might have a currently selected page, expose an index range, and have the ability to change page.
+- A login form with username, password, and a submit button, which logs in the user.
+
+Traditionally, the state of a component is held implicitly in the DOM. An element that is hidden simply has `display: none`; values are retrieved manually upon use, and events are registered manually – in both cases through an element's class or id.
+
+With the viewmodel pattern, the state, value, and methods of a component is stored in an object – the component's *viewmodel* – and values are synchronized between this object and the DOM automatically, through something called *bindings*.
+
+This principle reduces the amount of code in a project, because bindings are declarative, and at the same time makes components more loosely coupled, because other parts of the view hierarchy don't have to know about a component's specific markup.
+
+The goal of `dalgard:viewmodel` is to cut down to the core of this pattern and provide the leanest possible API for gaining the largest possible advantage from it.
 
 
 ## Quickstart
