@@ -72,7 +72,7 @@ Examples:
 
 Traditionally, the state of a component is held implicitly in the DOM. An element that is hidden simply has `display: none`. Values are retrieved manually upon use, and events are registered manually – in both cases through an element's class or id.
 
-With the viewmodel pattern, the state, value, and methods of a component is stored in an object – the component's **viewmodel** – and values are synchronized between this object and the DOM automatically, through something called **bindings**.
+With the viewmodel pattern, the state, value, and methods of a component is stored in an object – the component's **viewmodel** – which can be persisted across sessions or routes and read or written to by other components. The state and values of the viewmodel are automatically synchronized between this object and the DOM, through something called **bindings**.
 
 This principle reduces the amount of code in a project, because bindings are declarative, and at the same time makes components more loosely coupled, because other parts of the view hierarchy don't have to know about a component's specific markup.
 
