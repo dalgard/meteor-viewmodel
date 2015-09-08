@@ -224,7 +224,7 @@ You may pass multiple bind expressions to the helper – either inside one strin
 
 In special cases, like with the `classes` binding, the key may be omitted or multiple keys may be listed.
 
-Any space separated values placed after the viewmodel key (i.e. the name of a property) inside the bind expression are passed as arguments to the binding – for instance, delay:
+Any space separated values after the colon inside the bind expression are passed as arguments to the binding – for instance, key and delay:
 
 ```html
 <input type="text" {{bind 'value: search 1500'}}>
