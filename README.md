@@ -72,9 +72,9 @@ Examples:
 
 Traditionally, the state of a component is held implicitly in the DOM. An element that is hidden simply has `display: none`. Values are retrieved manually upon use, and events are registered manually – in both cases through an element's class or id.
 
-With the viewmodel pattern, the state, value, and methods of a component is stored in an object – the component's **viewmodel** – which can be persisted across sessions or routes and read or written to by other components. The state and values in the viewmodel are automatically synchronized between this object and the DOM, through something called **bindings**.
+With the viewmodel pattern, the state, value, and methods of a component is stored in an object – the component's **viewmodel** – which can be persisted across sessions or routes and read or written to by other components. The state and values in the viewmodel are automatically synchronized between this object and the DOM through something called **bindings**.
 
-This principle reduces the amount of code in a project, because bindings are declarative, and at the same time makes components more loosely coupled, because other parts of the view hierarchy don't have to know about a component's specific markup.
+This principle reduces the amount of code in a project, because bindings are declarative, and at the same time makes components more loosely coupled, because other parts of the view hierarchy don't have to know about a component's actual markup.
 
 The goal of `dalgard:viewmodel` is to cut down to the core of this pattern and provide the leanest possible API for gaining the largest possible advantage from it.
 
@@ -118,6 +118,7 @@ Check out the other `/examples` in the repo.
 ```
 
 ```javascript
+// Declare a viewmodel on this template
 Template.page.viewmodel({
   // All properties are registered as Blaze helpers
   myFieldValue: function () {
