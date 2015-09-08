@@ -86,7 +86,7 @@ ViewModel = class ViewModel {
     view.onViewReady(() => {
       // Would have used an arrow function, preserving `this`, but somehow the lexical
       // scope  isn't achieved after transpilation
-      let hash_id = vm._hashId();
+      let hash_id = vm.hashId();
 
       // Restore viewmodel instance from last time the template was rendered
       if (vm._isPersisted())
@@ -286,7 +286,7 @@ ViewModel = class ViewModel {
 
   // Get an id that is a hash of the viewmodel instance's index in the global list,
   // its position in the view hierarchy, and the current browser location
-  _hashId() {
+  hashId() {
     let path = getPath(),
         index = _.indexOf(all.curValue, this),
         view_names = [],
@@ -306,7 +306,7 @@ ViewModel = class ViewModel {
   }
 
   // Restore persisted viewmodel values to instance
-  _restore(hash_id = this._hashId()) {
+  _restore(hash_id = this.hashId()) {
     let map = persist.get(hash_id);
 
     this.deserialize(map);
@@ -533,6 +533,11 @@ ViewModel = class ViewModel {
 
   // The Blaze helper that is bound to templates with a viewmodel {{bind 'binding: key'}}
   static bindHelper(...args) {
+    // Never rerun the bind helper. Normally, all dynamic attributes helpers are rerun, no
+    // matter their dependencies, whenever another attribute helper on the element is rerun.
+    if (!Tracker.currentComputation.firstRun)
+      return;
+
     let kwhash = args.pop(),  // Keywords argument
         bind_exps = [];
 
