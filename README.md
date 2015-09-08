@@ -140,6 +140,7 @@ Template.page.viewmodel({
 Template.field.viewmodel("field", function (template_data) {
   var start_value = template_data && template_data.startValue || "";
 
+  // Return the new viewmodel definition
   return {
     // Primitive property
     myValue: start_value,
