@@ -3,6 +3,6 @@ ViewModel.addBinding("enterKey", {
 
   get: function (event, elem, prop, args, kwhash) {
     if (event.which === 13 || event.keyCode === 13)
-      prop(event, elem, prop, args, kwhash);
+      prop(event, args, kwhash);
   }
 });

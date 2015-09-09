@@ -13,13 +13,19 @@ let global = new ReactiveVar(false);
 // ReactiveDict for persistence after hot code push and optionally across re-rendering
 let persist = new ReactiveDict("dalgard:viewmodel");
 
+// Name that is used for the bind queue on template instances
+let queue_name = "_bindQueue";
+
 
 // Exported class
 ViewModel = class ViewModel {
   constructor(view, id, name, props, options) {
-    // For some reason, the arrow functions below doesn't preserve the lexical scope
-    // after transpilation, so a closure is used
-    let vm = this;
+    // Ensure type of arguments
+    check(view, Blaze.View);
+    check(id, Match.Integer);
+    check(name, Match.Optional(Match.OneOf(String, null)));
+    check(props, Match.Optional(Match.OneOf(Object, Function)));
+    check(options, Match.Optional(Object));
 
 
     // Non-enumerable private properties (ES5)
@@ -52,27 +58,6 @@ ViewModel = class ViewModel {
     this.templateInstance().viewmodel = this;
 
 
-    // Get parent for non-transcluded viewmodels
-    let parent = this.parent();
-
-    // Register with parent
-    if (parent)
-      parent._addChild(this);
-
-    // Add to global list
-    ViewModel._add(this);
-
-    // Tear down viewmodel
-    view.onViewDestroyed(() => {
-      // Remove from parent
-      if (parent)
-        parent._removeChild(vm);
-
-      // Remove from global list
-      ViewModel._remove(vm)
-    });
-
-
     // Definition may be a factory
     if (_.isFunction(props))
       props = props.call(this, this.getData());
@@ -83,29 +68,62 @@ ViewModel = class ViewModel {
 
 
     // Enable persistence on hot code push and across re-rendering
-    view.onViewReady(() => {
+    view.onViewReady(function () {
+      // Flush bind queue
+      ViewModel._flush(this.templateInstance(), "main");
+
+
+      // Get parent for non-transcluded viewmodels
+      let parent = this.parent();
+
+      // Register with parent
+      if (parent)
+        parent._addChild(this);
+
+      // Add to global list
+      ViewModel._add(this);
+
+
       // Would have used an arrow function, preserving `this`, but somehow the lexical
       // scope  isn't achieved after transpilation
-      let hash_id = vm.hashId();
+      let hash_id = this.hashId();
 
       // Restore viewmodel instance from last time the template was rendered
-      if (vm._isPersisted())
-        vm._restore(hash_id);
+      if (this._isPersisted())
+        this._restore(hash_id);
 
       // Always save viewmodel state so it can be restored after a hot code push
-      vm.autorun(comp => {
-        let map = vm.serialize();
+      this.autorun(function (comp) {
+        // Always register dependencies
+        let map = this.serialize();
 
         // Wait for actual changes to arrive
         if (!comp.firstRun)
           persist.set(hash_id, map);
-      });
-    });
+      }.bind(this));
+    }.bind(this));
+
+
+    // Tear down viewmodel
+    view.onViewDestroyed(function () {
+      // Get parent for non-transcluded viewmodels
+      let parent = this.parent();
+
+      // Remove from parent
+      if (parent)
+        parent._removeChild(this);
+
+      // Remove from global list
+      ViewModel._remove(this)
+    }.bind(this));
   }
 
   // Reactively get or set the name of the viewmodel
   name(new_name) {
-    if (!_.isUndefined(new_name))
+    // Ensure type of argument
+    check(new_name, Match.Optional(String));
+
+    if (_.isString(new_name))
       this._name.set(new_name);
     else
       return this._name.get();
@@ -113,6 +131,9 @@ ViewModel = class ViewModel {
 
   // Reactively get or set configuration options of the viewmodel
   option(name, new_value) {
+    // Ensure type of argument
+    check(name, String);
+
     if (!_.isUndefined(new_value))
       this._options.set(name, new_value);
     else
@@ -121,6 +142,9 @@ ViewModel = class ViewModel {
 
   // Add proper properties to the viewmodel
   addProps(props) {
+    // Ensure type of argument
+    check(props, Match.Optional(Object));
+
     // Omit special reserved names
     props = _.omit(props, "created", "rendered", "destroyed", "autorun", "events");
 
@@ -129,11 +153,14 @@ ViewModel = class ViewModel {
           value = null;
 
       if (is_primitive) {
+        // Make sure objects and arrays are not shared between instances of the same viewmodel
+        let orig_value = _.cloneDeep(prop);
+
         // The actual value is stored here in the property functions' closure
-        value = new ReactiveVar(prop);
+        value = new ReactiveVar(orig_value);
 
         // Each property is a reactive getter-setter
-        prop = new_value => {
+        prop = function (new_value) {
           if (!_.isUndefined(new_value)) {
             value.set(new_value);
 
@@ -155,7 +182,7 @@ ViewModel = class ViewModel {
       // Mark getter-setter with type (primitive values as opposed to computed properties)
       this[key].isPrimitive = is_primitive;
 
-      // Save reference to value
+      // Save reference to value after property is bound
       if (value)
         this[key].value = value;
 
@@ -184,88 +211,119 @@ ViewModel = class ViewModel {
     });
   }
 
+  // Register one or more autoruns when the view is rendered
+  autorun(callback) {
+    // Ensure type of argument
+    check(callback, Match.OneOf(Array, Function));
 
-  // Run a callback when the view is rendered
-  _onReady(callback) {
+    // May be called with either a viewmodel or a view as context
     let view = this instanceof ViewModel ? this._view : this;
 
-    if (view.isRendered)
-      !view.isDestroyed && callback.call(this);
-    else
-      view.onViewReady(() => callback.call(this));
-  }
-
-  // Register autorun(s) when the view is rendered
-  autorun(autorun) {
-    if (_.isArray(autorun))
-      _.each(autorun, this.autorun, this);
-    else if (this._view.isRendered)
-      !this._view.isDestroyed && this._view.autorun(autorun.bind(this));
-    else
-      this._view.onViewReady(() => this._view.autorun(autorun.bind(this)));
+    if (_.isArray(callback))
+      _.each(callback, this.autorun, this);
+    else if (view.isRendered) {
+      if (!view.isDestroyed)
+        view.autorun(callback.bind(this));
+    }
+    else {
+      view.onViewReady(function () {
+        view.autorun(callback.bind(this));
+      }.bind(this));
+    }
   }
 
   // Bind an element (called with either the view or a new viewmodel as context)
-  bind(elem_or_id, binding, key, args, kwhash) {
-    let template_instance = this.templateInstance(),
-        selector = _.isElement(elem_or_id) ? elem_or_id : "[" + ViewModel.bindAttr + "=" + elem_or_id + "]";
+  bind(elem, binding, args = [], kwhash = {}) {
+    // Ensure type of arguments
+    check(elem, Match.OneOf(Match.Integer, Match.Where(_.isElement)));
+    check(binding, Match.OneOf(String, Object, Function));
+    check(args, [String]);
+    check(kwhash, Object);
 
+
+    // In case of a detached binding, our context may be a Blaze view
+    let is_viewmodel = this instanceof ViewModel,
+        template_instance = this.templateInstance();
+
+    // The name of a binding may be passed to bind
     if (_.isString(binding))
       binding = ViewModel._bindings()[binding];
 
     // Binding may be a factory
     if (_.isFunction(binding))
-      binding = binding.call(template_instance.view, template_instance.data, key, args, kwhash);
+      binding = binding.call(template_instance.view, template_instance.data, args, kwhash);
+
+    // Ensure that binding is an object
+    check(binding, Object);
+
+
+    let selector = _.isElement(elem) ? elem : "[" + ViewModel.bindAttr + "=" + elem + "]",
+        key = args[0];
 
     // Register event and run init function on ready
-    if (binding.on || binding.init) {
-      // In case of a detached binding, the context here may be a Blaze view
-      ViewModel.prototype._onReady.call(this, function () {
-        let elem = template_instance.$(selector);
+    if (binding.init || binding.on) {
+      let elem = template_instance.$(selector);
 
-        // Run init function only once
+      // Only if element exists
+      if (elem.length) {
         if (binding.init) {
-          let prop = !_.isUndefined(key) && this[key],
-              orig_value = binding.detached ? null : _.isFunction(prop) && prop();
+          // Check type of definition property
+          check(binding.init, Function);
 
+          let orig_value;
+
+          if (is_viewmodel && !_.isUndefined(key) && _.isFunction(this[key]))
+            orig_value = this[key]();
+
+          // Run init function this once
           binding.init.call(this, elem, orig_value, args, kwhash);
         }
 
-        // Add listener (registered inside onRendered) that calls property with result
-        // of get function (gets called with viewmodel as context and the jQuery element,
-        // current property value and event object as arguments)
         if (binding.on) {
-          elem.on(binding.on, event => {
-            // Call property if there's no get function
-            if (!binding.detached && !binding.get && !_.isUndefined(key))
-              this[key](event, elem, this[key], args, kwhash);
-            else {
-              let is_vm = this instanceof ViewModel,
-                  prop;
+          // Check type of definition property
+          check(binding.on, String);
 
-              if (is_vm)
-                prop = this[key];
+          // Register event listener
+          elem.on(binding.on, function (event) {
+            let prop;
+
+            if (is_viewmodel && !_.isUndefined(key) && _.isFunction(this[key]))
+              prop = this[key];
+
+            if (binding.get) {
+              // Check type of definition property
+              check(binding.get, Function);
 
               let result = binding.get.call(this, event, elem, prop, args, kwhash);
 
               // Call property if get returned a value other than undefined
-              if (!binding.detached && !_.isUndefined(result) && !_.isUndefined(key))
-                this[key](result);
+              if (!_.isUndefined(result) && _.isFunction(prop))
+                prop(result);
             }
-          });
+            else if (_.isFunction(prop))
+              prop(event, args, kwhash);
+          }.bind(this));
         }
-      });
+      }
     }
 
-    // Wrap set function and add it to list of autoruns (gets called with viewmodel
-    // as context and jQuery element and new property value as arguments)
     if (binding.set) {
-      this.autorun(function (comp) {
-        let elem = template_instance.$(selector),
-            prop = !_.isUndefined(key) && this[key],
-            new_value = binding.detached ? null : _.isFunction(prop) && prop();
+      // Check type of definition property
+      check(binding.set, Function);
+      
+      // Wrap set function and add it to list of autoruns
+      ViewModel.prototype.autorun.call(this, function () {
+        let elem = template_instance.$(selector);
 
-        binding.set.call(this, elem, new_value, args, kwhash);
+        // Only (re)depend on prop if element exists
+        if (elem.length) {
+          let new_value;
+
+          if (is_viewmodel && !_.isUndefined(key) && _.isFunction(this[key]))
+            new_value = this[key]();
+
+          binding.set.call(this, elem, new_value, args, kwhash);
+        }
       });
     }
   }
@@ -281,6 +339,9 @@ ViewModel = class ViewModel {
 
   // Restore serialized values
   deserialize(map) {
+    // Ensure type of argument
+    check(map, Match.Optional(Object));
+
     _.each(map, (value, key) => this[key] && this[key](value));
   }
 
@@ -307,6 +368,9 @@ ViewModel = class ViewModel {
 
   // Restore persisted viewmodel values to instance
   _restore(hash_id = this.hashId()) {
+    // Ensure type of argument
+    check(hash_id, String);
+
     let map = persist.get(hash_id);
 
     this.deserialize(map);
@@ -341,12 +405,18 @@ ViewModel = class ViewModel {
 
   // Reactively add a child viewmodel to the _children list
   _addChild(vm) {
+    // Ensure type of argument
+    check(vm, ViewModel);
+
     this._children.curValue.push(vm);
     this._children.dep.changed();
   }
 
   // Reactively remove a child viewmodel from the _children list
   _removeChild(vm) {
+    // Ensure type of argument
+    check(vm, ViewModel);
+
     let index = this._children.curValue.indexOf(vm);
 
     // Remove from array
@@ -489,14 +559,21 @@ ViewModel = class ViewModel {
     return this.find(name)[index || 0] || null;
   }
 
+
   // Add a viewmodel to the global list
   static _add(vm) {
+    // Ensure type of argument
+    check(vm, ViewModel);
+
     all.curValue.push(vm);
     all.dep.changed();
   }
 
   // Remove a viewmodel from the global list
   static _remove(vm) {
+    // Ensure type of argument
+    check(vm, ViewModel);
+
     let index = all.curValue.indexOf(vm);
 
     // Remove from array
@@ -517,8 +594,9 @@ ViewModel = class ViewModel {
 
   // Add binding to ViewModel
   static addBinding(name, definition) {
-    if (!_.isString(name))
-      throw new TypeError("The name of the binding must be supplied as the first argument");
+    // Ensure type of argument
+    check(name, String);
+    check(definition, Match.OneOf(Object, Function));
 
     // Set a new property on the bindings object stored in a reactive-var
     bindings.curValue[name] = definition;
@@ -527,81 +605,125 @@ ViewModel = class ViewModel {
 
 
   // Get next unique id
-  static _uniqueId() {
+  static uniqueId() {
     return ++uid;
   }
 
   // The Blaze helper that is bound to templates with a viewmodel {{bind 'binding: key'}}
   static bindHelper(...args) {
-    // Never rerun the bind helper. Normally, all dynamic attributes helpers are rerun, no
-    // matter their dependencies, whenever another attribute helper on the element is rerun.
-    if (!Tracker.currentComputation.firstRun)
-      return;
+    let template_instance = Template.instance(),
+        view = template_instance.view,
+        dynamic_atts = {};
 
-    let kwhash = args.pop(),  // Keywords argument
-        bind_exps = [];
+    // Only bind the element on the first invocation of the bind helper
+    if (Tracker.currentComputation.firstRun) {
+      let queue = template_instance[queue_name],
+          preexisting_queue = _.isArray(queue) && queue.length,
+          bind_id = ViewModel.uniqueId(),  // Unique id for current element
+          kwhash = args.pop(),             // Keywords argument
+          bind_exps = [];
 
-    // Use hash of Spacebars keywords arguments object if it has any properties
-    if (kwhash instanceof Spacebars.kw)
-      kwhash = kwhash.hash;
+      // Use hash of Spacebars keywords arguments object if it has any properties
+      if (kwhash instanceof Spacebars.kw)
+        kwhash = kwhash.hash;
 
-    // Support multiple bind expressions separated by comma
-    _.each(args, arg => bind_exps = bind_exps.concat(arg.split(/\s*,\s*/g)));
+      // Support multiple bind expressions separated by comma
+      _.each(args, arg => bind_exps = bind_exps.concat(arg.split(/\s*,\s*/g)));
 
 
-    // Unique id for current element
-    let bind_id = ViewModel._uniqueId(),
-        template_instance = Template.instance(),
-        view = template_instance.view;
+      // Loop through bind expressions
+      _.each(bind_exps, bind_exp => {
+        bind_exp = bind_exp.trim().split(/\s*:\s*/);
 
-    _.each(bind_exps, bind_exp => {
-      let spread = [kwhash];
+        let binding = ViewModel._bindings()[bind_exp[0]],
+            args = _.isString(bind_exp[1]) ? bind_exp[1].split(/\s+/g) : [];
 
-      bind_exp = bind_exp.trim().split(/\s*:\s*/);
+        // Binding may be a factory
+        if (_.isFunction(binding))
+          binding = binding.call(view, this, args, kwhash);
 
-      let binding = ViewModel._bindings()[bind_exp[0]],
-          args = _.isString(bind_exp[1]) ? bind_exp[1].split(/\s+/g) : [],
-          key = args[0];
+        // Only continue if binding exists
+        if (_.isObject(binding)) {
+          let context = view;
 
-      // Add arguments
-      spread.unshift(key, args);
+          // Some bindings may not use a viewmodel at all
+          if (!binding.detached) {
+            let vm = template_instance.viewmodel,
+                key = args[0];
 
-      // Binding may be a factory
-      if (_.isFunction(binding))
-        binding = binding.call(view, this, ...spread);
+            // Possibly create new viewmodel instance on view
+            if (!vm) {
+              // Give the viewmodel a unique id that is used for sharing
+              let id = ViewModel.uniqueId();
 
-      // Add more arguments
-      spread.unshift(bind_id, binding);
+              vm = new ViewModel(view, id);
+            }
 
-      // Some bindings may not use a viewmodel at all
-      if (binding.detached)
-        // Use view as the context for the bind method
-        Tracker.afterFlush(() => ViewModel.prototype.bind.call(view, ...spread));
-      else {
-        let vm = template_instance.viewmodel;
+            // Create properties on viewmodel if needed (initialized as undefined)
+            if (!_.isUndefined(key) && !vm[key])
+              vm.addProps(_.zipObject([key]));
 
-        // Possibly create new viewmodel instance on view
-        if (!vm) {
-          // Give the viewmodel a unique id that is used for sharing
-          let id = ViewModel._uniqueId();
+            context = vm;
+          }
 
-          vm = new ViewModel(view, id);
+          // Add to bind queue
+          ViewModel._queueBind(template_instance, function () {
+            ViewModel.prototype.bind.call(context, bind_id, binding, args, kwhash);
+          });
         }
 
-        // Create properties on viewmodel if needed (initialized as undefined)
-        if (!_.isUndefined(key) && !vm[key])
-          vm.addProps(_.zipObject([key]));
 
-        // Bind elements after they have been properly added to the view
-        Tracker.afterFlush(() => vm.bind(...spread));
-      }
-    });
+        // Add bind id attribute to the element
+        if (bind_exps.length)
+          dynamic_atts[ViewModel.bindAttr] = bind_id;
+      });
 
-    return { [ViewModel.bindAttr]: bind_id };
+      // Flush bind queue after the bind id attribute has been written (only add the hook
+      // if not already present)
+      if (view.isRendered && !preexisting_queue)
+        Tracker.afterFlush(function () {
+          ViewModel._flush(template_instance);
+        });
+    }
+    else {
+      // Flush bind queue before the bind id attribute is overwritten
+      ViewModel._flush(template_instance);
+    }
+
+    // Set the dynamic bind id attribute on the element in order to select it after rendering
+    return dynamic_atts;
+  }
+
+  static _queueBind(template_instance, bind) {
+    // Ensure type of arguments
+    check(template_instance, Blaze.TemplateInstance);
+    check(bind, Function);
+
+    if (!_.isArray(template_instance[queue_name]))
+      template_instance[queue_name] = [];
+
+    template_instance[queue_name].push(bind);
+  }
+
+  // Flush bind queue on template instance
+  static _flush(template_instance) {
+    // Ensure type of argument
+    check(template_instance, Blaze.TemplateInstance);
+
+    let queue = template_instance[queue_name];
+
+    // Call each bind function
+    if (_.isArray(queue)) {
+      while (queue.length)
+        queue.pop()();
+    }
   }
 
   // Register the bind helper globally
   static registerHelper(name = ViewModel.helperName) {
+    // Ensure type of argument
+    check(name, String);
+
     Template.registerHelper(name, ViewModel.bindHelper);
 
     ViewModel.helperName = name;
@@ -617,16 +739,20 @@ ViewModel = class ViewModel {
   static viewmodelHook(name, definition, options) {
     // Must be called in the context of a template
     if (!(this instanceof Blaze.Template))
-      throw new TypeError("ViewModel.viewmodelHook must be attached to Blaze.Template.prototype to work");
-
+      throw new TypeError("Must be attached to Blaze.Template.prototype to work");
 
     // Name argument may be omitted
     if (_.isObject(name))
       options = definition, definition = name, name = null;
 
-    // Give the viewmodel a unique id that is used for sharing
-    let id = ViewModel._uniqueId();
+    // Ensure type of arguments
+    check(name, Match.OneOf(String, null));
+    check(definition, Match.OneOf(Object, Function));
+    check(options, Match.Optional(Object));
 
+
+    // Give all instances of this viewmodel the same id used for sharing
+    let id = ViewModel.uniqueId();
 
     // Create viewmodel instance – a function is added to the template's onCreated
     // hook, wherein a viewmodel instance is created on the view with the properties

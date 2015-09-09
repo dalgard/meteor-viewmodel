@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.6.1
+dalgard:viewmodel 0.6.2
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -9,7 +9,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - Easily extensible
 - Non-intrusive
 
-(3.57 kB minified and gzipped)
+(3.82 kB minified and gzipped)
 
 ### Install
 
@@ -399,7 +399,7 @@ ViewModel.addBinding(name, {
 
   // Run once when the element is rendered, right before the first call to set.
   // Used to initalize a jQuery plugin or similar. When creating a binding
-  // that only contains this init function, remember to set detached: true.
+  // that only contains this init function, set detached: true.
   init: function ($elem, orig_value, args, kwhash) {
     // For example
     $elem.init("plugin", kwhash.options);
@@ -414,7 +414,7 @@ ViewModel.addBinding(name, {
   // Space separated list of events
   on: "keyup input change",
 
-  // Get the changed value from the DOM
+  // Get the changed value from the DOM triggered by events
   get: function (event, $elem, prop, args, kwhash) {
     // For example
     return $elem.val();
@@ -442,17 +442,18 @@ ViewModel.addBinding("enterKey", {
   // This function doesn't return anything but calls the property explicitly instead
   get: function (event, $elem, prop, args, kwhash) {
     if (event.which === 13)
-      prop(event, $elem, prop, args, kwhash);
+      // Call prop with these three arguments as standard
+      prop(event, args, kwhash);
   }
 });
 ```
 
-In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding above. The bound property will then be called with the same arguments as the `get` function.
+In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding above. The bound property will then be called with the arguments `event`, `args`, and `kwhash`.
 
 A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
 
 ```javascript
-ViewModel.addBinding(name, function (template_data, key, args, kwhash) {
+ViewModel.addBinding(name, function (template_data, args, kwhash) {
   // Return definition object
   return {};
 });
@@ -513,7 +514,7 @@ A method on the viewmodel is called when the element is clicked.
 ```
 
 ```javascript
-{ click: function (event, $elem, args, kwhash) { ... } }
+{ click: function (event, args, kwhash) { ... } }
 ```
 
 #### Toggle
@@ -537,7 +538,7 @@ A method on the viewmodel is run when the form is submitted. If `true` is passed
 ```
 
 ```javascript
-{ submit: function (event, $elem, args, kwhash) { ... } }
+{ submit: function (event, args, kwhash) { ... } }
 ```
 
 #### Disabled
@@ -585,7 +586,7 @@ A method on the viewmodel is run when the enter key is pressed on the element.
 ```
 
 ```javascript
-{ pressed: function (event, $elem, args, kwhash) { ... } }
+{ pressed: function (event, args, kwhash) { ... } }
 ```
 
 #### Key (keyCode)
@@ -597,7 +598,7 @@ A method on the viewmodel is run when the specific key, passed as an argument, i
 ```
 
 ```javascript
-{ pressed: function (event, $elem, args, kwhash) { ... } }
+{ pressed: function (event, args, kwhash) { ... } }
 ```
 
 #### Classes
@@ -658,7 +659,8 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
-- 0.6.1  –  Bug fix: Prevent bind helper from being rerun. `hashId` now part of public API.
+- 0.6.2  –  Serious bug fix: Prevent events from being registered more than once. Bug fix: Wrong signature when calling viewmodel methods (should only get `event`, `args`, and `kwhash`). API change: Remove `key` as a parameter for binding factories and `bind` method. `onReady` and `ViewModel.uniqueId` now part of public API.
+- 0.6.1  –  Bug fix: Bind helpers were sometimes being rerun. `hashId` now part of public API.
 - 0.6.0  –  Added `init` function to binding definition. `ViewModel.bindHelper` now part of public API.
 - 0.5.9  –  Migration made possible by storing the `viewmodel` hook as a property on `ViewModel`. Multiple comma separated bind expressions in one string (for future Jade extension).
 - 0.5.8  –  API change: Passing viewmodel property to `get` function instead of key.

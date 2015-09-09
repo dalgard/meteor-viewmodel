@@ -1,6 +1,6 @@
 Package.describe({
   name: "dalgard:viewmodel",
-  version: "0.6.1",
+  version: "0.6.2",
   summary: "Minimalist VM for Meteor",
   git: "https://github.com/dalgard/meteor-viewmodel",
   documentation: "../../README.md"
@@ -15,6 +15,7 @@ Package.onUse(function (api) {
     "reactive-var",
     "reactive-dict",
     "sha",
+    "check",
     "blaze",
     "templating",
     "stevezhu:lodash@3.10.1"

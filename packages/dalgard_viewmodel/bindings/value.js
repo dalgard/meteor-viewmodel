@@ -1,4 +1,4 @@
-ViewModel.addBinding("value", function (data, prop, args, kwhash) {
+ViewModel.addBinding("value", function (data, args, kwhash) {
   var throttle = args[1] || kwhash && kwhash.throttle,
       get = function (event, elem, prop) {
         prop(elem.val());
