@@ -1,13 +1,3 @@
 <body>
   {{> example}}
 </body>
-
-<template name="example">
-  <input type="text" {{bind 'value: text'}}>
-  <input type="checkbox" {{bind 'checked: show'}}>
-
-  {{#if show}}
-    <button {{bind 'toggle: red'}}>Toggle red</button>
-    <p style="{{#if red}}color: red;{{/if}}">{{text}}</p>
-  {{/if}}
-</template>
