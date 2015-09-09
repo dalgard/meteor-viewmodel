@@ -15,6 +15,7 @@ Package.onUse(function (api) {
     "reactive-var",
     "reactive-dict",
     "sha",
+    "check",
     "blaze",
     "templating",
     "stevezhu:lodash@3.10.1"
