@@ -3,6 +3,6 @@ ViewModel.addBinding("key", {
 
   get: function (event, elem, prop, args, kwhash) {
     if (event.keyCode === parseInt(args[1], 10))
-      prop(event, elem, prop, args, kwhash);
+      prop(event, args, kwhash);
   }
 });

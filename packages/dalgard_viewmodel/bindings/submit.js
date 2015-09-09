@@ -5,6 +5,6 @@ ViewModel.addBinding("submit", {
     if (args[0] !== "true")
       event.preventDefault();
 
-    prop(event, elem, prop, args, kwhash);
+    prop(event, args, kwhash);
   }
 });
