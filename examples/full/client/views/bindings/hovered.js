@@ -1,3 +1,3 @@
-Template.hovered.viewmodel({
+Template.fullHovered.viewmodel({
   hovered: false
 });

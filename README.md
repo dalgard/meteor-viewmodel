@@ -556,7 +556,7 @@ The property reflects the value of the radio button. The inital state of the gro
 
 This datepicker binding is implemented with [Pikaday](https://github.com/richsilv/Pikaday/), so a package like `richsilv:pikaday` **must** be added for the binding it to work.
 
-The property reflects the currently selected `Date`. An initial date can be set in the viewmodel. The `position` argument, optionally passed as a keyword argument, is where to render the datepicker (default: `bottom left`).
+The property reflects the currently selected `Date`. An initial date can be set in the viewmodel. The `position` argument, optionally passed as a keyword argument, determines where to render the datepicker (default: `bottom left`).
 
 ```html
 <input type="text" placeholder="dd-mm-yyyy" {{bind 'pikaday: date'}}>

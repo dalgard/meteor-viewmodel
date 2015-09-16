@@ -1,4 +1,4 @@
-Template.page.viewmodel({
+Template.full.viewmodel({
   destroy: false,
 
   childValue: function () {

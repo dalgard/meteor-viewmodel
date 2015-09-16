@@ -1,4 +1,4 @@
-Template.key.viewmodel({
+Template.fullKey.viewmodel({
   pressed: false,
 
   key: function () {

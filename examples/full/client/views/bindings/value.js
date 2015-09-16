@@ -1,4 +1,4 @@
-Template.value.viewmodel("value", {
+Template.fullValue.viewmodel("value", {
   value: ""
 }, {
   // Share values between all instances of this viewmodel

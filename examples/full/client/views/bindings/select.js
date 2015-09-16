@@ -1,3 +1,3 @@
-Template.select.viewmodel({
+Template.fullSelect.viewmodel({
   value: ""
 });

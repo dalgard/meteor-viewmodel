@@ -1,6 +1,6 @@
 // Instead of a definition object, a factory function may be used. Unrelated
 // to the factory, this viewmodel is also given a name.
-Template.field.viewmodel("field", function (template_data) {
+Template.usageField.viewmodel("field", function (template_data) {
   var start_value = template_data && template_data.startValue || "";
 
   // Return the new viewmodel definition

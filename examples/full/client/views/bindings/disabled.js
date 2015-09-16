@@ -1,4 +1,4 @@
-Template.disabled.viewmodel({
+Template.fullDisabled.viewmodel({
   disabled: false,
   value: "yo"
 });

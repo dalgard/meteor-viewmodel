@@ -1,4 +1,4 @@
-Template.classes.viewmodel({
+Template.fullClasses.viewmodel({
   red: false,
   bold: false
 });

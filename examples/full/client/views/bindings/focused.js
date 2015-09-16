@@ -1,3 +1,3 @@
-Template.focused.viewmodel({
+Template.fullFocused.viewmodel({
   focused: true
 });

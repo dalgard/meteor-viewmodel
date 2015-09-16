@@ -1,3 +1,3 @@
-Template.textarea.viewmodel({
+Template.fullTextarea.viewmodel({
   value: ""
 });
