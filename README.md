@@ -3,11 +3,11 @@ dalgard:viewmodel 0.7.0
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
 
-- Highly declarative
-- Terse syntax
 - Simple, reactive API
 - Easily extensible
 - Non-intrusive
+- Highly declarative
+- Terse syntax
 
 (4.54 kB minified and gzipped)
 
@@ -44,7 +44,7 @@ If you are migrating from `manuel:viewmodel` or want to try both packages side b
     - [Value ([throttle])](#value-throttle)
     - [Checked](#checked)
     - [Radio](#radio)
-    - [Datepicker ([position])](#datepicker-position)
+    - [Pikaday ([position])](#pikaday-position)
     - [Click](#click)
     - [Toggle](#toggle)
     - [Submit ([send])](#submit-send)
@@ -536,9 +536,9 @@ The property reflects the value of the radio button. The inital state of the gro
 { value: "first" }
 ```
 
-#### Datepicker ([position])
+#### Pikaday ([position])
 
-The datepicker binding (`pikaday`) is implemented with [Pikaday](https://github.com/richsilv/Pikaday/), so a package like `richsilv:pikaday` **must** be added for the binding it to work.
+This datepicker binding is implemented with [Pikaday](https://github.com/richsilv/Pikaday/), so a package like `richsilv:pikaday` **must** be added for the binding it to work.
 
 The property reflects the currently selected `Date`. An initial date can be set in the viewmodel. The `position` argument, optionally passed as a keyword argument, is where to render the datepicker (default: `bottom left`).
 
