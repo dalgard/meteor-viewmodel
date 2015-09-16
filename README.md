@@ -438,10 +438,10 @@ ViewModel.addBinding("name", {
 
   // Run once when the element is rendered, right before the first call to set.
   // Used to initalize things like jQuery plugins. When creating a binding that
-  // only contains this init function, set detached: true.
+  // only contains init and/or dispose, set detached: true
   init: function ($elem, init_value, args, kwhash) {
     // For example
-    $elem.myPlugin("init", kwhash.options);
+    myPlugin.init($elem, kwhash.options);
   },
 
   // Apply the original value and new values to the DOM
