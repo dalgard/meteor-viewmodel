@@ -81,6 +81,8 @@ This principle reduces the amount of code in a project, because bindings are dec
 
 The goal of `dalgard:viewmodel` is to cut down to the core of this pattern and provide the leanest possible API for gaining the largest possible advantage from it.
 
+Check out the example below and other `/examples` in the repo at [dalgard-viewmodel.meteor.com](http://dalgard-viewmodel.meteor.com/).
+
 
 ## Quickstart
 
@@ -107,8 +109,6 @@ ViewModel.registerHelper("bind");
 The example below demonstrates the core features of the package.
 
 Viewmodel declarations may sometimes be omitted altogether – the `{{bind}}` helper automatically creates what it needs, if registered globally (like in the quickstart example).
-
-Check out the other `/examples` in the repo.
 
 ```html
 <template name="page">
@@ -556,7 +556,7 @@ The property reflects the value of the radio button. The inital state of the gro
 
 This datepicker binding is implemented with [Pikaday](https://github.com/richsilv/Pikaday/), so a package like `richsilv:pikaday` **must** be added for the binding it to work.
 
-The property reflects the currently selected `Date`. An initial date can be set in the viewmodel. The `position` argument, optionally passed as a keyword argument, is where to render the datepicker (default: `bottom left`).
+The property reflects the currently selected `Date`. An initial date can be set in the viewmodel. The `position` argument, optionally passed as a keyword argument, determines where to render the datepicker (default: `bottom left`).
 
 ```html
 <input type="text" placeholder="dd-mm-yyyy" {{bind 'pikaday: date'}}>

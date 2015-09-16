@@ -1,5 +1,5 @@
 // Declare a viewmodel on this template
-Template.page.viewmodel({
+Template.usage.viewmodel({
   // All properties are registered as Blaze helpers
   myFieldValue: function () {
     // Get child viewmodel reactively by name

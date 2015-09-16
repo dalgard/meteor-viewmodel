@@ -1,4 +1,4 @@
-<template name="date">
+<template name="fullDate">
   <input type="text" placeholder="dd-mm-yyyy" {{bind 'pikaday: date'}}>
 
   {{#if date}}<button {{bind 'click: reset'}}>X</button>{{/if}} {{date}}

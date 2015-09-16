@@ -1,4 +1,4 @@
-Template.click.viewmodel({
+Template.fullClick.viewmodel({
   clicked: false,
 
   click: function () {

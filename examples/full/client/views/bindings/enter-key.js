@@ -1,4 +1,4 @@
-Template.enterKey.viewmodel({
+Template.fullEnterKey.viewmodel({
   pressed: false,
 
   key: function () {

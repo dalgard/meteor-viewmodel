@@ -1,3 +1,3 @@
-Template.throttled.viewmodel({
+Template.fullThrottled.viewmodel({
   value: ""
 });

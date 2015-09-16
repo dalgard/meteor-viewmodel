@@ -1,0 +1,26 @@
+<template name="full">
+  <p>childValue: {{childValue}}</p>
+
+  <button {{bind 'toggle: destroy'}}>destroy views</button> {{destroy}}
+
+  {{#unless destroy}}
+    <p>{{> fullValue}}</p>
+    <p>{{> fullThrottled}}</p>
+    <p>{{> fullStartValue startValue='yo'}}</p>
+    <p>{{> fullDate}}</p>
+    <p>{{> fullChecked}}</p>
+    <p>{{> fullClick}}</p>
+    <p>{{> fullToggle}}</p>
+    <p>{{> fullDisabled}}</p>
+    <p>{{> fullFocused}}</p>
+    <p>{{> fullHovered}}</p>
+    <p>{{> fullEnterKey}}</p>
+    <p>{{> fullKey}}</p>
+    <p>{{> fullValue}}</p>
+    <p>{{> fullFiles}}</p>
+    <p>{{> fullTextarea}}</p>
+    <p>{{> fullSelect}}</p>
+    <p>{{> fullRadio}}</p>
+    <p>{{> fullClasses}}</p>
+  {{/unless}}
+</template>

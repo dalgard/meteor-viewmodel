@@ -1,0 +1,1 @@
+BlazeLayout.setRoot("body");

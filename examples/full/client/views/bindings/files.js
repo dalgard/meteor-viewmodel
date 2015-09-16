@@ -1,3 +1,3 @@
-Template.files.viewmodel({
+Template.fullFiles.viewmodel({
   files: []
 });
