@@ -461,9 +461,9 @@ ViewModel.addBinding("name", {
 
   // Run once when the view containing the element is destroyed. Used to tear down
   // things like jQuery plugins.
-  dispose: function ($elem, prop, args, kwhash) {
+  dispose: function (prop, args, kwhash) {
     // For example
-    $elem.myPlugin("destroy");
+    myPlugin.destroy();
     prop.reset();
   }
 });
