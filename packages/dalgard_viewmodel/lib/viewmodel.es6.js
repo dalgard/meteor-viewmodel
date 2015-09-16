@@ -159,7 +159,7 @@ ViewModel = class ViewModel {
             if (this.option("share")) {
               let shared = ViewModel.find(vm => vm._id === this._id);
 
-              _.each(shared, vm => vm[key].value.set(new_value));
+              _.each(shared, vm => vm[key]._value.set(new_value));
             }
           }
           else
@@ -172,13 +172,16 @@ ViewModel = class ViewModel {
           isPrimitive: { value: true },
 
           // Save reference to reactivevar
-          value: { value: value },
+          _value: { value: value },
 
           // Save initial value
           initial: { value: init_value },
 
           // Add reset method
-          reset: { value: resetProp }
+          reset: { value: resetValue },
+
+          // Add nonreactive method
+          nonreactive: { value: _.partial(nonreactiveValue, this, key) }
         });
       }
       else {
@@ -265,12 +268,16 @@ ViewModel = class ViewModel {
       check(binding, Object);
     }
 
-    // Save DOM element for later
-    elem = template_instance.$(_.isElement(elem) ? elem : "[" + ViewModel.bindAttrName + "=" + elem + "]")[0];
+    if (!_.isElement(elem))
+      // Get DOM element if only an id was passed
+      elem = template_instance.$("[" + ViewModel.bindAttrName + "=" + elem + "]")[0];
+    else
+      // Redefine to elem's closest template instance
+      template_instance = getTemplateInstance(elem);
 
-    // Element must be found in view
-    if (!elem)
-      throw new TypeError("The element passed to bind must be part of the viewmodel's template");
+    // Elem must be part of the DOM
+    if (!document.body.contains(elem))
+      throw new TypeError("The element passed to bind must be part of the DOM");
 
 
     if (binding.init || binding.on) {
@@ -363,7 +370,8 @@ ViewModel = class ViewModel {
 
         // Run dispose function if element has been removed from the view
         if (!elem) {
-          let propp
+          let prop;
+
           if (vm && !_.isUndefined(key) && _.isFunction(vm[key]))
             prop = vm[key];
 
@@ -376,8 +384,8 @@ ViewModel = class ViewModel {
 
   // Get a hash based on
   // 1) the position of the viewmodel in the view hierarchy,
-  // 2) the index of the viewmodel in relation to sibling viewmodels, and
-  // 3) the browser location
+  // 2) the index of the viewmodel in relation to sibling viewmodels, and,
+  // 3) optionally, the current browser location
   hashId(use_path) {
     let path = use_path ? getPath() : "",
         parent = this.parent(),
@@ -554,11 +562,12 @@ ViewModel = class ViewModel {
   children(name) {
     let children = this._children.get();
 
-    // Possibly remove results with the wrong name
+    // Possibly remove results with the wrong name and return result
     if (name)
       return _.filter(children, child => child._test(name));
 
-    return children;
+    // Always return a copy of the internal array
+    return children.slice();
   }
 
   // Reactively get a single child viewmodel, optionally at an index and filtered by name
@@ -921,14 +930,15 @@ defineProperties(ViewModel, {
 
 
 /*
-  Hoisted utility functions
+  Hoisted utility functions and detached methods
 */
 
-// Reset the value of a viewmodel property
-function resetProp() {
-  // Initial values are cloned to avoid sharing objects and arrays between instances
-  // of the same viewmodel
-  this.value.set(_.cloneDeep(this.initial));
+// Get the closest template instance for element
+function getTemplateInstance(elem) {
+  let view = Blaze.getView(elem);
+
+  do if (view.template) return view.templateInstance();
+  while (view = view.parentView);
 }
 
 // Get the current path, taking FlowRouter into account
@@ -946,4 +956,27 @@ function defineProperties(obj, props) {
     Object.defineProperties(obj, props);
   else
     _.each(props, (prop, key) => obj[key] = prop.value);
+}
+
+// Reset the value of a viewmodel property
+function resetValue() {
+  // Initial values are cloned to avoid sharing objects and arrays between instances
+  // of the same viewmodel
+  this._value.set(_.cloneDeep(this.initial));
+}
+
+// Get the value of a viewmodel property non-reactively
+function nonreactiveValue(vm, key, new_value) {
+  if (!_.isUndefined(new_value)) {
+    this._value.curValue = new_value;
+
+    // Write to other viewmodels if shared
+    if (vm.option("share")) {
+      let shared = ViewModel.find(other_vm => other_vm._id === vm._id);
+
+      _.each(shared, shared_vm => shared_vm[key]._value.curValue = new_value);
+    }
+  }
+  else
+    return this._value.curValue;
 }
