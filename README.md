@@ -268,7 +268,7 @@ this.getData();
 
 ##### Properties
 
-Primitive viewmodel properties are converted to reactive getter-setter methods. Call a property name (`myValue` is used as an example) with a new value to reactively set the value and without arguments to reactively get the value.
+Primitive viewmodel properties are converted to reactive getter-setter methods. Call a property name (`myValue` is used as an example) with a new value to reactively *set* the value, and without arguments to reactively *get* the value.
 
 ```javascript
 // Reactively get or set the property value
@@ -285,9 +285,7 @@ this.myValue.nonreactive([new_value]);
 this.myValue.reset();
 ```
 
-If the viewmodel shares its state (`share` flag is set), setting a new value – reactively or non-reactively – automatically sets the new value on all other instances of the same viewmodel.
-
-(As a rule, you should never set a new value non-reactively.)
+If the viewmodel shares its state (`share` flag is set), setting a new value – reactively or non-reactively – automatically sets the new value on all other instances of the same viewmodel (as a rule, you should never set a new value non-reactively).
 
 ##### Serialization
 
