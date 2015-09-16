@@ -81,6 +81,8 @@ This principle reduces the amount of code in a project, because bindings are dec
 
 The goal of `dalgard:viewmodel` is to cut down to the core of this pattern and provide the leanest possible API for gaining the largest possible advantage from it.
 
+Check out the example below and other `/examples` in the repo at [dalgard-viewmodel.meteor.com](http://dalgard-viewmodel.meteor.com/).
+
 
 ## Quickstart
 
@@ -107,8 +109,6 @@ ViewModel.registerHelper("bind");
 The example below demonstrates the core features of the package.
 
 Viewmodel declarations may sometimes be omitted altogether – the `{{bind}}` helper automatically creates what it needs, if registered globally (like in the quickstart example).
-
-Check out the other `/examples` in the repo.
 
 ```html
 <template name="page">
