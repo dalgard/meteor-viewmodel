@@ -32,6 +32,7 @@ If you are migrating from `manuel:viewmodel` or want to try both packages side b
 - [API](#api)
   - [{{bind}}](#bind)
   - [Viewmodel instances](#viewmodel-instances)
+      - [Properties](#properties)
       - [Templates](#templates)
       - [Serialization](#serialization)
       - [Traversal](#traversal)
@@ -265,6 +266,29 @@ this.templateInstance();
 this.getData();
 ```
 
+##### Properties
+
+Primitive viewmodel properties are converted to reactive getter-setter methods. Call a property name (`myValue` is used as an example) with a new value to reactively set the value and without arguments to reactively get the value.
+
+```javascript
+// Reactively get or set the property value
+this.myValue([new_value]);
+```
+
+```javascript
+// Get or set the property value non-reactively
+this.myValue.nonreactive([new_value]);
+```
+
+```javascript
+// Reset the property to its initial value
+this.myValue.reset();
+```
+
+If the viewmodel shares its state (`share` flag is set), setting a new value – reactively or non-reactively – automatically sets the new value on all other instances of the same viewmodel.
+
+(As a rule, you should never set a new value non-reactively.)
+
 ##### Serialization
 
 ```javascript
@@ -278,14 +302,8 @@ this.deserialize(object);
 ```
 
 ```javascript
-// Reset the viewmodel to its initial values
+// Reset all properties to their initial values
 this.reset();
-```
-
-Individual properties can be reset by calling their reset methods directly:
-
-```javascript
-this.myValue.reset();
 ```
 
 ##### Traversal
@@ -708,6 +726,7 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
+- 0.7.1  –  Added `nonreactive` get-set method to primitive viewmodel props. Possible to programmatically bind an element outside of the viewmodel's template. `children` method now always returns a copy.
 - 0.7.0  –  API change: Removed lifetime hooks and Blaze events from viewmodel definition. Added `reset` method and various optimizations. Added `extends` and `dispose` to binding definition. Added `pikaday` binding. Fixed ongoing bug: Values are now properly restored with bindings nested in block helpers
 - 0.6.2  –  Serious bug fix: Events are no longer registered more than once. Bug fix: Corrected signature when calling viewmodel methods (should only get `event`, `args`, and `kwhash`). API change: Removed `key` as a parameter for binding factories and `bind` method. `onReady` and `ViewModel.uniqueId` now part of public API.
 - 0.6.1  –  Bug fix: Bind helpers were sometimes being rerun. `hashId` now part of public API.
@@ -722,5 +741,6 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ### Todo
 
+- Optionally include descendants in serialized viewmodel
 - Rebind when kwargs change
 - Possible to flush binds less often?
