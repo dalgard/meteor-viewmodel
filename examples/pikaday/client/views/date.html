@@ -1,0 +1,11 @@
+<template name="date">
+  <p>Date: {{date}}</p>
+
+  <div class="date">
+    <input type="text" placeholder="dd-mm-yyyy" {{bind 'pikaday: date'}}>
+
+    {{#if date}}
+      <button {{bind 'click: reset'}}>X</button>
+    {{/if}}
+  </div>
+</template>
