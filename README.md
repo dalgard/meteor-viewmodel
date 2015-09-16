@@ -469,7 +469,7 @@ ViewModel.addBinding("name", {
 });
 ```
 
-The parameters for `init`, `set`, and `get` are:
+The parameters used for `init`, `set`, `get`, and `dispose` are:
 
 - `event` – the original (jQuery) event object.
 - `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
