@@ -13,7 +13,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 
 ### Install
 
-`meteor install dalgard:viewmodel`
+`meteor add dalgard:viewmodel`
 
 If you are migrating from `manuel:viewmodel` or want to try both packages side by side, read the [Migration](#migration) section.
 
@@ -44,6 +44,7 @@ If you are migrating from `manuel:viewmodel` or want to try both packages side b
     - [Value ([throttle])](#value-throttle)
     - [Checked](#checked)
     - [Radio](#radio)
+    - [Datepicker ([position])](#datepicker-position)
     - [Click](#click)
     - [Toggle](#toggle)
     - [Submit ([send])](#submit-send)
@@ -56,6 +57,7 @@ If you are migrating from `manuel:viewmodel` or want to try both packages side b
     - [Files](#files)
 - [Migration](#migration)
 - [History](#history)
+  - [Todo](#todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -101,7 +103,7 @@ ViewModel.registerHelper("bind");
 
 ## Usage
 
-The example below is fairly verbose compared to normal use, but demonstrates the core features of the package.
+The example below demonstrates the core features of the package.
 
 Viewmodel declarations may sometimes be omitted altogether – the `{{bind}}` helper automatically creates what it needs, if registered globally (like in the quickstart example).
 
@@ -127,24 +129,18 @@ Template.page.viewmodel({
 
     // Get the value of myValue reactively when the field is rendered
     return field && field.myValue();
-  },
-
-  // Blaze onCreated hook (similar for rendered and destroyed)
-  // – can be an array of functions
-  created: function () {
-    // `this` refers to the current viewmodel instance
   }
 }, options);  // An options object may be passed
 
 // Instead of a definition object, a factory function may be used. Unrelated
 // to the factory, this viewmodel is also given a name.
 Template.field.viewmodel("field", function (template_data) {
-  var start_value = template_data && template_data.startValue || "";
+  var my_value = template_data && template_data.myValue;
 
   // Return the new viewmodel definition
   return {
     // Primitive property
-    myValue: start_value,
+    myValue: my_value || "",
 
     // Computed property
     regex: function () {
@@ -159,22 +155,35 @@ Template.field.viewmodel("field", function (template_data) {
     autorun: function () {
       // Log every time the computed regex property changes
       console.log("New value of regex:", this.regex());
-    },
-
-    // Blaze events. If you use this, chances are you are not using this package
-    // in an optimal way – use bindings instead.
-    events: {
-      "click input": function (event, template_instance) {
-        // `this` refers to the current viewmodel instance
-      }
     }
   };
 });
 ```
 
-Avoid creating a viewmodel on templates that neither contain a `{{bind}}` statement nor use properties from ancestors or descendants. Having too many viewmodels clutters up the global space and makes it more difficult to traverse the hierarchy.
+The viewmodel of a template instance can be accessed inside lifetime hooks (`onCreated`, `onRendered`, and `onDestroyed`) and inside helpers and events, through the `viewmodel` property on the template instance:
 
-Since traversal methods are reactive, removing and adding viewmodel instances to the page may also result in autoruns running more times than necessary.
+```javascript
+Template.example.viewmodel({
+  myValue: "Hello world"
+});
+
+Template.example.onRendered(function () {
+  this.viewmodel.myValue();  // "Hello world"
+});
+
+// Additional helpers shouldn't be needed in practice, since all viewmodel properties are also registered as Blaze helpers
+Template.example.helpers({
+  myHelper: function () {
+    Template.instance().viewmodel.myValue();  // "Hello world"
+  }
+});
+
+Template.example.events({
+  "click button": function (event, template_instance) {
+    template_instance.viewmodel.myValue();  // "Hello world"
+  }
+});
+```
 
 ### Jade
 
@@ -268,6 +277,17 @@ this.serialize();
 this.deserialize(object);
 ```
 
+```javascript
+// Reset the viewmodel to its initial values
+this.reset();
+```
+
+Individual properties can be reset by calling their reset methods directly:
+
+```javascript
+this.myValue.reset();
+```
+
 ##### Traversal
 
 The recommended pattern with this package is to retrieve values from child viewmodels, rather than having the child viewmodels write values to their parent, as well as to use Spacebars keyword arguments to pass values down to children.
@@ -357,7 +377,7 @@ Template.example.viewmodel({
 }, { persist: true });
 ```
 
-In order to determine whether an instance is the same as a previous one, ViewModel looks at 1) the position of the viewmodel in the view hierarchy, 2) the index of the viewmodel in relation to other current viewmodels, and 3) the browser location.
+In order to determine whether an instance is the same as a previous one, ViewModel looks at 1) the position of the viewmodel in the view hierarchy, 2) the index of the viewmodel in relation to sibling viewmodels, and 3) the browser location.
 
 If all these things match, the state of the viewmodel instance will be restored.
 
@@ -378,7 +398,7 @@ If a component is repeated on a page, the `share` flag makes sure that the state
 
 ## addBinding
 
-This is the full definition of the `click` binding:
+This is the full declaration of the `click` binding:
 
 ```javascript
 ViewModel.addBinding("click", {
@@ -390,7 +410,10 @@ The job of a binding is to synchronize data between the DOM and the viewmodel. B
 
 ```javascript
 // All properties on the definition object are optional
-ViewModel.addBinding(name, {
+ViewModel.addBinding("name", {
+  // Inherit the properties of one or several other bindings (name or array of names)
+  extends: "super_name",
+
   // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
   // consequently, viewmodels or properties will not be created automatically.
   // The get and set functions will be called with the view as contex, instead
@@ -398,11 +421,11 @@ ViewModel.addBinding(name, {
   detached: false,
 
   // Run once when the element is rendered, right before the first call to set.
-  // Used to initalize a jQuery plugin or similar. When creating a binding
-  // that only contains this init function, set detached: true.
-  init: function ($elem, orig_value, args, kwhash) {
+  // Used to initalize things like jQuery plugins. When creating a binding that
+  // only contains this init function, set detached: true.
+  init: function ($elem, init_value, args, kwhash) {
     // For example
-    $elem.init("plugin", kwhash.options);
+    $elem.myPlugin("init", kwhash.options);
   },
 
   // Apply the original value and new values to the DOM
@@ -418,6 +441,14 @@ ViewModel.addBinding(name, {
   get: function (event, $elem, prop, args, kwhash) {
     // For example
     return $elem.val();
+  },
+
+  // Run once when the view containing the element is destroyed. Used to tear down
+  // things like jQuery plugins.
+  dispose: function ($elem, prop, args, kwhash) {
+    // For example
+    $elem.myPlugin("destroy");
+    prop.reset();
   }
 });
 ```
@@ -426,7 +457,7 @@ The parameters for `init`, `set`, and `get` are:
 
 - `event` – the original (jQuery) event object.
 - `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
-- `orig_value`/`new_value` – the new value that was passed to the property.
+- `init_value`/`new_value` – the new value that was passed to the property.
 - `prop` – the property on the viewmodel, if available.
 - `args` – an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
 - `kwhash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
@@ -459,6 +490,8 @@ ViewModel.addBinding(name, function (template_data, args, kwhash) {
 });
 ```
 
+Besides giving access to template data, the factory function creates a scope which can be used for storing variables specific to the bound element, such as a reference to a 3rd party component instance initialized on the element.
+
 
 ## Built-in bindings
 
@@ -468,9 +501,7 @@ Several bindings are included with the package, but you are highly encouraged to
 
 #### Value ([throttle])
 
-The property reflects the value of a text input, textarea, or select.
-
-An initial value can be set in the viewmodel. The throttle argument is a number (in ms) by which the update is [delayed](https://lodash.com/docs#throttle) as long as the user is typing.
+The property reflects the value of a text input, textarea, or select. An initial value can be set in the viewmodel. The `throttle` argument, optionally passed as a keyword argument, is a number (in ms) by which the update is [delayed](https://lodash.com/docs#throttle) as long as the user is typing.
 
 ```html
 <input type="text" {{bind 'value: text 100'}}>
@@ -505,6 +536,20 @@ The property reflects the value of the radio button. The inital state of the gro
 { value: "first" }
 ```
 
+#### Datepicker ([position])
+
+The datepicker binding (`pikaday`) is implemented with [Pikaday](https://github.com/richsilv/Pikaday/), so a package like `richsilv:pikaday` **must** be added for the binding it to work.
+
+The property reflects the currently selected `Date`. An initial date can be set in the viewmodel. The `position` argument, optionally passed as a keyword argument, is where to render the datepicker (default: `bottom left`).
+
+```html
+<input type="text" placeholder="dd-mm-yyyy" {{bind 'pikaday: date'}}>
+```
+
+```javascript
+{ date: new Date }  // Or simply null
+```
+
 #### Click
 
 A method on the viewmodel is called when the element is clicked.
@@ -531,7 +576,7 @@ The property is negated on each `click` of the button.
 
 #### Submit ([send])
 
-A method on the viewmodel is run when the form is submitted. If `true` is passed as the send argument in the binding, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
+A method on the viewmodel is run when the form is submitted. If `true` is passed as the `send` argument in the binding, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
 
 ```html
 <form {{bind 'submit: submit true'}}></form>
@@ -648,18 +693,22 @@ Like this:
 
 ```javascript
 // E.g. /client/lib/dalgard-viewmodel.js
+
 DalgardViewModel = Package["dalgard:viewmodel"].ViewModel;
-Blaze.Template.prototype.dalgardViewmodel = DalgardViewModel.viewmodelHook;
+Template.prototype.dalgardViewmodel = DalgardViewModel.viewmodelHook;
+
+// Name of viewmodel reference on template instances
+DalgardViewModel.referenceName = "dalgardViewmodel";
 ```
 
-You can now use the two packages side by side, until everything is migrated.
+You can now use the two packages side by side, even on the same template, until everything is migrated.
 
 Pro tip: Choose unique names that can be search-and-replace'd globally, when the time comes.
 
 
 ## History
 
-- 0.6.2  –  Serious bug fix: Prevent events from being registered more than once. Bug fix: Wrong signature when calling viewmodel methods (should only get `event`, `args`, and `kwhash`). API change: Remove `key` as a parameter for binding factories and `bind` method. `onReady` and `ViewModel.uniqueId` now part of public API.
+- 0.6.2  –  Serious bug fix: Events are no longer registered more than once. Bug fix: Corrected signature when calling viewmodel methods (should only get `event`, `args`, and `kwhash`). API change: Removed `key` as a parameter for binding factories and `bind` method. `onReady` and `ViewModel.uniqueId` now part of public API.
 - 0.6.1  –  Bug fix: Bind helpers were sometimes being rerun. `hashId` now part of public API.
 - 0.6.0  –  Added `init` function to binding definition. `ViewModel.bindHelper` now part of public API.
 - 0.5.9  –  Migration made possible by storing the `viewmodel` hook as a property on `ViewModel`. Multiple comma separated bind expressions in one string (for future Jade extension).
@@ -669,3 +718,8 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 - 0.4.0  –  Optionally transclude viewmodel.
 - 0.3.0  –  Optionally persist viewmodel across routes.
 - 0.2.0  –  Persist viewmodels on hot code pushes.
+
+### Todo
+
+- Rebind when kwargs change
+- Possible to flush binds less often?
