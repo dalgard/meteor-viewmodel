@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.6.2
+dalgard:viewmodel 0.7.0
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -9,7 +9,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - Easily extensible
 - Non-intrusive
 
-(3.82 kB minified and gzipped)
+(4.54 kB minified and gzipped)
 
 ### Install
 
@@ -708,6 +708,7 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
+- 0.7.0  –  API change: Removed lifetime hooks and Blaze events from viewmodel definition. Added `reset` method and various optimizations. Added `extends` and `dispose` to binding definition. Added `pikaday` binding. Fixed ongoing bug: Values are now properly restored with bindings nested in block helpers
 - 0.6.2  –  Serious bug fix: Events are no longer registered more than once. Bug fix: Corrected signature when calling viewmodel methods (should only get `event`, `args`, and `kwhash`). API change: Removed `key` as a parameter for binding factories and `bind` method. `onReady` and `ViewModel.uniqueId` now part of public API.
 - 0.6.1  –  Bug fix: Bind helpers were sometimes being rerun. `hashId` now part of public API.
 - 0.6.0  –  Added `init` function to binding definition. `ViewModel.bindHelper` now part of public API.
