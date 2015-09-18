@@ -732,7 +732,7 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
-- 0.8.0  –  Experimental feature: Helpers in templates without an explicitly declared viewmodel may now be used anywhere in the template, including before the actual call to `{{bind}} that creates the helper. Added static serialization methods. Improved arguments for built-in bindings.
+- 0.8.0  –  Experimental feature: Helpers in templates without an explicitly declared viewmodel may now be used anywhere in the template, including before the actual call to `{{bind}}` that creates the helper. Added static serialization methods. Improved arguments for built-in bindings.
 - 0.7.1  –  Added `nonreactive` get-set method to primitive viewmodel props. Possible to programmatically bind an element outside of the viewmodel's template. `children` method now always returns a copy.
 - 0.7.0  –  API change: Removed lifetime hooks and Blaze events from viewmodel definition. Added `reset` method and various optimizations. Added `extends` and `dispose` to binding definition. Added `pikaday` binding. Fixed ongoing bug: Values are now properly restored with bindings nested in block helpers
 - 0.6.2  –  Serious bug fix: Events are no longer registered more than once. Bug fix: Corrected signature when calling viewmodel methods (should only get `event`, `args`, and `kwhash`). API change: Removed `key` as a parameter for binding factories and `bind` method. `onReady` and `ViewModel.uniqueId` now part of public API.
