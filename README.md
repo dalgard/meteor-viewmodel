@@ -216,7 +216,7 @@ ViewModel.registerHelper(name);  // name is optional
 
 The advantage of registering `{{bind}}` globally is that you may use it inside any template without first declaring a viewmodel.
 
-The helper then automatically creates a new viewmodel instance (if none existed) on the template registers the bound key as a Blaze helper. The helper can then be used anywhere in the template, but using it before the actual call to `{{bind}}` should be considered an experimental feature until further notice.
+The helper then automatically creates a new viewmodel instance (if none existed) on the template registers the bound key as a Blaze helper. This helper can be used anywhere in the template, but until further notice, using it before the actual call to `{{bind}}` should be considered an experimental feature.
 
 The basic syntax of the bind helper looks like this:
 
