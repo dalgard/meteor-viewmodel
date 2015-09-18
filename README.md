@@ -42,7 +42,7 @@ If you are migrating from `manuel:viewmodel` or want to try both packages side b
   - [Shared state](#shared-state)
 - [addBinding](#addbinding)
 - [Built-in bindings](#built-in-bindings)
-    - [Value ([throttle])](#value-throttle)
+    - [Value ([throttle][, leading])](#value-throttle-leading)
     - [Checked](#checked)
     - [Radio](#radio)
     - [Pikaday ([position])](#pikaday-position)
@@ -95,8 +95,8 @@ ViewModel.registerHelper("bind");
   <input type="checkbox" {{bind 'checked: show'}}>
 
   {{#if show}}
-    <button {{bind 'toggle: red'}}>Toggle red</button>
     <p style="{{#if red}}color: red;{{/if}}">{{text}}</p>
+    <button {{bind 'toggle: red'}}>Toggle red</button>
   {{/if}}
 </template>
 ```
@@ -216,7 +216,7 @@ ViewModel.registerHelper(name);  // name is optional
 
 The advantage of registering `{{bind}}` globally is that you may use it inside any template without first declaring a viewmodel.
 
-The helper then automatically creates a new viewmodel instance (if none existed) on the template and immediately registers the bound key as a Blaze helper – this helper can then be used anywhere ***after*** the call to `{{bind}}`, but not before. If you want to be able to use a property *anywhere* in the template, declare the viewmodel explicitly.
+The helper then automatically creates a new viewmodel instance (if none existed) on the template registers the bound key as a Blaze helper. The helper can then be used anywhere in the template, but using it before the actual call to `{{bind}}` should be considered an experimental feature until further notice.
 
 The basic syntax of the bind helper looks like this:
 
@@ -513,11 +513,19 @@ Besides giving access to template data, the factory function creates a scope whi
 
 Several bindings are included with the package, but you are highly encouraged to add  more specialized bindings to your project in order to improve the readability of the code.
 
+Arguments in the built-in bindings can be passed either as part of the bind expression or as keyword arguments to the helper:
+
+```html
+{{bind 'value: value 100 true'}}
+<!-- or -->
+{{bind 'value: value' throttle=100 leading=true}}
+```
+
 (Boilerplate code is omitted below; possible arguments are shown in parentheses.)
 
-#### Value ([throttle])
+#### Value ([throttle][, leading])
 
-The property reflects the value of a text input, textarea, or select. An initial value can be set in the viewmodel. The `throttle` argument, optionally passed as a keyword argument, is a number (in ms) by which the update is [delayed](https://lodash.com/docs#throttle) as long as the user is typing.
+The property reflects the value of a text input, textarea, or select. An initial value can be set in the viewmodel. The `throttle` argument is a number (in ms) by which the update is [delayed](https://lodash.com/docs#throttle) as long as the user is typing. If the `leading` argument is `true`, the value is updated once before the delay.
 
 ```html
 <input type="text" {{bind 'value: text 100'}}>
@@ -556,7 +564,7 @@ The property reflects the value of the radio button. The inital state of the gro
 
 This datepicker binding is implemented with [Pikaday](https://github.com/richsilv/Pikaday/), so a package like `richsilv:pikaday` **must** be added for the binding it to work.
 
-The property reflects the currently selected `Date`. An initial date can be set in the viewmodel. The `position` argument, optionally passed as a keyword argument, determines where to render the datepicker (default: `bottom left`).
+The property reflects the currently selected `Date`. An initial date can be set in the viewmodel. The `position` argument determines where to render the datepicker (default: `bottom left`).
 
 ```html
 <input type="text" placeholder="dd-mm-yyyy" {{bind 'pikaday: date'}}>
@@ -592,7 +600,7 @@ The property is negated on each `click` of the button.
 
 #### Submit ([send])
 
-A method on the viewmodel is run when the form is submitted. If `true` is passed as the `send` argument in the binding, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
+A method on the viewmodel is run when the form is submitted. If `true` is passed as the `send` argument, the event does **not** get `event.preventDefault()`, meaning that the form will be sent.
 
 ```html
 <form {{bind 'submit: submit true'}}></form>
@@ -724,6 +732,7 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
+- 0.8.0  –  Experimental feature: Helpers in templates without an explicitly declared viewmodel may now be used anywhere in the template, including before the actual call to `{{bind}}` that creates the helper. Added static serialization methods. Improved arguments for built-in bindings.
 - 0.7.1  –  Added `nonreactive` get-set method to primitive viewmodel props. Possible to programmatically bind an element outside of the viewmodel's template. `children` method now always returns a copy.
 - 0.7.0  –  API change: Removed lifetime hooks and Blaze events from viewmodel definition. Added `reset` method and various optimizations. Added `extends` and `dispose` to binding definition. Added `pikaday` binding. Fixed ongoing bug: Values are now properly restored with bindings nested in block helpers
 - 0.6.2  –  Serious bug fix: Events are no longer registered more than once. Bug fix: Corrected signature when calling viewmodel methods (should only get `event`, `args`, and `kwhash`). API change: Removed `key` as a parameter for binding factories and `bind` method. `onReady` and `ViewModel.uniqueId` now part of public API.
@@ -739,6 +748,6 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ### Todo
 
-- Optionally include descendants in serialized viewmodel
 - Rebind when kwargs change
+- Optionally include descendants in serialization?
 - Possible to flush binds less often?
