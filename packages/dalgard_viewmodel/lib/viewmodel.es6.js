@@ -461,6 +461,9 @@ ViewModel = class ViewModel {
     // Get non-reactively
     let map = persist.keys[hash_id];
 
+    if (_.isString(map))
+      map = EJSON.parse(map);
+
     this.deserialize(map);
   }
 
