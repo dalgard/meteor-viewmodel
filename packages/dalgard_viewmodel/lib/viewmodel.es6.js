@@ -103,6 +103,12 @@ ViewModel = class ViewModel {
       if (!comp.firstRun)
         persist.set(hash_id, map);
     }.bind(this));  // Bind to viewmodel
+
+    // Remove viewmodel from store if not persisted
+    view.onViewDestroyed(function () {
+      if (!this._isPersisted())
+        delete persist.keys[hash_id];
+    }.bind(this));  // Bind to viewmodel
   }
 
   // Reactively get or set the name of the viewmodel
@@ -195,7 +201,7 @@ ViewModel = class ViewModel {
 
       // Register Blaze helper for the property
       this.view.template.helpers({
-        [key]: function (...args) {
+        [key](...args) {
           let vm = Template.instance()[ViewModel.referenceName],
               kwhash = args.pop();  // Keywords argument;
 
@@ -452,7 +458,11 @@ ViewModel = class ViewModel {
     // Ensure type of argument
     check(hash_id, String);
 
-    let map = persist.get(hash_id);
+    // Get non-reactively
+    let map = persist.keys[hash_id];
+
+    if (_.isString(map))
+      map = EJSON.parse(map);
 
     this.deserialize(map);
   }
@@ -640,6 +650,23 @@ ViewModel = class ViewModel {
       index = name, name = null;
 
     return this.find(name)[index || 0] || null;
+  }
+
+  // Reactively get an array of serialized current viewmodels, optionally filtered by name
+  static serialize(name) {
+    let all = ViewModel.find(name);
+
+    return _.map(all, vm => vm.serialize());
+  }
+
+  // Restore an array of serialized values on the current viewmodels, optionally filtered by name
+  static deserialize(maps, name) {
+    // Ensure type of argument
+    check(maps, Array);
+
+    let all = ViewModel.find(name);
+
+    _.each(all, (vm, index) => vm.deserialize(maps[index]));
   }
 
 
@@ -843,20 +870,27 @@ ViewModel = class ViewModel {
     }
   }
 
-  // Register the bind helper globally
+  // Register the bind helper globally and make __helpers reactive
   static registerHelper(name = ViewModel.helperName) {
     // Ensure type of argument
     check(name, String);
 
     Template.registerHelper(name, ViewModel.bindHelper);
-
     ViewModel.helperName = name;
-    global.set(true);
+
+    // Experimental feature: Make the HelperMap of __helpers reactive
+    makeHelperMapReactive(Template.body, true);
+
+    // Indicate that the helper has been registered globally
+    ViewModel._global(true);
   }
 
   // Returns whether the bind helper has been registered globally
-  static _isGlobal() {
-    return global.get();
+  static _global(is_global) {
+    if (_.isBoolean(is_global))
+      global.set(is_global);
+    else
+      return global.get();
   }
 
 
@@ -876,12 +910,15 @@ ViewModel = class ViewModel {
     check(options, Match.Optional(Object));
 
 
-    // Register the special Blaze bind helper on templates which a viewmodel,
-    // if not already registered globally
-    if (!ViewModel._isGlobal()) {
+    // If the helper hasn't been registered globally
+    if (!ViewModel._global()) {
+      // Register the Blaze bind helper on this template
       this.helpers({
         [ViewModel.helperName]: ViewModel.bindHelper
       });
+
+      // Experimental feature: Make the HelperMap of __helpers reactive
+      makeHelperMapReactive(this);
     }
 
 
@@ -979,4 +1016,43 @@ function nonreactiveValue(vm, key, new_value) {
   }
   else
     return this._value.curValue;
+}
+
+// Add reactivity to HelperMap class or instance
+function makeHelperMapReactive(template, is_global) {
+  // Catch any exceptions, since this is an experimental feature
+  try {
+    var helpers = template.__helpers,
+        prototype = helpers.constructor.prototype,
+        helper_map = is_global ? prototype : helpers,
+        orig_set = prototype.set,
+        orig_get = prototype.get,
+        orig_has = prototype.has;
+
+    helper_map.set = function (name, helper) {
+      if (_.isObject(this.__deps) && this.__deps[name])
+        this.__deps[name].changed();
+
+      return orig_set.call(this, name, helper);
+    };
+
+    helper_map.get = function (name) {
+      if (!this.__deps)
+        this.__deps = {};
+
+      if (!this.__deps[name])
+        this.__deps[name] = new Tracker.Dependency;
+
+      this.__deps[name].depend();
+
+      return orig_get.call(this, name);
+    };
+
+    helper_map.has = function (name) {
+      this.get(name);
+
+      return orig_has.call(this, name);
+    };
+  }
+  catch (err) {}
 }
