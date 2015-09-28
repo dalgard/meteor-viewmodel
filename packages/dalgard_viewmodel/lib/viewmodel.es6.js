@@ -202,7 +202,7 @@ ViewModel = class ViewModel {
       // Register Blaze helper for the property
       this.view.template.helpers({
         [key](...args) {
-          let vm = Template.instance()[ViewModel.referenceName],
+          let vm = ViewModel._ensureProp(Template.instance(), key),
               kwhash = args.pop();  // Keywords argument;
 
           // Use hash of Spacebars keywords arguments object if it has any properties
@@ -691,6 +691,28 @@ ViewModel = class ViewModel {
     all.dep.changed();
   }
 
+  // Ensure existence of a viewmodel with property
+  static _ensureProp(template_instance, key) {
+    // Ensure type of arguments
+    check(template_instance, Blaze.TemplateInstance);
+    check(key, Match.Optional(String));
+
+    let vm = template_instance[ViewModel.referenceName];
+
+    // Possibly create new viewmodel instance on view
+    if (!(vm instanceof ViewModel))
+      vm = new ViewModel(template_instance.view);
+
+    // Possibly create missing property on viewmodel (initialized as undefined)
+    if (!_.isUndefined(key) && !vm[key]) {
+      let definition = _.zipObject([key]);
+
+      vm.addProps(definition);
+    }
+
+    return vm;
+  }
+
   // Get or set whether we are in a hot code push or not
   static _isHCP(state) {
     if (_.isBoolean(state))
@@ -772,18 +794,8 @@ ViewModel = class ViewModel {
         // Only continue if binding exists
         if (binding) {
           // Make sure viewmodel and properties exist, if not a detached binding
-          if (!binding.detached) {
-            let vm = template_instance[ViewModel.referenceName],
-                key = args[0];
-
-            // Possibly create new viewmodel instance on view
-            if (!(vm instanceof ViewModel))
-              vm = new ViewModel(template_instance.view);
-
-            // Possibly create missing property on viewmodel (initialized as undefined)
-            if (!_.isUndefined(key) && !vm[key])
-              vm.addProps(_.zipObject([key]));
-          }
+          if (!binding.detached)
+            ViewModel._ensureProp(template_instance, args[0]);
 
           // Use a pseudo viewmodel as context when calling bind via helper
           let pseudo_vm = {
@@ -932,10 +944,10 @@ ViewModel = class ViewModel {
       let vm = this[ViewModel.referenceName];
 
       // Create new viewmodel instance on view or add properties to existing viewmodel
-      if (vm instanceof ViewModel)
-        vm.addProps(definition);
-      else
+      if (!(vm instanceof ViewModel))
         vm = new ViewModel(this.view, id, name, definition, options);
+      else
+        vm.addProps(definition);
 
       // Add autoruns
       if (definition.autorun)
@@ -1022,7 +1034,7 @@ function nonreactiveValue(vm, key, new_value) {
 function makeHelperMapReactive(template, is_global) {
   // Catch any exceptions, since this is an experimental feature
   try {
-    var helpers = template.__helpers,
+    let helpers = template.__helpers,
         prototype = helpers.constructor.prototype,
         helper_map = is_global ? prototype : helpers,
         orig_set = prototype.set,
@@ -1030,8 +1042,11 @@ function makeHelperMapReactive(template, is_global) {
         orig_has = prototype.has;
 
     helper_map.set = function (name, helper) {
-      if (_.isObject(this.__deps) && this.__deps[name])
+      if (_.isObject(this.__deps) && this.__deps[name]) {
         this.__deps[name].changed();
+
+        delete this.__deps[name];
+      }
 
       return orig_set.call(this, name, helper);
     };
