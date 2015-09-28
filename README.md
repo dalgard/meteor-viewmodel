@@ -84,7 +84,7 @@ The goal of `dalgard:viewmodel` is to cut down to the core of this pattern and p
 
 ## Quickstart
 
-```javascript
+```js
 // All the code you need to get started
 ViewModel.registerHelper("bind");
 ```
@@ -120,7 +120,7 @@ Viewmodel declarations may sometimes be omitted altogether – the `{{bind}}` he
 </template>
 ```
 
-```javascript
+```js
 // Declare a viewmodel on this template (all properties are registered as Blaze helpers)
 Template.page.viewmodel({
   // Computed property from child viewmodel
@@ -163,7 +163,7 @@ Template.field.viewmodel("field", function (template_data) {
 
 The viewmodel of a template instance can be accessed inside lifetime hooks (`onCreated`, `onRendered`, and `onDestroyed`) and inside helpers and events, through the `viewmodel` property on the template instance:
 
-```javascript
+```js
 Template.example.viewmodel({
   myValue: "Hello world"
 });
@@ -182,6 +182,13 @@ Template.example.helpers({
 Template.example.events({
   "click button": function (event, template_instance) {
     template_instance.viewmodel.myValue();  // "Hello world"
+  }
+});
+
+// If no name is specified for a viewmodel, it is named after its view
+Template.other.helpers({
+  otherHelper: function () {
+    ViewModel.findOne("Template.example").myValue();  // "Hello world"
   }
 });
 ```
@@ -204,19 +211,19 @@ This is an extract of the full API – take five minutes to explore the ViewMode
 
 To begin with, the Blaze bind helper only gets registered on templates with a declared viewmodel. The name of the helper may be changed like this:
 
-```javascript
+```js
 ViewModel.helperName = "myBind";
 ```
 
 However, you may choose to register the helper globally:
 
-```javascript
+```js
 ViewModel.registerHelper(name);  // name is optional
 ```
 
 The advantage of registering `{{bind}}` globally is that you may use it inside any template without first declaring a viewmodel.
 
-The helper then automatically creates a new viewmodel instance (if none existed) on the template registers the bound key as a Blaze helper. This helper can be used anywhere in the template, but until further notice, using it before the actual call to `{{bind}}` should be considered an experimental feature.
+The helper then automatically creates a new viewmodel instance (if none existed) on the template and registers the bound key as a Blaze helper. This helper can be used anywhere in the template, but using it before the actual call to `{{bind}}` should be considered an experimental feature until further notice.
 
 The basic syntax of the bind helper looks like this:
 
@@ -226,7 +233,7 @@ The basic syntax of the bind helper looks like this:
 
 ... where `expression` is a string, formatted as a key/value pair:
 
-```javascript
+```js
 'binding: key'
 ```
 
@@ -244,24 +251,24 @@ Any space separated values after the colon inside the bind expression are passed
 
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a declarative approach.
 
-```javascript
+```js
 // Reactively get or set the name of the viewmodel
 this.name([new_name]);
 ```
 
-```javascript
+```js
 // Reactively get or set an option of the viewmodel
 this.option(name[, new_value]);
 ```
 
 ##### Templates
 
-```javascript
+```js
 // Get the current template instance
 this.templateInstance();
 ```
 
-```javascript
+```js
 // Reactively get the data context of the current template instance
 this.getData();
 ```
@@ -270,17 +277,17 @@ this.getData();
 
 Primitive viewmodel properties are converted to reactive getter-setter methods. Call a property name (`myValue` is used as an example) with a new value to reactively *set* the value, and without arguments to reactively *get* the value.
 
-```javascript
+```js
 // Reactively get or set the property value
 this.myValue([new_value]);
 ```
 
-```javascript
+```js
 // Get or set the property value non-reactively
 this.myValue.nonreactive([new_value]);
 ```
 
-```javascript
+```js
 // Reset the property to its initial value
 this.myValue.reset();
 ```
@@ -289,17 +296,17 @@ If the viewmodel shares its state (`share` flag is set), setting a new value –
 
 ##### Serialization
 
-```javascript
+```js
 // Get a snapshot of the viewmodel, ready for serialization
 this.serialize();
 ```
 
-```javascript
+```js
 // Apply a snapshot to the viewmodel
 this.deserialize(object);
 ```
 
-```javascript
+```js
 // Reset all properties to their initial values
 this.reset();
 ```
@@ -310,43 +317,45 @@ The recommended pattern with this package is to retrieve values from child viewm
 
 Consequently, the `parent`, `ancestor`, and `ancestors` methods should generally be avoided.
 
-The optional `name` argument in the methods below can either be a string or regex that will be compared to the name of the viewmodel, if present, or it can be a predicate function, which is called with the viewmodel as its first argument.
+The optional `name` argument below can either be a string or regex that will be compared to the name of the viewmodel or it can be a predicate function, which is called with the viewmodel as its first argument.
 
-```javascript
+If no name is specified for a viewmodel, it is named after its view (e.g. `"Template.example"`).
+
+```js
 // Reactively get the parent viewmodel, optionally filtered by name
 this.parent([name]);
 ```
 
-```javascript
+```js
 // Reactively get a single descendant viewmodel, optionally within a depth,
 // at an index, and filtered by name
 this.ancestor([name][, index=0][, depth]);
 ```
 
-```javascript
+```js
 // Reactively get an array of ancestor viewmodels, optionally within a depth
 // and filtered by name
 this.ancestors([name][, depth]);
 ```
 
-```javascript
+```js
 // Reactively get a single child viewmodel, optionally at an index
 // and filtered by name
 this.child([name][, index=0]);
 ```
 
-```javascript
+```js
 // Reactively get an array of child viewmodels, optionally filtered by name
 this.children([name]);
 ```
 
-```javascript
+```js
 // Reactively get a single descendant viewmodel, optionally within a depth,
 // at an index, and filtered by name
 this.descendant([name][, index=0][, depth]);
 ```
 
-```javascript
+```js
 // Reactively get an array of descendant viewmodels, optionally within a depth
 // and filtered by name
 this.descendants([name][, depth]);
@@ -356,12 +365,12 @@ this.descendants([name][, depth]);
 
 These methods are mainly for inspection while developing, but may also be used as a more convenient way of retrieving a component in a complex layout.
 
-```javascript
+```js
 // Reactively get an array of current viewmodels, optionally filtered by name
 ViewModel.find([name][, index]);
 ```
 
-```javascript
+```js
 // Reactively get the first current viewmodel at index, optionally filtered by name
 ViewModel.findOne([name][, index]);
 ```
@@ -370,7 +379,7 @@ ViewModel.findOne([name][, index]);
 
 To take a viewmodel out of the viewmodel hierarchy, set the `transclude` flag when declaring it:
 
-```javascript
+```js
 Template.example.viewmodel({
   prop: ""
 }, { transclude: true });
@@ -386,7 +395,7 @@ Values in viewmodel instances are automatically persisted across hot code pushes
 
 To persist the state of a viewmodel across re-renderings, including changing to another route and going back to a previous one, set the `persist` flag when declaring the viewmodel:
 
-```javascript
+```js
 Template.example.viewmodel({
   // This property will be restored on re-render
   prop: ""
@@ -403,7 +412,7 @@ If all these things match, the state of the viewmodel instance will be restored.
 
 Multiple instances of the same viewmodel can share their state – set the `share` flag in the declaration:
 
-```javascript
+```js
 Template.example.viewmodel({
   prop: ""
 }, { share: true });
@@ -416,7 +425,7 @@ If a component is repeated on a page, the `share` flag makes sure that the state
 
 This is the full declaration of the `click` binding:
 
-```javascript
+```js
 ViewModel.addBinding("click", {
   on: "click"
 });
@@ -424,7 +433,7 @@ ViewModel.addBinding("click", {
 
 The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through definition objects:
 
-```javascript
+```js
 // All properties on the definition object are optional
 ViewModel.addBinding("name", {
   // Inherit the properties of one or several other bindings (name or array of names)
@@ -482,7 +491,7 @@ The returned value from the `get` function is written directly to the bound prop
 
 An example:
 
-```javascript
+```js
 ViewModel.addBinding("enterKey", {
   on: "keyup",
 
@@ -499,7 +508,7 @@ In the case where you want to call the bound property, but not do so with a new 
 
 A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
 
-```javascript
+```js
 ViewModel.addBinding(name, function (template_data, args, kwhash) {
   // Return definition object
   return {};
@@ -531,7 +540,7 @@ The property reflects the value of a text input, textarea, or select. An initial
 <input type="text" {{bind 'value: text 100'}}>
 ```
 
-```javascript
+```js
 { text: "" }
 ```
 
@@ -543,7 +552,7 @@ The property reflects the state of the checkbox. The inital state of the checkbo
 <input type="checkbox" {{bind 'checked: checked'}}>
 ```
 
-```javascript
+```js
 { checked: false }
 ```
 
@@ -556,7 +565,7 @@ The property reflects the value of the radio button. The inital state of the gro
 <input type="radio" name="radio" value="second" {{bind 'radio: value'}}>
 ```
 
-```javascript
+```js
 { value: "first" }
 ```
 
@@ -570,7 +579,7 @@ The property reflects the currently selected `Date`. An initial date can be set 
 <input type="text" placeholder="dd-mm-yyyy" {{bind 'pikaday: date'}}>
 ```
 
-```javascript
+```js
 { date: new Date }  // Or simply null
 ```
 
@@ -582,7 +591,7 @@ A method on the viewmodel is called when the element is clicked.
 <button {{bind 'click: click'}}></button>
 ```
 
-```javascript
+```js
 { click: function (event, args, kwhash) { ... } }
 ```
 
@@ -594,7 +603,7 @@ The property is negated on each `click` of the button.
 <button {{bind 'toggle: toggled'}}></button>
 ```
 
-```javascript
+```js
 { toggled: false }
 ```
 
@@ -606,7 +615,7 @@ A method on the viewmodel is run when the form is submitted. If `true` is passed
 <form {{bind 'submit: submit true'}}></form>
 ```
 
-```javascript
+```js
 { submit: function (event, args, kwhash) { ... } }
 ```
 
@@ -618,7 +627,7 @@ The disabled state of the element reflects a boolean property on the viewmodel. 
 <input type="text" {{bind 'disabled: disabled'}}>
 ```
 
-```javascript
+```js
 { disabled: false }
 ```
 
@@ -630,7 +639,7 @@ The property reflects whether the element is in focus. An element can be given f
 <input type="text" {{bind 'focused: focused'}}>
 ```
 
-```javascript
+```js
 { focused: true }
 ```
 
@@ -642,7 +651,7 @@ The property reflects whether the mouse hovers over the element.
 <button {{bind 'hovered: hovered'}}></button>
 ```
 
-```javascript
+```js
 { hovered: false }
 ```
 
@@ -654,7 +663,7 @@ A method on the viewmodel is run when the enter key is pressed on the element.
 <input type="text" {{bind 'enterKey: pressed'}}>
 ```
 
-```javascript
+```js
 { pressed: function (event, args, kwhash) { ... } }
 ```
 
@@ -666,7 +675,7 @@ A method on the viewmodel is run when the specific key, passed as an argument, i
 <input type="text" {{bind 'key: pressed 16'}}>
 ```
 
-```javascript
+```js
 { pressed: function (event, args, kwhash) { ... } }
 ```
 
@@ -678,7 +687,7 @@ This bind expression may take any number of keys, including zero (the colon is o
 <p {{bind 'classes: red large'}}></p>
 ```
 
-```javascript
+```js
 {
   red: true,
   large: false
@@ -701,7 +710,7 @@ The property is an array of the currently selected file object(s) from the file 
 <input type="file" multiple {{bind 'files: files'}}>
 ```
 
-```javascript
+```js
 { files: [] }
 ```
 
@@ -715,7 +724,7 @@ If you are migrating gradually from `manuel:viewmodel` or any other package that
 
 Like this:
 
-```javascript
+```js
 // E.g. /client/lib/dalgard-viewmodel.js
 
 DalgardViewModel = Package["dalgard:viewmodel"].ViewModel;
@@ -732,6 +741,7 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
+- 0.8.2  –  If no name is specified for a viewmodel, it is named after its view
 - 0.8.1  –  Bug fix: Using implicit helper before `{{bind}}` didn't work when the same template was used multiple times. API change: Changed `referenceName` to `referenceKey`.
 - 0.8.0  –  Experimental feature: Helpers in templates without an explicitly declared viewmodel may now be used anywhere in the template, including before the actual call to `{{bind}}` that creates the helper. Added static serialization methods. Improved arguments for built-in bindings.
 - 0.7.1  –  Added `nonreactive` get-set method to primitive viewmodel props. Possible to programmatically bind an element outside of the viewmodel's template. `children` method now always returns a copy.

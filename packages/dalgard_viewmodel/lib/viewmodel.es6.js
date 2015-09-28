@@ -19,7 +19,7 @@ let is_hcp = false;
 
 // Exported class
 ViewModel = class ViewModel {
-  constructor(view, id = ViewModel.uniqueId(), name, definition, options) {
+  constructor(view, id = ViewModel.uniqueId(), name = view.name, definition, options) {
     // Ensure type of arguments
     check(view, Blaze.View);
     check(id, Match.Integer);
@@ -914,10 +914,10 @@ ViewModel = class ViewModel {
 
     // Name argument may be omitted
     if (_.isObject(name))
-      options = definition, definition = name, name = null;
+      options = definition, definition = name, name = this.viewName;
 
     // Ensure type of arguments
-    check(name, Match.OneOf(String, null));
+    check(name, String);
     check(definition, Match.OneOf(Object, Function));
     check(options, Match.Optional(Object));
 
