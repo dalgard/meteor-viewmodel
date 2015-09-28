@@ -6,7 +6,7 @@ blaze-tools@1.0.4
 caching-compiler@1.0.0
 caching-html-compiler@1.0.1
 check@1.0.6
-dalgard:viewmodel@0.8.1
+dalgard:viewmodel@0.8.2
 deps@1.0.9
 diff-sequence@1.0.1
 ecmascript@0.1.4
