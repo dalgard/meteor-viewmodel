@@ -178,7 +178,8 @@ Template.example.events({
   }
 });
 
-// Additional helpers shouldn't be needed in practice, since all viewmodel properties are also registered as Blaze helpers
+// Additional helpers shouldn't be needed in practice, since all viewmodel
+// properties are also registered as Blaze helpers
 Template.example.helpers({
   myHelper: function () {
     return Template.instance().viewmodel.myValue();  // "Hello world"
