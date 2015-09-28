@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.8.0
+dalgard:viewmodel 0.8.1
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -9,7 +9,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - Highly declarative
 - Terse syntax
 
-(4.6 kB minified and gzipped)
+(4.9 kB minified and gzipped)
 
 ### Install
 
@@ -722,7 +722,7 @@ DalgardViewModel = Package["dalgard:viewmodel"].ViewModel;
 Template.prototype.dalgardViewmodel = DalgardViewModel.viewmodelHook;
 
 // Name of viewmodel reference on template instances
-DalgardViewModel.referenceName = "dalgardViewmodel";
+DalgardViewModel.referenceKey = "dalgardViewmodel";
 ```
 
 You can now use the two packages side by side, even on the same template, until everything is migrated.
@@ -732,6 +732,7 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
+- 0.8.1  –  Bug fix: Using implicit helper before `{{bind}}` didn't work when the same template was used multiple times. API change: Changed `referenceName` to `referenceKey`.
 - 0.8.0  –  Experimental feature: Helpers in templates without an explicitly declared viewmodel may now be used anywhere in the template, including before the actual call to `{{bind}}` that creates the helper. Added static serialization methods. Improved arguments for built-in bindings.
 - 0.7.1  –  Added `nonreactive` get-set method to primitive viewmodel props. Possible to programmatically bind an element outside of the viewmodel's template. `children` method now always returns a copy.
 - 0.7.0  –  API change: Removed lifetime hooks and Blaze events from viewmodel definition. Added `reset` method and various optimizations. Added `extends` and `dispose` to binding definition. Added `pikaday` binding. Fixed ongoing bug: Values are now properly restored with bindings nested in block helpers

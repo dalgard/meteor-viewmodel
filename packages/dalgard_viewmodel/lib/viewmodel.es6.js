@@ -58,7 +58,7 @@ ViewModel = class ViewModel {
       _.each(options, (value, name) => this.option(name, value));
 
     // Attach to template instance
-    this.templateInstance()[ViewModel.referenceName] = this;
+    this.templateInstance()[ViewModel.referenceKey] = this;
 
 
     // Possibly add properties
@@ -202,7 +202,7 @@ ViewModel = class ViewModel {
       // Register Blaze helper for the property
       this.view.template.helpers({
         [key](...args) {
-          let vm = Template.instance()[ViewModel.referenceName],
+          let vm = ViewModel._ensureProp(Template.instance(), key),
               kwhash = args.pop();  // Keywords argument;
 
           // Use hash of Spacebars keywords arguments object if it has any properties
@@ -262,7 +262,7 @@ ViewModel = class ViewModel {
 
 
     let template_instance = this.templateInstance(),
-        vm = template_instance[ViewModel.referenceName],
+        vm = template_instance[ViewModel.referenceKey],
         context = vm || template_instance.view,
         key = args[0];
 
@@ -356,11 +356,11 @@ ViewModel = class ViewModel {
       // Check type of definition property
       check(binding.dispose, Function);
 
-      let has_queue = ViewModel._hasQueue(this.view, ViewModel._disposeQueueName);
+      let has_queue = ViewModel._hasQueue(this.view, ViewModel._disposeQueueKey);
 
       // Register hooks if not already registered
       if (!has_queue) {
-        let flush = _.partial(ViewModel._flush, this.view, ViewModel._disposeQueueName);
+        let flush = _.partial(ViewModel._flush, this.view, ViewModel._disposeQueueKey);
 
         // Only runs when the view is re-rendered
         this.view.onViewReady(flush);
@@ -370,7 +370,7 @@ ViewModel = class ViewModel {
       }
 
       // Wrap and add dispose function to queue
-      ViewModel._queue(this.view, ViewModel._disposeQueueName, function () {
+      ViewModel._queue(this.view, ViewModel._disposeQueueKey, function () {
         // Possibly release elem for garbage collection
         elem = elem && template_instance.$(elem)[0];
 
@@ -401,7 +401,7 @@ ViewModel = class ViewModel {
         view = this.view;
 
     do view_names.push(view.name);
-    while (view = view.parentView && !view.templateInstance()[ViewModel.referenceName]);
+    while (view = view.parentView && !view.templateInstance()[ViewModel.referenceKey]);
 
     return SHA256(path + index + view_names.join("/") + parent_hash_id);
   }
@@ -558,7 +558,7 @@ ViewModel = class ViewModel {
     let parent_view = this.view.parentView;
 
     do if (parent_view.template) {
-      let vm = parent_view.templateInstance()[ViewModel.referenceName];
+      let vm = parent_view.templateInstance()[ViewModel.referenceKey];
 
       if (vm && !vm.option("transclude"))
         return !name || vm._test(name) ? vm : null;
@@ -691,6 +691,28 @@ ViewModel = class ViewModel {
     all.dep.changed();
   }
 
+  // Ensure existence of a viewmodel with property
+  static _ensureProp(template_instance, key) {
+    // Ensure type of arguments
+    check(template_instance, Blaze.TemplateInstance);
+    check(key, Match.Optional(String));
+
+    let vm = template_instance[ViewModel.referenceKey];
+
+    // Possibly create new viewmodel instance on view
+    if (!(vm instanceof ViewModel))
+      vm = new ViewModel(template_instance.view);
+
+    // Possibly create missing property on viewmodel (initialized as undefined)
+    if (!_.isUndefined(key) && !vm[key]) {
+      let definition = _.zipObject([key]);
+
+      vm.addProps(definition);
+    }
+
+    return vm;
+  }
+
   // Get or set whether we are in a hot code push or not
   static _isHCP(state) {
     if (_.isBoolean(state))
@@ -748,7 +770,7 @@ ViewModel = class ViewModel {
 
     // Only bind the element on the first invocation of the bind helper
     if (Tracker.currentComputation.firstRun) {
-      let has_bind_queue = ViewModel._hasQueue(current_view, ViewModel._bindQueueName),
+      let has_bind_queue = ViewModel._hasQueue(current_view, ViewModel._bindQueueKey),
           bind_id = ViewModel.uniqueId(),  // Unique id for current element
           kwhash = args.pop(),             // Keywords argument
           bind_exps = [];
@@ -772,18 +794,8 @@ ViewModel = class ViewModel {
         // Only continue if binding exists
         if (binding) {
           // Make sure viewmodel and properties exist, if not a detached binding
-          if (!binding.detached) {
-            let vm = template_instance[ViewModel.referenceName],
-                key = args[0];
-
-            // Possibly create new viewmodel instance on view
-            if (!(vm instanceof ViewModel))
-              vm = new ViewModel(template_instance.view);
-
-            // Possibly create missing property on viewmodel (initialized as undefined)
-            if (!_.isUndefined(key) && !vm[key])
-              vm.addProps(_.zipObject([key]));
-          }
+          if (!binding.detached)
+            ViewModel._ensureProp(template_instance, args[0]);
 
           // Use a pseudo viewmodel as context when calling bind via helper
           let pseudo_vm = {
@@ -795,7 +807,7 @@ ViewModel = class ViewModel {
           let bound_bind = ViewModel.prototype.bind.bind(pseudo_vm, bind_id, binding, args, kwhash);
 
           // Add to bind queue
-          ViewModel._queue(current_view, ViewModel._bindQueueName, bound_bind);
+          ViewModel._queue(current_view, ViewModel._bindQueueKey, bound_bind);
         }
 
 
@@ -805,7 +817,7 @@ ViewModel = class ViewModel {
       });
 
       if (!has_bind_queue) {
-        let flush = _.partial(ViewModel._flush, current_view, ViewModel._bindQueueName);
+        let flush = _.partial(ViewModel._flush, current_view, ViewModel._bindQueueKey);
 
         if (current_view.isRendered)
           // Flush queue AFTER the bind id attribute has been written
@@ -817,7 +829,7 @@ ViewModel = class ViewModel {
     }
     else {
       // Flush queues BEFORE the bind id attribute is overwritten
-      ViewModel._flush(current_view, ViewModel._bindQueueName);
+      ViewModel._flush(current_view, ViewModel._bindQueueKey);
     }
 
     // Set the dynamic bind id attribute on the element in order to select it after rendering
@@ -929,13 +941,13 @@ ViewModel = class ViewModel {
     // hook, wherein a viewmodel instance is created on the view with the properties
     // from the definition object
     this.onCreated(function () {
-      let vm = this[ViewModel.referenceName];
+      let vm = this[ViewModel.referenceKey];
 
       // Create new viewmodel instance on view or add properties to existing viewmodel
-      if (vm instanceof ViewModel)
-        vm.addProps(definition);
-      else
+      if (!(vm instanceof ViewModel))
         vm = new ViewModel(this.view, id, name, definition, options);
+      else
+        vm.addProps(definition);
 
       // Add autoruns
       if (definition.autorun)
@@ -953,13 +965,13 @@ defineProperties(ViewModel, {
   bindAttrName: { value: "vm-bind-id", writable: true, enumerable: true },
 
   // Name of bind queue on view instances
-  _bindQueueName: { value: "_bindQueue", writable: true },
+  _bindQueueKey: { value: "_bindQueue", writable: true },
 
   // Name of dispose queue on view instances
-  _disposeQueueName: { value: "_disposeQueue", writable: true },
+  _disposeQueueKey: { value: "_disposeQueue", writable: true },
 
   // Name of viewmodel reference on template instances
-  referenceName: { value: "viewmodel", writable: true, enumerable: true },
+  referenceKey: { value: "viewmodel", writable: true, enumerable: true },
 
   // Whether to try to restore viewmodels in this project after a hot code push
   restoreAfterHCP: { value: true, writable: true, enumerable: true }
@@ -1022,7 +1034,7 @@ function nonreactiveValue(vm, key, new_value) {
 function makeHelperMapReactive(template, is_global) {
   // Catch any exceptions, since this is an experimental feature
   try {
-    var helpers = template.__helpers,
+    let helpers = template.__helpers,
         prototype = helpers.constructor.prototype,
         helper_map = is_global ? prototype : helpers,
         orig_set = prototype.set,
@@ -1030,8 +1042,11 @@ function makeHelperMapReactive(template, is_global) {
         orig_has = prototype.has;
 
     helper_map.set = function (name, helper) {
-      if (_.isObject(this.__deps) && this.__deps[name])
+      if (_.isObject(this.__deps) && this.__deps[name]) {
         this.__deps[name].changed();
+
+        delete this.__deps[name];
+      }
 
       return orig_set.call(this, name, helper);
     };

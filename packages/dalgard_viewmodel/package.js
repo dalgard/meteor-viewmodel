@@ -1,6 +1,6 @@
 Package.describe({
   name: "dalgard:viewmodel",
-  version: "0.8.0",
+  version: "0.8.1",
   summary: "Minimalist VM for Meteor",
   git: "https://github.com/dalgard/meteor-viewmodel",
   documentation: "../../README.md"
@@ -17,10 +17,14 @@ Package.onUse(function (api) {
     "blaze",
     "templating",
     "jquery",
+    "tracker",
+    "ejson",
     "reactive-var",
     "reactive-dict",
     "stevezhu:lodash@3.10.1"
   ], "client");
+
+  api.use("kadira:flow-router@2.0.0", "client", { weak: true });
 
   api.addFiles("lib/viewmodel.es6.js", "client");
 
