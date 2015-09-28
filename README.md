@@ -169,26 +169,26 @@ Template.example.viewmodel({
 });
 
 Template.example.onRendered(function () {
-  this.viewmodel.myValue();  // "Hello world"
+  console.log(this.viewmodel.myValue());  // "Hello world"
+});
+
+Template.example.events({
+  "click button": function (event, template_instance) {
+    console.log(template_instance.viewmodel.myValue());  // "Hello world"
+  }
 });
 
 // Additional helpers shouldn't be needed in practice, since all viewmodel properties are also registered as Blaze helpers
 Template.example.helpers({
   myHelper: function () {
-    Template.instance().viewmodel.myValue();  // "Hello world"
-  }
-});
-
-Template.example.events({
-  "click button": function (event, template_instance) {
-    template_instance.viewmodel.myValue();  // "Hello world"
+    return Template.instance().viewmodel.myValue();  // "Hello world"
   }
 });
 
 // If no name is specified for a viewmodel, it is named after its view
 Template.other.helpers({
   otherHelper: function () {
-    ViewModel.findOne("Template.example").myValue();  // "Hello world"
+    return ViewModel.findOne("Template.example").myValue();  // "Hello world"
   }
 });
 ```
