@@ -17,10 +17,14 @@ Package.onUse(function (api) {
     "blaze",
     "templating",
     "jquery",
+    "tracker",
+    "ejson",
     "reactive-var",
     "reactive-dict",
     "stevezhu:lodash@3.10.1"
   ], "client");
+
+  api.use("kadira:flow-router", "client", { weak: true });
 
   api.addFiles("lib/viewmodel.es6.js", "client");
 
