@@ -2,6 +2,8 @@ ViewModel.addBinding("value", function (data, args, kwhash) {
   var throttle = kwhash.throttle || parseInt(args[1], 10),
       leading = _.isBoolean(kwhash.leading) ? kwhash.leading : args[2] === "true",
       get = function (event, $elem, prop) {
+        event.preventSet();
+        
         prop($elem.val());
       };
 

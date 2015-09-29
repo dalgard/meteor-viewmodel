@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.8.2
+dalgard:viewmodel 0.8.3
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -505,7 +505,9 @@ ViewModel.addBinding("enterKey", {
 });
 ```
 
-In the case where you want to call the bound property, but not do so with a new value, simply omit the `get` function altogether – like with the `click` binding above. The bound property will then be called with the arguments `event`, `args`, and `kwhash`.
+In the case where you want to call the bound property, but not do so with a new value, simply omit `get` altogether – like with the `click` binding above. The bound property will then be called with the arguments `event`, `args`, and `kwhash`.
+
+If your binding has both `get` and `set`, and you don't want to trigger `set` as a result of calling `prop()` inside `get`, call `event.preventSet()` before calling the property.
 
 A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
 
@@ -521,7 +523,7 @@ Besides giving access to template data, the factory function creates a scope whi
 
 ## Built-in bindings
 
-Several bindings are included with the package, but you are highly encouraged to add  more specialized bindings to your project in order to improve the readability of the code.
+Several bindings are included with the package, but you are highly encouraged to add  more specialized bindings to your project in order to improve the readability of your code.
 
 Arguments in the built-in bindings can be passed either as part of the bind expression or as keyword arguments to the helper:
 
@@ -742,6 +744,7 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
+- 0.8.3  –  Don't trigger `set` on normal updates in bindings, i.e. with a return value from `get`.
 - 0.8.2  –  If no name is specified for a viewmodel, it is named after its view
 - 0.8.1  –  Bug fix: Using implicit helper before `{{bind}}` didn't work when the same template was used multiple times. API change: Changed `referenceName` to `referenceKey`.
 - 0.8.0  –  Experimental feature: Helpers in templates without an explicitly declared viewmodel may now be used anywhere in the template, including before the actual call to `{{bind}}` that creates the helper. Added static serialization methods. Improved arguments for built-in bindings.

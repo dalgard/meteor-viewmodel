@@ -261,10 +261,26 @@ ViewModel = class ViewModel {
     check(kwhash, Object);
 
 
-    let template_instance = this.templateInstance(),
+    let view = this.view,
+        template_instance = this.templateInstance(),
         vm = template_instance[ViewModel.referenceKey],
         context = vm || template_instance.view,
         key = args[0];
+
+    // Whether we are in the middle of updating a property in a binding
+    let is_updating = false;
+
+    // Whether we should prevent running a binding's set function when updating
+    let set_prevented = null;
+
+    // Function for changing set_prevented
+    let preventSet = function (state = true) {
+          // Ensure type of argument
+          check(state, Boolean);
+
+          set_prevented = state;
+        };
+
 
     // The name of a binding may be passed to bind
     if (_.isString(binding)) {
@@ -288,7 +304,7 @@ ViewModel = class ViewModel {
 
     if (binding.init || binding.on) {
       if (binding.init) {
-        // Check type of definition property
+        // Ensure type of definition property
         check(binding.init, Function);
 
         let init_value;
@@ -301,7 +317,7 @@ ViewModel = class ViewModel {
       }
 
       if (binding.on) {
-        // Check type of definition property
+        // Ensure type of definition property
         check(binding.on, String);
 
         // Register event listener
@@ -311,30 +327,46 @@ ViewModel = class ViewModel {
           if (vm && !_.isUndefined(key) && _.isFunction(vm[key]))
             prop = vm[key];
 
+          // Mark that we are entering an update cycle
+          is_updating = true;
+
+          event.preventSet = preventSet;
+
           if (binding.get) {
-            // Check type of definition property
+            // Ensure type of definition property
             check(binding.get, Function);
 
             let result = binding.get.call(context, event, $(elem), prop, args, kwhash);
 
             // Call property if get returned a value other than undefined
-            if (!_.isUndefined(result) && _.isFunction(prop))
+            if (!_.isUndefined(result) && _.isFunction(prop)) {
+              // Don't trigger set function from updating property
+              if (set_prevented !== false)
+                set_prevented = true;
+
               prop.call(context, result);
+            }
           }
           else if (_.isFunction(prop))
             // Call property if get was omitted in the binding definition
             prop.call(context, event, args, kwhash);
+
+          // Mark that we are exiting the update cycle
+          Tracker.afterFlush(() => {
+            set_prevented = null;
+            is_updating = false;
+          });
         });
       }
     }
 
 
     if (binding.set) {
-      // Check type of definition property
+      // Ensure type of definition property
       check(binding.set, Function);
       
       // Wrap set function and add it to list of autoruns
-      ViewModel.prototype.autorun.call(this.view, function () {
+      ViewModel.prototype.autorun.call(view, function () {
         // Possibly release elem for garbage collection
         elem = elem && template_instance.$(elem)[0];
 
@@ -345,7 +377,8 @@ ViewModel = class ViewModel {
           if (vm && !_.isUndefined(key) && _.isFunction(vm[key]))
             new_value = vm[key]();
 
-          binding.set.call(context, $(elem), new_value, args, kwhash);
+          if (!set_prevented)
+            binding.set.call(context, $(elem), new_value, args, kwhash);
         }
       });
     }
@@ -353,24 +386,24 @@ ViewModel = class ViewModel {
 
     // Possibly add dispose hooks on the first render
     if (binding.dispose) {
-      // Check type of definition property
+      // Ensure type of definition property
       check(binding.dispose, Function);
 
-      let has_queue = ViewModel._hasQueue(this.view, ViewModel._disposeQueueKey);
+      let has_queue = ViewModel._hasQueue(view, ViewModel._disposeQueueKey);
 
       // Register hooks if not already registered
       if (!has_queue) {
-        let flush = _.partial(ViewModel._flush, this.view, ViewModel._disposeQueueKey);
+        let flush = _.partial(ViewModel._flush, view, ViewModel._disposeQueueKey);
 
         // Only runs when the view is re-rendered
-        this.view.onViewReady(flush);
+        view.onViewReady(flush);
 
         // Runs when the view is completely destroyed
-        this.view.onViewDestroyed(flush);
+        view.onViewDestroyed(flush);
       }
 
       // Wrap and add dispose function to queue
-      ViewModel._queue(this.view, ViewModel._disposeQueueKey, function () {
+      ViewModel._queue(view, ViewModel._disposeQueueKey, function () {
         // Possibly release elem for garbage collection
         elem = elem && template_instance.$(elem)[0];
 
@@ -1007,7 +1040,7 @@ function defineProperties(obj, props) {
     _.each(props, (prop, key) => obj[key] = prop.value);
 }
 
-// Reset the value of a viewmodel property
+// Reset the value of a viewmodel property (called with viewmodel property as context)
 function resetValue() {
   // Initial values are cloned to avoid sharing objects and arrays between instances
   // of the same viewmodel
