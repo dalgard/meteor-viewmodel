@@ -252,6 +252,8 @@ Any space separated values after the colon inside the bind expression are passed
 
 ViewModel can be used in a more programmatical way, but below are the methods that are recommended for use inside computed properties, autoruns etc. when sticking to a declarative approach.
 
+(Optional arguments are written in brackets below)
+
 ```js
 // Reactively get or set the name of the viewmodel
 this.name([new_name]);
@@ -533,7 +535,7 @@ Arguments in the built-in bindings can be passed either as part of the bind expr
 {{bind 'value: value' throttle=100 leading=true}}
 ```
 
-(Boilerplate code is omitted below; possible arguments are shown in parentheses.)
+(Boilerplate code is omitted below and possible arguments are shown in parentheses)
 
 #### Value ([throttle][, leading])
 
