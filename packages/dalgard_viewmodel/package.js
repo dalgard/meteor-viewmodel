@@ -7,11 +7,12 @@ Package.describe({
 });
 
 Package.onUse(function (api) {
-  api.versionsFrom("METEOR@1.1.0.3");
+  api.versionsFrom("METEOR@1.2.0.2");
 
-  api.use("grigio:babel@0.1.7");
+  api.use("kadira:flow-router@2.0.0", "client", { weak: true });
 
   api.use([
+    "ecmascript",
     "sha",
     "check",
     "blaze",
@@ -21,12 +22,19 @@ Package.onUse(function (api) {
     "ejson",
     "reactive-var",
     "reactive-dict",
-    "stevezhu:lodash@3.10.1"
+    "stevezhu:lodash@3.10.1",
+    "dalgard:reactive-map@0.1.0"
   ], "client");
 
-  api.use("kadira:flow-router@2.0.0", "client", { weak: true });
-
-  api.addFiles("lib/viewmodel.es6.js", "client");
+  api.addFiles([
+    "lib/utils.js",
+    "lib/base.js",
+    "lib/binding.js",
+    "lib/property.js",
+    "lib/nexus.js",
+    "lib/blaze.js",
+    "lib/viewmodel.js"
+  ], "client");
 
   api.addFiles([
     "bindings/checked.js",
@@ -45,7 +53,5 @@ Package.onUse(function (api) {
     "bindings/value.js"
   ], "client");
 
-  api.addFiles("init.js", "client");
-  
   api.export("ViewModel", "client");
 });

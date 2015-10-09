@@ -1,9 +1,9 @@
 // Declare a viewmodel on this template (all properties are registered as Blaze helpers)
 Template.usage.viewmodel({
   // Computed property from child viewmodel
-  myFieldValue: function () {
+  myFieldValue() {
     // Get child viewmodel reactively by name
-    var field = this.child("field");
+    let field = this.child("field");
 
     // Get the value of myValue reactively when the field is rendered
     return field && field.myValue();

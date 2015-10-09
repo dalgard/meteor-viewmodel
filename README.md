@@ -112,7 +112,8 @@ Viewmodel declarations may sometimes be omitted altogether – the `{{bind}}` he
 
 ```html
 <template name="page">
-  {{> field startValue='Hello world'}} {{myFieldValue}}
+  <p>{{myFieldValue}}</p>
+  {{> usageField startValue='Hello world'}}
 </template>
 
 <template name="field">
@@ -124,36 +125,34 @@ Viewmodel declarations may sometimes be omitted altogether – the `{{bind}}` he
 // Declare a viewmodel on this template (all properties are registered as Blaze helpers)
 Template.page.viewmodel({
   // Computed property from child viewmodel
-  myFieldValue: function () {
+  myFieldValue() {
     // Get child viewmodel reactively by name
-    var field = this.child("field");
+    let field = this.child("field");
 
     // Get the value of myValue reactively when the field is rendered
     return field && field.myValue();
   }
-}, options);  // An options object may be passed
+}, {});  // An options object may be passed
 
 // Instead of a definition object, a factory function may be used. Unrelated
 // to the factory, this viewmodel is also given a name.
-Template.field.viewmodel("field", function (template_data) {
-  var my_value = template_data && template_data.myValue;
-
+Template.field.viewmodel("field", function (data) {
   // Return the new viewmodel definition
   return {
     // Primitive property
-    myValue: my_value || "",
+    myValue: data && data.startValue || "",
 
     // Computed property
-    regex: function () {
+    regex() {
       // Get the value of myValue reactively
-      var value = this.myValue();
+      let value = this.myValue();
 
-      return new RexExp(value);
+      return new RegExp(value);
     },
 
     // React to changes in dependencies such as viewmodel properties
     // – can be an array of functions
-    autorun: function () {
+    autorun() {
       // Log every time the computed regex property changes
       console.log("New value of regex:", this.regex());
     }
@@ -173,7 +172,7 @@ Template.example.onRendered(function () {
 });
 
 Template.example.events({
-  "click button": function (event, template_instance) {
+  "click button"(event, template_instance) {
     console.log(template_instance.viewmodel.myValue());  // "Hello world"
   }
 });
@@ -181,14 +180,14 @@ Template.example.events({
 // Additional helpers shouldn't be needed in practice, since all viewmodel
 // properties are also registered as Blaze helpers
 Template.example.helpers({
-  myHelper: function () {
+  myHelper() {
     return Template.instance().viewmodel.myValue();  // "Hello world"
   }
 });
 
 // If no name is specified for a viewmodel, it is named after its view
 Template.other.helpers({
-  otherHelper: function () {
+  otherHelper() {
     return ViewModel.findOne("Template.example").myValue();  // "Hello world"
   }
 });
@@ -278,7 +277,7 @@ this.getData();
 
 ##### Properties
 
-Primitive viewmodel properties are converted to reactive getter-setter methods. Call a property name (`myValue` is used as an example) with a new value to reactively *set* the value, and without arguments to reactively *get* the value.
+Primitive viewmodel properties are converted to reactive accessor methods. Call a property name (`myValue` is used as an example) with a new value to reactively *set* the value, and without arguments to reactively *get* the value.
 
 ```js
 // Reactively get or set the property value
@@ -296,6 +295,19 @@ this.myValue.reset();
 ```
 
 If the viewmodel shares its state (`share` flag is set), setting a new value – reactively or non-reactively – automatically sets the new value on all other instances of the same viewmodel (as a rule, you should never set a new value non-reactively).
+
+Viewmodel methods have the ability to set and get an internal value reactively:
+
+```js
+{
+  counter(addend) {
+    if (_.isNumber(addend))
+      this.counter.set((this.counter.nonreactive() || 0) + addend);
+    else
+      return this.counter.get() || 0;
+  }
+};
+```
 
 ##### Serialization
 
@@ -439,25 +451,18 @@ The job of a binding is to synchronize data between the DOM and the viewmodel. B
 ```js
 // All properties on the definition object are optional
 ViewModel.addBinding("name", {
-  // Inherit the properties of one or several other bindings (name or array of names)
-  extends: "super_name",
-
-  // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
-  // consequently, viewmodels or properties will not be created automatically.
-  // The get and set functions will be called with the view as contex, instead
-  // of a viewmodel.
-  detached: false,
+  /* Definition */
 
   // Run once when the element is rendered, right before the first call to set.
   // Used to initalize things like jQuery plugins. When creating a binding that
   // only contains init and/or dispose, set detached: true
-  init: function ($elem, init_value, args, kwhash) {
+  init: function ($elem, init_value) {
     // For example
-    myPlugin.init($elem, kwhash.options);
+    this.myPlugin.init($elem, this.hash.options);
   },
 
   // Apply the original value and new values to the DOM
-  set: function ($elem, new_value, args, kwhash) {
+  set: function ($elem, new_value) {
     // For example
     $elem.val(new_value);
   },
@@ -466,18 +471,29 @@ ViewModel.addBinding("name", {
   on: "keyup input change",
 
   // Get the changed value from the DOM triggered by events
-  get: function (event, $elem, prop, args, kwhash) {
+  get: function (event, $elem, prop) {
     // For example
     return $elem.val();
   },
 
   // Run once when the view containing the element is destroyed. Used to tear down
   // things like jQuery plugins.
-  dispose: function (prop, args, kwhash) {
+  dispose: function (prop) {
     // For example
-    myPlugin.destroy();
+    this.myPlugin.destroy();
     prop.reset();
   }
+}, {
+  /* Options */
+
+  // Inherit the properties of one or several other bindings (name or array of names)
+  extends: "super_name",
+
+  // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
+  // consequently, viewmodels or properties will not be created automatically.
+  // The get and set functions will be called with the view as contex, instead
+  // of a viewmodel.
+  detached: false
 });
 ```
 
@@ -487,8 +503,17 @@ The parameters used for `init`, `set`, `get`, and `dispose` are:
 - `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
 - `init_value`/`new_value` – the new value that was passed to the property.
 - `prop` – the property on the viewmodel, if available.
+
+Each function is called with a special object as context (`this`) that isn't shared with other bound elements. This object can be used to store plugin instances or other variables for the lifetime of the bound element.
+
+The context object is created with some useful properties:
+
+- `viewmodel` – A reference to the bound viewmodel, if available.
+- `view` – The view that the element was bound in.
+- `templateInstance` – The closest template instance.
+- `data` – the template instance's current data context.
 - `args` – an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
-- `kwhash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
+- `hash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
 
@@ -499,22 +524,22 @@ ViewModel.addBinding("enterKey", {
   on: "keyup",
 
   // This function doesn't return anything but calls the property explicitly instead
-  get: function (event, $elem, prop, args, kwhash) {
+  get(event, $elem, prop) {
     if (event.which === 13)
       // Call prop with these three arguments as standard
-      prop(event, args, kwhash);
+      prop(event, this.args, this.hash);
   }
 });
 ```
 
-In the case where you want to call the bound property, but not do so with a new value, simply omit `get` altogether – like with the `click` binding above. The bound property will then be called with the arguments `event`, `args`, and `kwhash`.
+In the case where you want to call the bound property, but not do so with a new value, simply omit `get` altogether – like with the `click` binding above. The bound property will then be called with the arguments `event`, `args`, and `hash`.
 
-If your binding has both `get` and `set`, and you don't want to trigger `set` as a result of calling `prop()` inside `get`, call `event.preventSet()` before calling the property.
+If your binding has both `get` and `set`, and you don't want to trigger `set` as a result of calling `prop()` inside `get`, call `this.preventSet()` before calling the property.
 
 A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
 
 ```js
-ViewModel.addBinding(name, function (template_data, args, kwhash) {
+ViewModel.addBinding(name, function (template_data, args, hash) {
   // Return definition object
   return {};
 });
@@ -597,7 +622,7 @@ A method on the viewmodel is called when the element is clicked.
 ```
 
 ```js
-{ click: function (event, args, kwhash) { ... } }
+{ click(event, args, hash) { ... } }
 ```
 
 #### Toggle
@@ -621,7 +646,7 @@ A method on the viewmodel is run when the form is submitted. If `true` is passed
 ```
 
 ```js
-{ submit: function (event, args, kwhash) { ... } }
+{ submit(event, args, hash) { ... } }
 ```
 
 #### Disabled
@@ -669,7 +694,7 @@ A method on the viewmodel is run when the enter key is pressed on the element.
 ```
 
 ```js
-{ pressed: function (event, args, kwhash) { ... } }
+{ pressed(event, args, hash) { ... } }
 ```
 
 #### Key (keyCode)
@@ -681,7 +706,7 @@ A method on the viewmodel is run when the specific key, passed as an argument, i
 ```
 
 ```js
-{ pressed: function (event, args, kwhash) { ... } }
+{ pressed(event, args, hash) { ... } }
 ```
 
 #### Classes
@@ -722,7 +747,7 @@ The property is an array of the currently selected file object(s) from the file 
 
 ## Migration
 
-If you are migrating gradually from `manuel:viewmodel` or any other package that exports a `ViewModel` and/or overwrites `Blaze.Template.prototype.viewmodel`, there are a couple of steps you need to take to remedy conflicts:
+If you are migrating gradually from `manuel:viewmodel` or any other package that exports a `ViewModel` and/or overwrites `Template.prototype.viewmodel`, there are a couple of steps you need to take to remedy conflicts:
 
 1. Make sure `dalgard:viewmodel` is included *before* any package that fits the description above.
 2. Reassign the needed functionality to whichever names you like, directly from the package.
@@ -736,7 +761,7 @@ DalgardViewModel = Package["dalgard:viewmodel"].ViewModel;
 Template.prototype.dalgardViewmodel = DalgardViewModel.viewmodelHook;
 
 // Name of viewmodel reference on template instances
-DalgardViewModel.referenceKey = "dalgardViewmodel";
+DalgardViewModel.viewmodelKey = "dalgardViewmodel";
 ```
 
 You can now use the two packages side by side, even on the same template, until everything is migrated.
@@ -746,13 +771,14 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
+- 0.9.0  –  Major refactoring. API change: Signatures and context of the functions in bindings is changed, and `extends` and `detached` are moved to an options object. Viewmodel methods have access to an internal reactive variable through the new `set` and `get` methods.
 - 0.8.3  –  Don't trigger `set` on normal updates in bindings, i.e. with a return value from `get`.
 - 0.8.2  –  If no name is specified for a viewmodel, it is named after its view
 - 0.8.1  –  Bug fix: Using implicit helper before `{{bind}}` didn't work when the same template was used multiple times. API change: Changed `referenceName` to `referenceKey`.
 - 0.8.0  –  Experimental feature: Helpers in templates without an explicitly declared viewmodel may now be used anywhere in the template, including before the actual call to `{{bind}}` that creates the helper. Added static serialization methods. Improved arguments for built-in bindings.
 - 0.7.1  –  Added `nonreactive` get-set method to primitive viewmodel props. Possible to programmatically bind an element outside of the viewmodel's template. `children` method now always returns a copy.
 - 0.7.0  –  API change: Removed lifetime hooks and Blaze events from viewmodel definition. Added `reset` method and various optimizations. Added `extends` and `dispose` to binding definition. Added `pikaday` binding. Fixed ongoing bug: Values are now properly restored with bindings nested in block helpers
-- 0.6.2  –  Serious bug fix: Events are no longer registered more than once. Bug fix: Corrected signature when calling viewmodel methods (should only get `event`, `args`, and `kwhash`). API change: Removed `key` as a parameter for binding factories and `bind` method. `onReady` and `ViewModel.uniqueId` now part of public API.
+- 0.6.2  –  Serious bug fix: Events are no longer registered more than once. Bug fix: Corrected signature when calling viewmodel methods (should only get `event`, `args`, and `hash`). API change: Removed `key` as a parameter for binding factories and `bind` method. `onReady` and `ViewModel.uniqueId` now part of public API.
 - 0.6.1  –  Bug fix: Bind helpers were sometimes being rerun. `hashId` now part of public API.
 - 0.6.0  –  Added `init` function to binding definition. `ViewModel.bindHelper` now part of public API.
 - 0.5.9  –  Migration made possible by storing the `viewmodel` hook as a property on `ViewModel`. Multiple comma separated bind expressions in one string (for future Jade extension).
@@ -763,8 +789,3 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 - 0.3.0  –  Optionally persist viewmodel across routes.
 - 0.2.0  –  Persist viewmodels on hot code pushes.
 
-### Todo
-
-- Rebind when kwargs change
-- Optionally include descendants in serialization?
-- Possible to flush binds less often?

@@ -1,7 +1,7 @@
 Template.fullClick.viewmodel({
   clicked: false,
 
-  click: function () {
+  click() {
     this.clicked(true);
   }
 });

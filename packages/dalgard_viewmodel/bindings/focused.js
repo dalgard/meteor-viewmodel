@@ -1,5 +1,5 @@
 ViewModel.addBinding("focused", {
-  set: function ($elem, new_value) {
+  set($elem, new_value) {
     if (new_value)
       $elem.focus();
     else
@@ -8,7 +8,7 @@ ViewModel.addBinding("focused", {
   
   on: "focus blur",
 
-  get: function (event) {
+  get(event) {
     return event.type === "focus";
   }
 });
