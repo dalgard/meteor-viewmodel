@@ -24,6 +24,17 @@ Base = class Base {
       return this._name.get();
   }
 
+  // Test this instance with predicate function or by name (string or regex)
+  test(test) {
+    // Ensure type of argument
+    if (_.isRegExp(test))
+      return test.test(this.name())
+    else if (_.isFunction(test))
+      return test(this);
+
+    return test === this.name();
+  }
+
   // Run callback when view is rendered and after flush
   onReady(callback) {
     check(callback, Function);
@@ -84,17 +95,6 @@ Base = class Base {
     callback = callback.bind(this);
 
     this.view.onViewDestroyed(callback);
-  }
-
-  // Test this instance with predicate function or by name (string or regex)
-  test(test) {
-    // Ensure type of argument
-    if (_.isRegExp(test))
-      return test.test(this.name())
-    else if (_.isFunction(test))
-      return test(this);
-
-    return test === this.name();
   }
 
   // Add an instance to the current global list

@@ -32,7 +32,6 @@ Package.onUse(function (api) {
     "lib/binding.js",
     "lib/property.js",
     "lib/nexus.js",
-    "lib/blaze.js",
     "lib/viewmodel.js"
   ], "client");
 
