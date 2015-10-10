@@ -9,7 +9,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - Highly declarative
 - Terse syntax
 
-(4.9 kB minified and gzipped)
+(5.3 kB minified and gzipped)
 
 ### Install
 
