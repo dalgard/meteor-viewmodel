@@ -1,7 +1,7 @@
 Template.fullKey.viewmodel({
   pressed: false,
 
-  key: function () {
+  key() {
     this.pressed(true);
   }
 });

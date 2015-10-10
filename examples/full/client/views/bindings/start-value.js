@@ -1,6 +1,5 @@
-Template.fullStartValue.viewmodel(function (template_data) {
-  // Return a definition object from this factory
+Template.fullStartValue.viewmodel(function (data) {
   return {
-    value: template_data && template_data.startValue || ""
+    value: data && data.startValue || ""
   };
 });

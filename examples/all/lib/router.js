@@ -1,5 +1,5 @@
 FlowRouter.route("/:route?", {
-  action: function (params) {
+  action(params) {
     BlazeLayout.render("layout", { params: params });
   }
 });

@@ -1,24 +1,22 @@
 // Instead of a definition object, a factory function may be used. Unrelated
 // to the factory, this viewmodel is also given a name.
-Template.usageField.viewmodel("field", function (template_data) {
-  var my_value = template_data && template_data.myValue;
-
+Template.usageField.viewmodel("field", function (data) {
   // Return the new viewmodel definition
   return {
     // Primitive property
-    myValue: my_value || "",
+    myValue: data && data.startValue || "",
 
     // Computed property
-    regex: function () {
+    regex() {
       // Get the value of myValue reactively
-      var value = this.myValue();
+      let value = this.myValue();
 
-      return new RexExp(value);
+      return new RegExp(value);
     },
 
     // React to changes in dependencies such as viewmodel properties
     // – can be an array of functions
-    autorun: function () {
+    autorun() {
       // Log every time the computed regex property changes
       console.log("New value of regex:", this.regex());
     }

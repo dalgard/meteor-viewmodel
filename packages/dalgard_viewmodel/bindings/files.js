@@ -1,7 +1,7 @@
 ViewModel.addBinding("files", {
   on: "change",
 
-  get: function (event, $elem) {
+  get(event, $elem) {
     return $elem.prop("files");
   }
 });

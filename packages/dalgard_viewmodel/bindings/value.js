@@ -1,9 +1,10 @@
-ViewModel.addBinding("value", function (data, args, kwhash) {
-  var throttle = kwhash.throttle || parseInt(args[1], 10),
-      leading = _.isBoolean(kwhash.leading) ? kwhash.leading : args[2] === "true",
+ViewModel.addBinding("value", function () {
+  let use_hash = _.isObject(this.hash),
+      throttle = use_hash && this.hash.throttle || parseInt(this.args[1], 10),
+      leading = use_hash && _.isBoolean(this.hash.leading) ? this.hash.leading : String(this.args[2]) === "true",
       get = function (event, $elem, prop) {
-        event.preventSet();
-        
+        this.preventSet();
+
         prop($elem.val());
       };
 
@@ -11,7 +12,7 @@ ViewModel.addBinding("value", function (data, args, kwhash) {
     get = _.throttle(get, throttle, { leading: leading });
 
   return {
-    set: function ($elem, new_value) {
+    set($elem, new_value) {
       $elem.val(new_value);
     },
     

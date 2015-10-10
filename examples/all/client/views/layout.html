@@ -1,18 +1,18 @@
 <template name="layout">
-  {{#if params.route}}
-    <p><a href="/">Back</a></p>
-
-    {{> Template.dynamic template=params.route}}
-  {{else}}
+  {{#unless params.route}}
     <p><strong>All examples</strong></p>
 
     <ul>
-      <li><a href="/full">full</a></li>
-      <li><a href="/jade">jade</a></li>
-      <li><a href="/minimalist">minimalist</a></li>
-      <li><a href="/pikaday">pikaday</a></li>
       <li><a href="/quickstart">quickstart</a></li>
       <li><a href="/usage">usage</a></li>
+      <li><a href="/pikaday">pikaday</a></li>
+      <li><a href="/full">full</a></li>
+      <li><a href="/minimalist">minimalist</a></li>
+      <li><a href="/jade">jade</a></li>
     </ul>
-  {{/if}}
+  {{else}}
+    <p><a href="/">Back</a></p>
+
+    {{> Template.dynamic template=params.route}}
+  {{/unless}}
 </template>

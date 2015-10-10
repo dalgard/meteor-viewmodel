@@ -1,17 +1,17 @@
 Template.full.viewmodel({
   destroy: false,
 
-  childValue: function () {
+  childValue() {
     // Get child viewmodel reactively
-    var child = this.child("value");
+    let child = this.child("value");
 
     // Child may not be ready when this value is used
     if (child)
       return child.value();
   },
 
-  autorun: function () {
-    var child = this.child("value");
+  autorun() {
+    let child = this.child("value");
 
     if (child)
       console.log("page autorun", child.value());

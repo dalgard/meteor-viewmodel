@@ -1,7 +1,7 @@
 ViewModel.addBinding("hovered", {
   on: "mouseenter mouseleave",
 
-  get: function (event) {
+  get(event) {
     return event.type === "mouseenter";
   }
 });
