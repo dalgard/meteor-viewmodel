@@ -50,6 +50,7 @@ Property = class Property {
     }
   }
 
+
   // Get the property value
   get() {
     return this.value.get();
@@ -74,6 +75,7 @@ Property = class Property {
     this.value.set(_.cloneDeep(this.initial));
   }
 
+
   // Reactive accessor function bound to property instance
   accessor(value) {
     if (_.isUndefined(value))
@@ -88,6 +90,7 @@ Property = class Property {
 
     return Tracker.nonreactive(accessor);
   }
+
 
   // Blaze helper of the property bound to property instance
   helper(...args) {

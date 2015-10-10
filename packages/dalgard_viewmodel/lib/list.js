@@ -9,6 +9,7 @@ List = class List extends Array {
     });
   }
 
+
   // Reactively add an item
   add(...items) {
     this.push(...items);
@@ -36,6 +37,7 @@ List = class List extends Array {
     return result;
   }
 
+
   // Reactively get an array of matching items
   find(test) {
     this.dep.depend();
@@ -54,6 +56,7 @@ List = class List extends Array {
 
     return this.find(test).slice(index || 0)[0] || null;
   }
+
 
   // Decorate an object with list methods operating on an internal list
   static decorate(obj) {

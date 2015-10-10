@@ -14,6 +14,7 @@ Base = class Base {
     });
   }
 
+
   // Reactively get or set the name of the instance
   name(name) {
     // Ensure type of argument

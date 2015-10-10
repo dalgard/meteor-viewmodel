@@ -84,6 +84,7 @@ Nexus = class Nexus extends Base {
     this.onDestroyed(this.unbind);
   }
 
+
   // Get element
   elem() {
     return $(this.selector);
@@ -96,6 +97,7 @@ Nexus = class Nexus extends Base {
 
     return has_prop ? vm[this.key] : null;
   }
+
 
   // Bind element
   bind() {
@@ -200,6 +202,7 @@ Nexus = class Nexus extends Base {
 
     return do_unbind;
   }
+
 
   // Change prevented state of nexus
   preventSet(state = true) {

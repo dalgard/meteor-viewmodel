@@ -92,6 +92,7 @@ ViewModel = class ViewModel extends Base {
     });
   }
 
+
   // Reactively get or set configuration options
   option(key, value) {
     // Ensure type of argument
@@ -494,6 +495,7 @@ ViewModel = class ViewModel extends Base {
     // Indicate that the helper has been registered globally
     is_global = true;
   }
+
 
   // Viewmodel declaration hook
   static viewmodelHook(name, definition, options) {

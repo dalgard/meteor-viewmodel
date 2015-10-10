@@ -23,6 +23,7 @@ Binding = class Binding {
     });
   }
 
+
   // Reactively get or set configuration options
   option(key, value) {
     // Ensure type of argument
@@ -64,6 +65,7 @@ Binding = class Binding {
 
     return def;
   }
+
 
   // Add binding to the global list
   static add(name, definition, options) {
