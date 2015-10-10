@@ -2,7 +2,7 @@
 let uid = 0;
 
 // Whether we are in the middle of a hot code push
-is_hcp = true;
+let is_hcp = true;
 
 // Whether the bind helper has been registered globally
 let is_global = false;
