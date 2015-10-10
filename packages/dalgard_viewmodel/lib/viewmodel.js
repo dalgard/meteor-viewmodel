@@ -1,17 +1,17 @@
 // Counter for unique ids
 let uid = 0;
 
-// Whether the bind helper has been registered globally
-let is_global = false;
-
 // Whether we are in the middle of a hot code push
 is_hcp = true;
+
+// Whether the bind helper has been registered globally
+let is_global = false;
 
 // ReactiveDict for persistence after hot code push and across re-rendering
 let persist = new ReactiveDict("dalgard:viewmodel");
 
 
-// Exported class
+// Exported class for viewmodels
 ViewModel = class ViewModel extends Base {
   constructor(view, name = view.name, id = ViewModel.uniqueId(), definition, options) {
     // Ensure type of arguments
@@ -54,12 +54,12 @@ ViewModel = class ViewModel extends Base {
       parent._addChild(this);
 
     // Add to global list
-    ViewModel._add(this);
+    ViewModel.add(this);
 
     // Tear down viewmodel
     this.onDestroyed(function () {
       // Remove from global list
-      ViewModel._remove(this);
+      ViewModel.remove(this);
 
       // Possibly remove from parent
       if (parent)
@@ -406,7 +406,7 @@ ViewModel = class ViewModel extends Base {
 
 
   // Ensure existence of a viewmodel with optional property
-  static _ensureViewmodel(view, key) {
+  static ensureViewmodel(view, key) {
     // Ensure type of arguments
     check(view, Blaze.View);
     check(key, Match.Optional(String));
@@ -495,7 +495,6 @@ ViewModel = class ViewModel extends Base {
     is_global = true;
   }
 
-
   // Viewmodel declaration hook
   static viewmodelHook(name, definition, options) {
     // Must be called in the context of a template
@@ -564,6 +563,9 @@ defineProperties(ViewModel, {
   // Whether to try to restore viewmodels in this project after a hot code push
   restoreAfterHCP: { value: true, writable: true, enumerable: true }
 });
+
+// Decorate ViewModel class with list methods operating on an internal list
+List.decorate(ViewModel);
 
 
 /*

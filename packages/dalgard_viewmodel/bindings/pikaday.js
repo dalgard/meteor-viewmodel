@@ -8,7 +8,7 @@ ViewModel.addBinding("pikaday", {
     let position = this.hash.position || (this.args[2] ? this.args[1] + " " + this.args[2] : this.args[1]),
         options = {
           field: $elem[0],  // Use DOM element
-          format: "DD-MM-YYYY",
+          format: this.hash.monthFirst ? "MM-DD-YYYY" : "DD-MM-YYYY",
           firstDay: 1,
           position: position || "bottom left"
         };
@@ -28,18 +28,75 @@ ViewModel.addBinding("pikaday", {
 
     this.instance.setDate(new_value, true);
 
+    this.isSetting = false;
+
     // Clear field when the date is cleared
     if (!new_value)
       $elem.val("");
 
-    this.isSetting = false;
+    // Keyboard arrow controls
+    if (this.isGetting) {
+      let start = 0,
+          end = 2;
+
+      if (this.position >= 3 && this.position <= 5)
+        start = 3, end = 5;
+      else if (this.position > 5)
+        start = 6, end = 10;
+
+      $elem[0].setSelectionRange(start, end);
+    }
   },
 
-  on: "cut paste change",
+  on: "cut paste change keyup keypress keydown",
 
-  get() {
-    if (this.isSetting === false)
-      return this.instance.getDate();
+  get(event, $elem, prop) {
+    let is_change = _.contains(["cut", "paste", "change"], event.type);
+
+    if (is_change) {
+      if (!this.isSetting) {
+        return this.instance.getDate();
+      }
+    }
+    else {
+      // Check whether setSelectionRange is supported
+      let is_supported = _.isFunction($elem[0].setSelectionRange);
+
+      if (is_supported) {
+        let delta = 39 - event.which;
+
+        // Keyboard arrows up/down have keycodes 38/40
+        if (Math.abs(delta) === 1) {
+          event.preventDefault();
+
+          if (event.type === "keyup") {
+            let date = prop.nonreactive();
+
+            if (_.isDate(date)) {
+              this.position = $elem[0].selectionStart;
+
+              if (_.isNumber(this.position)) {
+                let is_first = this.position <= 2,
+                    is_second = this.position >= 3 && this.position <= 5;
+
+                if (this.hash.monthFirst ? is_second : is_first)
+                  date.setDate(date.getDate() + delta);
+                else if (this.hash.monthFirst ? is_first : is_second)
+                  date.setMonth(date.getMonth() + delta);
+                else
+                  date.setFullYear(date.getFullYear() + delta);
+
+                this.isGetting = true;
+
+                prop(date);
+
+                Tracker.afterFlush(() => this.isGetting = false);
+              }
+            }
+          }
+        }
+      }
+    }
   },
 
   // Destroy Pikaday instance to avoid memory leak

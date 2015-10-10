@@ -1,3 +1,4 @@
+// Base class for viewmodels and nexuses
 Base = class Base {
   constructor(view, name) {
     check(view, Blaze.View);
@@ -24,16 +25,15 @@ Base = class Base {
       return this._name.get();
   }
 
-  // Test this instance with predicate function or by name (string or regex)
+  // Test the name of this instance with a regex or string
   test(test) {
     // Ensure type of argument
     if (_.isRegExp(test))
-      return test.test(this.name())
-    else if (_.isFunction(test))
-      return test(this);
+      return test.test(this.name());
 
     return test === this.name();
   }
+
 
   // Run callback when view is rendered and after flush
   onReady(callback) {
@@ -95,72 +95,5 @@ Base = class Base {
     callback = callback.bind(this);
 
     this.view.onViewDestroyed(callback);
-  }
-
-  // Add an instance to the current global list
-  static _add(instance) {
-    // Ensure type of argument
-    check(instance, this);
-
-    let instances = this.__instances,
-        is_instances = (instances instanceof ReactiveVar && _.isArray(instances.curValue));
-
-    if (!is_instances) {
-      defineProperties(this, {
-        // Current global list of instances
-        __instances: { value: new ReactiveVar([]) }
-      });
-
-      instances = this.__instances;
-    }
-
-    instances.curValue.push(instance);
-    instances.dep.changed();
-  }
-
-  // Remove an instance from the current global list
-  static _remove(instance) {
-    // Ensure type of argument
-    check(instance, this);
-
-    let instances = this.__instances,
-        is_instances = (instances instanceof ReactiveVar && _.isArray(instances.curValue)),
-        is_found = false;
-    
-    if (is_instances) {
-      let index = instances.curValue.indexOf(instance);
-
-      is_found = !!~index;
-
-      if (is_found) {
-        // Remove from instances array
-        instances.curValue.splice(index, 1);
-        instances.dep.changed();
-      }
-    }
-
-    return is_found;
-  }
-
-  // Reactively get an array of current instances
-  static find(name) {
-    let instances = this.__instances,
-        is_instances = (instances instanceof ReactiveVar && _.isArray(instances.curValue));
-
-    instances = is_instances ? instances.get() : [];
-
-    // Possibly remove instances failing test
-    if (name)
-      return _.filter(instances, instance => instance.test(name));
-
-    return instances;
-  }
-
-  // Reactively get the first current instance at index
-  static findOne(name, index) {
-    if (_.isNumber(name))
-      index = name, name = null;
-
-    return this.find(name).slice(index || 0)[0] || null;
   }
 };

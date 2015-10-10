@@ -28,6 +28,7 @@ Package.onUse(function (api) {
 
   api.addFiles([
     "lib/utils.js",
+    "lib/list.js",
     "lib/base.js",
     "lib/binding.js",
     "lib/property.js",

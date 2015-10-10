@@ -296,17 +296,17 @@ this.myValue.reset();
 
 If the viewmodel shares its state (`share` flag is set), setting a new value – reactively or non-reactively – automatically sets the new value on all other instances of the same viewmodel (as a rule, you should never set a new value non-reactively).
 
-Viewmodel methods have the ability to set and get an internal value reactively:
+All viewmodel methods have an internal value that can be accessed reactively through the `set` and `get` methods on the viewmodel methods themselves:
 
 ```js
-{
+Template.example.viewmodel({
   counter(addend) {
     if (_.isNumber(addend))
       this.counter.set((this.counter.nonreactive() || 0) + addend);
     else
       return this.counter.get() || 0;
   }
-};
+});
 ```
 
 ##### Serialization
@@ -449,7 +449,7 @@ ViewModel.addBinding("click", {
 The job of a binding is to synchronize data between the DOM and the viewmodel. Bindings are added through definition objects:
 
 ```js
-// All properties on the definition object are optional
+// All properties are optional
 ViewModel.addBinding("name", {
   /* Definition */
 
@@ -487,7 +487,7 @@ ViewModel.addBinding("name", {
   /* Options */
 
   // Inherit the properties of one or several other bindings (name or array of names)
-  extends: "super_name",
+  extends: "superName",
 
   // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
   // consequently, viewmodels or properties will not be created automatically.
@@ -504,16 +504,16 @@ The parameters used for `init`, `set`, `get`, and `dispose` are:
 - `init_value`/`new_value` – the new value that was passed to the property.
 - `prop` – the property on the viewmodel, if available.
 
-Each function is called with a special object as context (`this`) that isn't shared with other bound elements. This object can be used to store plugin instances or other variables for the lifetime of the bound element.
+Each function is called with an object as context (`this`) that is private to each specific bound element-binding pair. This object can be used to store plugin instances or other variables for the lifetime of the element.
 
-The context object is created with some useful properties:
+The context object comes with some useful properties:
 
-- `viewmodel` – A reference to the bound viewmodel, if available.
+- `viewmodel` – A reference to the viewmodel, if available.
 - `view` – The view that the element was bound in.
-- `templateInstance` – The closest template instance.
-- `data` – the template instance's current data context.
+- `templateInstance` – The nearest template instance.
+- `data` – the current data context of the template instance.
 - `args` – an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
-- `hash` – the hash object from the Spacebars keyword arguments that the `{{bind}}` helper was called with.
+- `hash` – the keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
 
@@ -532,20 +532,18 @@ ViewModel.addBinding("enterKey", {
 });
 ```
 
-In the case where you want to call the bound property, but not do so with a new value, simply omit `get` altogether – like with the `click` binding above. The bound property will then be called with the arguments `event`, `args`, and `hash`.
+In the case where you want to call the bound property, but not do so with a new value, simply omit `get` altogether – like with the `click` binding further above. The bound property will then be called with the arguments `event`, `args`, and `hash`.
 
 If your binding has both `get` and `set`, and you don't want to trigger `set` as a result of calling `prop()` inside `get`, call `this.preventSet()` before calling the property.
 
-A definition object may also be returned from a factory function, which is called with the view as context and some useful arguments:
+A definition object may also be returned from a factory function, which is called with the same context object as the definition functions:
 
 ```js
-ViewModel.addBinding(name, function (template_data, args, hash) {
+ViewModel.addBinding(name, function () {
   // Return definition object
   return {};
 });
 ```
-
-Besides giving access to template data, the factory function creates a scope which can be used for storing variables specific to the bound element, such as a reference to a 3rd party component instance initialized on the element.
 
 
 ## Built-in bindings
@@ -612,6 +610,8 @@ The property reflects the currently selected `Date`. An initial date can be set 
 ```js
 { date: new Date }  // Or simply null
 ```
+
+An additional keyword argument `monthFirst` can be set to `true` if the month should come first in the date format.
 
 #### Click
 
@@ -771,7 +771,7 @@ Pro tip: Choose unique names that can be search-and-replace'd globally, when the
 
 ## History
 
-- 0.9.0  –  Major refactoring. API change: Signatures and context of the functions in bindings is changed, and `extends` and `detached` are moved to an options object. Viewmodel methods have access to an internal reactive variable through the new `set` and `get` methods.
+- 0.9.0  –  Major refactoring. API change: Signatures and context of the functions in bindings is changed, and `extends` and `detached` are moved to an options object. Viewmodel methods have access to an internal reactive variable. Bound element-binding pairs (termed "nexuses") in a view can be inspected through the view's `bindings` property. Pikaday binding supports keyboard arrows up/down.
 - 0.8.3  –  Don't trigger `set` on normal updates in bindings, i.e. with a return value from `get`.
 - 0.8.2  –  If no name is specified for a viewmodel, it is named after its view
 - 0.8.1  –  Bug fix: Using implicit helper before `{{bind}}` didn't work when the same template was used multiple times. API change: Changed `referenceName` to `referenceKey`.

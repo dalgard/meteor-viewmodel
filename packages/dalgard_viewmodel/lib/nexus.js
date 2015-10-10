@@ -1,4 +1,4 @@
-// Class for binding nexus
+// Class for binding nexuses
 Nexus = class Nexus extends Base {
   constructor(view, selector, binding, context = {}) {
     // Ensure type of arguments
@@ -10,10 +10,15 @@ Nexus = class Nexus extends Base {
     if (_.isString(binding))
       binding = Binding.get(binding);
 
+    let is_detached = binding.option("detached");
+
+
     // Call constructor of Base
     super(view, binding.name);
 
-    let is_detached = binding.option("detached");
+    // Possibly create nexuses list
+    if (!(this.view[ViewModel.bindingsKey] instanceof List))
+      this.view[ViewModel.bindingsKey] = new List;
 
 
     // Static properties on nexus instance
@@ -53,7 +58,7 @@ Nexus = class Nexus extends Base {
 
     // Possibly ensure existence of a viewmodel
     if (!is_detached && !(context.viewmodel instanceof ViewModel)) {
-      let vm = ViewModel._ensureViewmodel(view, this.key);
+      let vm = ViewModel.ensureViewmodel(view, this.key);
       
       defineProperties(context, {
         // Reference to viewmodel
@@ -156,8 +161,11 @@ Nexus = class Nexus extends Base {
     }
 
 
+    // Add to view list
+    this.view[ViewModel.bindingsKey].add(this);
+
     // Add to global list
-    Nexus._add(this);
+    Nexus.add(this);
   }
 
   // Unbind element
@@ -172,9 +180,6 @@ Nexus = class Nexus extends Base {
 
     // Unbind elements that are no longer part of the DOM
     if (do_unbind) {
-      // Remove from global list
-      Nexus._remove(this);
-
       let binding = this.binding,
           prop = this.prop();
       
@@ -184,6 +189,13 @@ Nexus = class Nexus extends Base {
 
         binding.dispose.call(this.context, prop);
       }
+
+
+      // Remove from global list
+      Nexus.remove(this);
+
+      // Remove from view list
+      this.view[ViewModel.bindingsKey].remove(this);
     }
 
     return do_unbind;
@@ -197,3 +209,6 @@ Nexus = class Nexus extends Base {
     this.setPrevented = state;
   }
 };
+
+// Decorate Nexus class with list methods operating on an internal list
+List.decorate(Nexus);

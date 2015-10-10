@@ -91,7 +91,7 @@ Property = class Property {
 
   // Blaze helper of the property bound to property instance
   helper(...args) {
-    let vm = ViewModel._ensureViewmodel(Blaze.getView(), this.key);
+    let vm = ViewModel.ensureViewmodel(Blaze.getView(), this.key);
 
     return vm[this.key](...args);
   }
