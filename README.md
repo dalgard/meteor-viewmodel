@@ -3,9 +3,7 @@ dalgard:viewmodel 0.9.0
 
 **Version 0.9.0 introduces a few breaking changes – see the [History](#history). At the same time, the package is moved forward to Meteor 1.2.0.2.**
 
-**I apologize for any inconveniences.**
-
-**— dalgard**
+**I apologize for any inconveniences. — dalgard**
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
 
