@@ -1,10 +1,12 @@
 dalgard:viewmodel 0.9.0
 =======================
 
-**Version 0.9.0 introduces a few breaking changes – see the [History](#history). At the same time, the package is moved forward to Meteor 1.2.0.2.**
+<br>
+**Version 0.9.0 introduced a few breaking changes – see the [History](#history). At the same time, the package was moved forward to Meteor 1.2.0.2.**
 
 **I apologize for any inconveniences. — dalgard**
 
+<br>
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
 
 - Simple, reactive API
@@ -199,10 +201,16 @@ Template.other.helpers({
 
 ### Jade
 
-To attach a binding in a Jade template, use this syntax:
+To attach a binding in a Jade template with the `mquandalle:jade` package, it is necessary to use this slightly convoluted syntax:
 
 ```jade
 button($dyn='{{bind "click: click"}}')
+```
+
+As an alternative, use [`dalgard:jade`](https://github.com/dalgard/meteor-jade), which is a direct fork of the former package that adds a small extension to the syntax, in order to allow binding like this:
+
+```jade
+button($bind='click: click')
 ```
 
 Also check out the Jade example in `/examples/jade`.

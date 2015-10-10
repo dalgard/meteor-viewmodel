@@ -16,6 +16,6 @@ jquery
 kadira:flow-router
 kadira:blaze-layout
 
-mquandalle:jade
+dalgard:jade
 dalgard:viewmodel
 richsilv:pikaday
