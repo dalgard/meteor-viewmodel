@@ -64,7 +64,6 @@ If you are migrating from `manuel:viewmodel` or want to try both packages side b
     - [Files](#files)
 - [Migration](#migration)
 - [History](#history)
-  - [Todo](#todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -201,19 +200,19 @@ Template.other.helpers({
 
 ### Jade
 
-To bind an element in a Jade template, using the `mquandalle:jade` package, it is necessary to use this slightly convoluted syntax:
+To bind an element in a Jade template, when using the `mquandalle:jade` package, it is necessary to use the slightly convoluted, embedded Blaze syntax:
 
 ```jade
 input(type='text' $dyn='{{bind "value: value"}}')
 ```
 
-Alternatively, the package [`dalgard:jade`](https://github.com/dalgard/meteor-jade) can be used. It is a direct fork of the former package, but adds a couple of small extensions to the syntax, which allows binding elements like this:
+The package [`dalgard:jade`](https://github.com/dalgard/meteor-jade) may provide a better alternative. It is a direct fork of the former package, that adds a few extensions to the syntax, which allows binding elements like this:
 
 ```jade
-input(type='text' $bind('value: value'))
+input(type='text' $bind('value: value' throttle=500))
 ```
 
-Also check out the Jade example in `/examples/jade`.
+Check out the Jade example in `/examples/jade`.
 
 ## API
 
