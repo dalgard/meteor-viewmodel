@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.9.0
+dalgard:viewmodel 0.9.1
 =======================
 
 <br>
