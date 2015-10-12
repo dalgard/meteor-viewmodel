@@ -795,7 +795,7 @@ Pro tip: Choose unique names that can be search-and-replaced globally, when the 
 
 ## History
 
-- 0.9.1  –  API change: `uniqueId` renamed to `uid`, `bindings` renamed to `nexuses`. Global list of binding nexuses can be inspected through `ViewModel.nexuses([name])`. Fixed bug: Using a predicate with traversal methods was temporarily broken.
+- 0.9.1  –  API change: `uniqueId` renamed to `uid`, `bindings` renamed to `nexuses`. Global list of binding nexuses can be inspected through `ViewModel.nexuses([name])`. Fixed bug: Using a predicate with traversal methods was temporarily broken. Updated Jade example to `dalgard:jade` 0.5.0.
 - 0.9.0  –  Major refactoring. API change: Signatures and context of the functions in bindings is changed, and `extends` and `detached` are moved to an options object. Viewmodel methods have access to an internal reactive variable. Bound element-binding pairs (termed "nexuses") in a view can be inspected through the view's `bindings` property. Pikaday supports keyboard arrows up/down.
 - 0.8.3  –  Don't trigger `set` on normal updates in bindings, i.e. with a return value from `get`.
 - 0.8.2  –  If no name is specified for a viewmodel, it is named after its view
