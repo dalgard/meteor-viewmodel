@@ -522,21 +522,21 @@ ViewModel.addBinding("name", {
 
 The parameters used for `init`, `set`, `get`, and `dispose` are:
 
-- `event` – the original (jQuery) event object.
-- `$elem` – the element that the `{{bind}}` helper was called on, wrapped in jQuery.
-- `init_value`/`new_value` – the new value that was passed to the property.
-- `prop` – the property on the viewmodel, if available.
+- `event`  –  the original (jQuery) event object.
+- `$elem`  –  the element that the `{{bind}}` helper was called on, wrapped in jQuery.
+- `init_value`/`new_value`  –  the new value that was passed to the property.
+- `prop`  –  the property on the viewmodel, if available.
 
 Each function is called with an object as context (`this`) that is private to each specific bound element-binding pair. This object can be used to store plugin instances or other variables for the lifetime of the element.
 
 The context object comes with some useful properties:
 
-- `viewmodel` – A reference to the viewmodel, if available.
-- `view` – The view that the element was bound in.
-- `templateInstance` – The nearest template instance.
-- `data` – the current data context of the template instance.
-- `args` – an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
-- `hash` – the keyword arguments that the `{{bind}}` helper was called with.
+- `viewmodel`  –  A reference to the viewmodel, if available.
+- `view`  –  The view that the element was bound in.
+- `templateInstance`  –  The nearest template instance.
+- `data`  –  the current data context of the template instance.
+- `args`  –  an array (possibly empty) containing any space separated values after the colon in the bind expression, including the key.
+- `hash`  –  the keyword arguments that the `{{bind}}` helper was called with.
 
 The returned value from the `get` function is written directly to the bound property. However, if the function doesn't return anything (i.e. returns `undefined`), the bound property is not called at all. This is practical in case you only want to call the bound property in *some* cases.
 
