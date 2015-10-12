@@ -13,7 +13,7 @@ let persist = new ReactiveDict("dalgard:viewmodel");
 
 // Exported class for viewmodels
 ViewModel = class ViewModel extends Base {
-  constructor(view, name = view.name, id = ViewModel.uniqueId(), definition, options) {
+  constructor(view, name = view.name, id = ViewModel.uid(), definition, options) {
     // Ensure type of arguments
     check(id, Match.Integer);
     check(definition, Match.Optional(Match.OneOf(Object, Function)));
@@ -302,18 +302,17 @@ ViewModel = class ViewModel extends Base {
   // Reactively get the parent viewmodel, optionally filtered by name
   parent(name) {
     // Transcluded viewmodels have no ancestors
-    if (this.option("transclude"))
-      return null;
+    if (!this.option("transclude")) {
+      let parent_view = this.view.parentView;
 
-    let parent_view = this.view.parentView;
+      do if (parent_view.template) {
+        let vm = parent_view.templateInstance()[ViewModel.viewmodelKey];
 
-    do if (parent_view.template) {
-      let vm = parent_view.templateInstance()[ViewModel.viewmodelKey];
-
-      if (vm && !vm.option("transclude"))
-        return !name || vm.test(name) ? vm : null;
+        if (vm && !vm.option("transclude"))
+          return !name || vm.test(name) ? vm : null;
+      }
+      while (parent_view = parent_view.parentView);
     }
-    while (parent_view = parent_view.parentView);
 
     return null;
   }
@@ -378,7 +377,7 @@ ViewModel = class ViewModel extends Base {
 
 
   // Get next unique id
-  static uniqueId() {
+  static uid() {
     return ++uid;
   };
 
@@ -445,7 +444,7 @@ ViewModel = class ViewModel extends Base {
     _.each(args, arg => bind_exps = bind_exps.concat(arg.split(/\s*,\s*/g)));
 
     // Unique bind id for current element
-    let bind_id = ViewModel.uniqueId();
+    let bind_id = ViewModel.uid();
 
 
     // Loop through bind expressions
@@ -526,7 +525,7 @@ ViewModel = class ViewModel extends Base {
 
 
     // Give all instances of this viewmodel the same id (used when sharing state)
-    let id = ViewModel.uniqueId();
+    let id = ViewModel.uid();
 
     // Create viewmodel instance – a function is added to the template's onCreated
     // hook, wherein a viewmodel instance is created on the view with the properties
@@ -557,13 +556,18 @@ defineProperties(ViewModel, {
   bindAttrName: { value: "vm-bind-id", writable: true, enumerable: true },
 
   // Name of bindings reference on views
-  bindingsKey: { value: "bindings", writable: true, enumerable: true },
+  nexusesKey: { value: "nexuses", writable: true, enumerable: true },
 
   // Name of viewmodel reference on template instances
   viewmodelKey: { value: "viewmodel", writable: true, enumerable: true },
 
   // Whether to try to restore viewmodels in this project after a hot code push
   restoreAfterHCP: { value: true, writable: true, enumerable: true }
+});
+
+// Access global list of nexuses through ViewModel
+defineProperties(ViewModel, {
+  [ViewModel.nexusesKey]: { value: Nexus.find }
 });
 
 // Decorate ViewModel class with list methods operating on an internal list

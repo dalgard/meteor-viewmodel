@@ -28,8 +28,9 @@ Base = class Base {
 
   // Test the name of this instance with a regex or string
   test(test) {
-    // Ensure type of argument
-    if (_.isRegExp(test))
+    if (_.isFunction(test))
+      return test(this);
+    else if (_.isRegExp(test))
       return test.test(this.name());
 
     return test === this.name();

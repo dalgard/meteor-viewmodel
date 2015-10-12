@@ -45,8 +45,25 @@ Binding = class Binding {
     // May be a factory
     if (_.isFunction(def))
       def = def.call(context);
+    else
+      def = _.cloneDeep(def);
 
     check(def, Object);
+
+
+    // Add name to definition
+    def.name = this.name;
+
+    // Add options to definition
+    _.defaults(def, this._options.all());
+
+    // Lock down all properties
+    defineProperties(def, _.mapValues(def, () => ({
+      enumerable: false,
+      writable: false,
+      configurable: false
+    })));
+
 
     // Get extends option
     let exts = this.option("extends");
