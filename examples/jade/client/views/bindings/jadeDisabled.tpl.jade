@@ -1,7 +1,7 @@
 label
-  input(type='checkbox' $bind='checked: disabled')
+  input(type='checkbox' $bind('checked: disabled'))
   | disabled
 
-input(type='text' $bind='value: value, disabled: disabled')
+input(type='text' $bind('value: value' 'disabled: disabled'))
   
 | #{value}
