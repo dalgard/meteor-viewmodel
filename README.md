@@ -118,7 +118,8 @@ Viewmodel declarations may sometimes be omitted altogether – the `{{bind}}` he
 ```html
 <template name="page">
   <p>{{myFieldValue}}</p>
-  {{> usageField startValue='Hello world'}}
+  
+  {{> field startValue='Hello world'}}
 </template>
 
 <template name="field">
@@ -139,8 +140,8 @@ Template.page.viewmodel({
   }
 }, {});  // An options object may be passed
 
-// Instead of a definition object, a factory function may be used. Unrelated
-// to the factory, this viewmodel is also given a name.
+// Instead of a definition object, a factory function may be used.
+// Unrelated to the factory, this viewmodel is given a name.
 Template.field.viewmodel("field", function (data) {
   // Return the new viewmodel definition
   return {
@@ -165,7 +166,7 @@ Template.field.viewmodel("field", function (data) {
 });
 ```
 
-The viewmodel of a template instance can be accessed inside lifetime hooks (`onCreated`, `onRendered`, and `onDestroyed`) and inside helpers and events, through the `viewmodel` property on the template instance:
+The viewmodel of a template instance may be accessed inside lifetime hooks, helpers, and events, through the `viewmodel` property on the template instance:
 
 ```js
 Template.example.viewmodel({
@@ -200,13 +201,13 @@ Template.other.helpers({
 
 ### Jade
 
-To bind an element in a Jade template, when using the `mquandalle:jade` package, it is necessary to use the slightly convoluted, embedded Blaze syntax:
+To bind an element in a Jade template, when using the `mquandalle:jade` package, the slightly convoluted embedded Blaze syntax is used:
 
 ```jade
 input(type='text' $dyn='{{bind "value: value"}}')
 ```
 
-The package [`dalgard:jade`](https://github.com/dalgard/meteor-jade) may provide a better alternative. It is a direct fork of the former package, that adds a few extensions to the syntax, which allows binding elements like this:
+A more elegant syntax can be achieved by using the [`dalgard:jade`](https://github.com/dalgard/meteor-jade) package instead of `mquandalle:jade`. This package is a direct fork of the latter one, which adds a few extensions to the syntax, allowing this syntax for binding elements:
 
 ```jade
 input(type='text' $bind('value: value' throttle=500))
