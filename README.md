@@ -204,7 +204,7 @@ Template.other.helpers({
 To bind an element in a Jade template, when using the `mquandalle:jade` package, the slightly convoluted embedded Blaze syntax is used:
 
 ```jade
-input(type='text' $dyn='{{bind "value: value"}}')
+input(type='text' $dyn='{{bind "value: value" throttle=500}}')
 ```
 
 A more elegant syntax can be achieved by using the [`dalgard:jade`](https://github.com/dalgard/meteor-jade) package instead of `mquandalle:jade`. This package is a direct fork of the latter one, which adds a few extensions to the syntax, allowing this syntax for binding elements:
