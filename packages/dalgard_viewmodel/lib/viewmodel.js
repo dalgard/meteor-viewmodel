@@ -496,7 +496,7 @@ ViewModel = class ViewModel extends Base {
     return { [ViewModel.bindAttrName]: bind_id };
   }
 
-  // Register the bind helper globally and make __helpers reactive
+  // Register the bind helper globally
   static registerHelper(name = ViewModel.helperName) {
     // Ensure type of argument
     check(name, String);
@@ -506,9 +506,6 @@ ViewModel = class ViewModel extends Base {
 
     // Save name
     ViewModel.helperName = name;
-
-    // Experimental feature: Make the HelperMap of __helpers reactive
-    makeHelperMapReactive(Template.body, true);
 
     // Indicate that the helper has been registered globally
     is_global = true;
@@ -546,9 +543,6 @@ ViewModel = class ViewModel extends Base {
         template.helpers({
           [ViewModel.helperName]: ViewModel.bindHelper
         });
-
-        // Experimental feature: Make the HelperMap of __helpers reactive
-        makeHelperMapReactive(template);
       }
 
       let vm = this[ViewModel.viewmodelKey];

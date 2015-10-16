@@ -12,4 +12,5 @@ blaze-html-templates
 reload
 spacebars
 
+nordlys:get-helper-reactively
 dalgard:viewmodel
