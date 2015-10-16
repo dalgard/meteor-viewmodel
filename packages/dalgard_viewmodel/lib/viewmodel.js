@@ -43,9 +43,9 @@ ViewModel = class ViewModel extends Base {
 
 
     // Experimental feature: Add existing Blaze helpers as viewmodel methods that are
-    // bound to normal helper context
+    // bound to the normal helper context
     _.each(view.template.__helpers, (helper, key) => {
-      if (key.charAt(0) === " ") {
+      if (key.charAt(0) === " " && _.isFunction(helper) && !helper.isPropertyHelper) {
         key = key.slice(1);
 
         let property = new Property(this, key, function (...args) {
@@ -148,7 +148,7 @@ ViewModel = class ViewModel extends Base {
         this[key] = property.accessor;
 
         // Register Blaze helper
-        template.helpers({ [key]: property.helper });
+        template.helpers({ [key]: Property.helper(key) });
       });
     }
 

@@ -8,6 +8,7 @@ Property = class Property {
     let is_primitive = !_.isFunction(init_value),
         accessor = is_primitive ? this.accessor.bind(this) : init_value.bind(vm);
 
+
     // Static properties on property instance
     defineProperties(this, {
       // Property owner
@@ -20,11 +21,9 @@ Property = class Property {
       value: { value: new ReactiveVar },
 
       // Bound accessor method
-      accessor: { value: accessor },
-
-      // Blaze helper
-      helper: { value: this.helper.bind(this) }
+      accessor: { value: accessor }
     });
+
 
     // Property methods bound to instance
     defineProperties(accessor, {
@@ -41,6 +40,7 @@ Property = class Property {
       nonreactive: { value: this.nonreactive.bind(this) }
     });
     
+
     if (is_primitive) {
       // Save initial value
       this.initial = init_value;
@@ -92,10 +92,18 @@ Property = class Property {
   }
 
 
-  // Blaze helper of the property bound to property instance
-  helper(...args) {
-    let vm = ViewModel.ensureViewmodel(Blaze.getView(), this.key);
+  // Factory for Blaze property helpers bound to a key
+  static helper(key) {
+    // Helper function
+    let helper = function (...args) {
+      let vm = ViewModel.ensureViewmodel(Blaze.getView(), key);
 
-    return vm[this.key](...args);
+      return vm[key](...args);
+    };
+
+    // Mark as viewmodel property helper
+    helper.isPropertyHelper = true;
+
+    return helper;
   }
 };
