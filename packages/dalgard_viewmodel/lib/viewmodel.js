@@ -38,12 +38,28 @@ ViewModel = class ViewModel extends Base {
       _options: { value: new ReactiveMap(options) }
     });
 
+    // Attach to template instance
+    view.templateInstance()[ViewModel.viewmodelKey] = this;
+
+
+    // Experimental feature: Add existing Blaze helpers as viewmodel methods that are
+    // bound to the normal helper context
+    _.each(view.template.__helpers, (helper, key) => {
+      if (key.charAt(0) === " " && _.isFunction(helper) && !helper.isPropertyHelper) {
+        key = key.slice(1);
+
+        let property = new Property(this, key, function (...args) {
+          return helper.call(this.getData(), ...args);
+        });
+
+        // Save accessor as viewmodel property
+        this[key] = property.accessor;
+      }
+    });
+
     // Possibly add properties
     if (definition)
       this.addProps(definition);
-
-    // Attach to template instance
-    this.templateInstance()[ViewModel.viewmodelKey] = this;
 
 
     // Get parent for non-transcluded viewmodels
@@ -113,27 +129,30 @@ ViewModel = class ViewModel extends Base {
     if (_.isFunction(definition))
       definition = definition.call(this, this.getData());
 
-    if (!_.isObject(definition))
-      return;
+    let is_object = _.isObject(definition);
 
-    // Add autoruns
-    if (definition.autorun) {
-      this.autorun(definition.autorun);
+    if (is_object) {
+      // Add autoruns
+      if (definition.autorun) {
+        this.autorun(definition.autorun);
 
-      delete definition.autorun;
+        delete definition.autorun;
+      }
+
+      let template = this.templateInstance().view.template;
+
+      _.each(definition, (init_value, key) => {
+        let property = new Property(this, key, init_value);
+
+        // Save accessor as viewmodel property
+        this[key] = property.accessor;
+
+        // Register Blaze helper
+        template.helpers({ [key]: Property.helper(key) });
+      });
     }
 
-    let template = this.templateInstance().view.template;
-
-    _.each(definition, (init_value, key) => {
-      let property = new Property(this, key, init_value);
-
-      // Save accessor as viewmodel property
-      this[key] = property.accessor;
-
-      // Register Blaze helper
-      template.helpers({ [key]: property.helper });
-    });
+    return is_object;
   }
 
   // Bind an element
@@ -477,7 +496,7 @@ ViewModel = class ViewModel extends Base {
     return { [ViewModel.bindAttrName]: bind_id };
   }
 
-  // Register the bind helper globally and make __helpers reactive
+  // Register the bind helper globally
   static registerHelper(name = ViewModel.helperName) {
     // Ensure type of argument
     check(name, String);
@@ -487,9 +506,6 @@ ViewModel = class ViewModel extends Base {
 
     // Save name
     ViewModel.helperName = name;
-
-    // Experimental feature: Make the HelperMap of __helpers reactive
-    makeHelperMapReactive(Template.body, true);
 
     // Indicate that the helper has been registered globally
     is_global = true;
@@ -512,18 +528,6 @@ ViewModel = class ViewModel extends Base {
     check(options, Match.Optional(Object));
 
 
-    // If the helper hasn't been registered globally
-    if (!is_global) {
-      // Register the Blaze bind helper on this template
-      this.helpers({
-        [ViewModel.helperName]: ViewModel.bindHelper
-      });
-
-      // Experimental feature: Make the HelperMap of __helpers reactive
-      makeHelperMapReactive(this);
-    }
-
-
     // Give all instances of this viewmodel the same id (used when sharing state)
     let id = ViewModel.uid();
 
@@ -531,6 +535,16 @@ ViewModel = class ViewModel extends Base {
     // hook, wherein a viewmodel instance is created on the view with the properties
     // from the definition object
     this.onCreated(function () {
+      let template = this.view.template;
+
+      // If the helper hasn't been registered globally
+      if (!is_global) {
+        // Register the Blaze bind helper on this template
+        template.helpers({
+          [ViewModel.helperName]: ViewModel.bindHelper
+        });
+      }
+
       let vm = this[ViewModel.viewmodelKey];
 
       // Create new viewmodel instance on view or add properties to existing viewmodel

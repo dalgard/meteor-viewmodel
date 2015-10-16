@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.9.1
+dalgard:viewmodel 0.9.2
 =======================
 
 <br>
@@ -37,6 +37,7 @@ If you are migrating from `manuel:viewmodel` or want to try both packages side b
   - [Jade](#jade)
 - [API](#api)
   - [{{bind}}](#bind)
+      - [Bind expressions](#bind-expressions)
   - [Viewmodel instances](#viewmodel-instances)
       - [Templates](#templates)
       - [Properties](#properties)
@@ -60,7 +61,7 @@ If you are migrating from `manuel:viewmodel` or want to try both packages side b
     - [Hovered](#hovered)
     - [Enter key](#enter-key)
     - [Key (keyCode)](#key-keycode)
-    - [Classes](#classes)
+    - [Class](#class)
     - [Files](#files)
 - [Migration](#migration)
 - [History](#history)
@@ -105,6 +106,8 @@ ViewModel.registerHelper("bind");
   {{/if}}
 </template>
 ```
+
+**Note:** This example depends on the package `nordlys:get-helper-reactively` for using the `red` helper *before* it is actually declared.
 
 Check out this example and others in the `/examples` directory and at [dalgard-viewmodel.meteor.com](http://dalgard-viewmodel.meteor.com/).
 
@@ -165,6 +168,8 @@ Template.field.viewmodel("field", function (data) {
   };
 });
 ```
+
+When a viewmodel is created on a template – either implicitly or explicitly – existing Blaze helpers on the template become properties of the viewmodel. The helpers preserve their their normal context and arguments when called.
 
 The viewmodel of a template instance may be accessed inside lifetime hooks, helpers, and events, through the `viewmodel` property on the template instance:
 
@@ -235,7 +240,11 @@ ViewModel.registerHelper(name);  // name is optional
 
 The advantage of registering `{{bind}}` globally is that you may use it in any template without first declaring a viewmodel on it.
 
-The helper then automatically creates a new viewmodel instance (if none existed) and registers any bound properties as Blaze helpers. These helpers can be used anywhere in the template [using it before the actual call to `{{bind}}` should be considered an experimental feature until further notice].
+The helper then automatically creates a new viewmodel instance (if none existed) and registers any bound properties as Blaze helpers.
+
+**Note:** The newly created helper may be used anywhere after the bind expression in the template. Using it *before* the call to `{{bind}}` is enabled by simply installing the package [`nordlys:get-helper-reactively`](https://github.com/nordlys-io/meteor-get-helper-reactively).
+
+##### Bind expressions
 
 The basic syntax of the bind helper looks like this:
 
@@ -251,7 +260,7 @@ The basic syntax of the bind helper looks like this:
 
 You may pass multiple bind expressions to the helper – either as one string, separated by commas, or as multiple positional arguments.
 
-There are cases, like with the `classes` binding, where the key may be omitted or where multiple keys may be given.
+There are cases, like with the `class` binding, where the key may be omitted or where multiple keys may be given.
 
 Any space separated values after the colon inside the bind expression are passed as arguments to the binding – for instance, key and delay:
 
@@ -733,28 +742,19 @@ A method on the viewmodel is run when the specific key, passed as an argument, i
 { pressed(event, args, hash) { ... } }
 ```
 
-#### Classes
+#### Class
 
-This bind expression may take any number of keys, including zero (the colon is omitted), that refer to boolean properties. The keys determine, which class names are toggled on the element.
+This bind expression takes any number of keys, where each key refers to a keyword argument. The name of the keyword argument represents a class name and the truthyness of its value determines whether the class is toggled.
+
+If no keys are indicated in the bind expression (the colon is omitted, too), all keyword arguments are used.
 
 ```html
-<p {{bind 'classes: red large'}}></p>
+<p {{bind 'class: red large' red=isRed large=true otherArg=''}}></p>
 ```
 
 ```js
-{
-  red: true,
-  large: false
-}
+{ isRed: true }
 ```
-
-An object may also be as the keyword argument `classes` with class names as keys and toggle state as a boolean value.
-
-```html
-<p {{bind 'classes' classes=classes}}></p>
-```
-
-Class names passed as an object take precedence over those inside the bind expression.
 
 #### Files
 
@@ -795,6 +795,7 @@ Pro tip: Choose unique names that can be search-and-replaced globally, when the 
 
 ## History
 
+- 0.9.2  –  API change: `classes` binding is renamed to `class` and changed to take (optionally indicated) keyword arguments as class names and their values as the class' presence. Creating a viewmodel adds existing Blaze template helpers as properties.
 - 0.9.1  –  API change: `uniqueId` renamed to `uid`, `bindings` renamed to `nexuses`. Global list of binding nexuses can be inspected through `ViewModel.nexuses([name])`. Fixed bug: Using a predicate with traversal methods was temporarily broken. Updated Jade example to `dalgard:jade` 0.5.0.
 - 0.9.0  –  Major refactoring. API change: Signatures and context of the functions in bindings is changed, and `extends` and `detached` are moved to an options object. Viewmodel methods have access to an internal reactive variable. Bound element-binding pairs (termed "nexuses") in a view can be inspected through the view's `bindings` property. Pikaday supports keyboard arrows up/down.
 - 0.8.3  –  Don't trigger `set` on normal updates in bindings, i.e. with a return value from `get`.

@@ -1,6 +1,6 @@
-<template name="fullClasses">
+<template name="fullClass">
   <label><input type="checkbox" {{bind 'checked: red'}}>red</label>
   <label><input type="checkbox" {{bind 'checked: bold'}}>bold</label>
 
-  <span {{bind 'classes: red bold'}}>text with classes</span>
+  <span {{bind 'class' red=red bold=bold}}>text with classes</span>
 </template>
