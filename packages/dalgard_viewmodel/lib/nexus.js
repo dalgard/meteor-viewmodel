@@ -17,8 +17,8 @@ Nexus = class Nexus extends Base {
     super(view, binding.name);
 
     // Possibly create nexuses list
-    if (!(this.view[ViewModel.bindingsKey] instanceof List))
-      this.view[ViewModel.bindingsKey] = new List;
+    if (!(this.view[ViewModel.nexusesKey] instanceof List))
+      this.view[ViewModel.nexusesKey] = new List;
 
 
     // Static properties on nexus instance
@@ -164,7 +164,7 @@ Nexus = class Nexus extends Base {
 
 
     // Add to view list
-    this.view[ViewModel.bindingsKey].add(this);
+    this.view[ViewModel.nexusesKey].add(this);
 
     // Add to global list
     Nexus.add(this);
@@ -197,7 +197,7 @@ Nexus = class Nexus extends Base {
       Nexus.remove(this);
 
       // Remove from view list
-      this.view[ViewModel.bindingsKey].remove(this);
+      this.view[ViewModel.nexusesKey].remove(this);
     }
 
     return do_unbind;
