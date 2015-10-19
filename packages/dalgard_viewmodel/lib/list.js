@@ -43,8 +43,14 @@ List = class List extends Array {
     this.dep.depend();
 
     // Possibly remove items failing test
-    if (test)
-      return _.filter(this, (...args) => _.isFunction(test) ? test(...args) : _.isFunction(item.test) && item.test(test));
+    if (test) {
+      return _.filter(this, (...args) => {
+        if (_.isFunction(test))
+          return test(...args);
+        else if (_.isObject(args[0]) && _.isFunction(args[0].test))
+          return args[0].test(test);
+      });
+    }
 
     return this.slice();
   }
