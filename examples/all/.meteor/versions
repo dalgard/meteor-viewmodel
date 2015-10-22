@@ -15,7 +15,7 @@ coffeescript@1.0.10
 cosmos:browserify@0.5.1
 dalgard:jade@0.5.4_1
 dalgard:jade-compiler@0.5.4_1
-dalgard:viewmodel@0.9.2
+dalgard:viewmodel@0.9.3
 ddp@1.2.2
 ddp-client@1.2.1
 ddp-common@1.2.1
@@ -47,8 +47,8 @@ mobile-status-bar@1.0.6
 momentjs:moment@2.9.0
 mongo@1.1.2
 mongo-id@1.0.1
-nordlys:get-helper-reactively@0.1.0
-nordlys:reactive-map@0.1.0
+dalgard:get-helper-reactively@0.1.0
+dalgard:reactive-map@0.1.0
 npm-mongo@1.4.39_1
 observe-sequence@1.0.7
 ordered-dict@1.0.4
