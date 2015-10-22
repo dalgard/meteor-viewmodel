@@ -1,12 +1,6 @@
-dalgard:viewmodel 0.9.2
+dalgard:viewmodel 0.9.3
 =======================
 
-<br>
-**Version 0.9.0 introduced a few breaking changes – see the [History](#history). At the same time, the package was moved forward to Meteor 1.2.0.2.**
-
-**I apologize for any inconveniences. — dalgard**
-
-<br>
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
 
 - Simple, reactive API
@@ -795,6 +789,7 @@ Pro tip: Choose unique names that can be search-and-replaced globally, when the 
 
 ## History
 
+- 0.9.3  –  Bug fixes: Corner case with rebinding on dynamic attribute change; don't put viewmodel on built-in templates.
 - 0.9.2  –  API change: `classes` binding is renamed to `class` and changed to take (optionally indicated) keyword arguments as class names and their values as the class' presence. Creating a viewmodel adds existing Blaze template helpers as properties.
 - 0.9.1  –  API change: `uniqueId` renamed to `uid`, `bindings` renamed to `nexuses`. Global list of binding nexuses can be inspected through `ViewModel.nexuses([name])`. Fixed bug: Using a predicate with traversal methods was temporarily broken. Updated Jade example to `dalgard:jade` 0.5.0.
 - 0.9.0  –  Major refactoring. API change: Signatures and context of the functions in bindings is changed, and `extends` and `detached` are moved to an options object. Viewmodel methods have access to an internal reactive variable. Bound element-binding pairs (termed "nexuses") in a view can be inspected through the view's `bindings` property. Pikaday supports keyboard arrows up/down.
