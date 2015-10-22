@@ -36,7 +36,7 @@ Binding = class Binding {
   }
 
   // Get resolve binding definition
-  definition(context = {}) {
+  definition(context = {}, finalize = true) {
     // Ensure type of argument
     check(context, Object);
 
@@ -57,13 +57,6 @@ Binding = class Binding {
     // Add options to definition
     _.defaults(def, this._options.all());
 
-    // Lock down all properties
-    defineProperties(def, _.mapValues(def, () => ({
-      enumerable: false,
-      writable: false,
-      configurable: false
-    })));
-
 
     // Get extends option
     let exts = this.option("extends");
@@ -73,12 +66,23 @@ Binding = class Binding {
 
       // Resolve extends
       let defs = _.isArray(exts)
-        ? _.map(exts, name => Binding.get(name).definition(context))
-        : [Binding.get(exts).definition(context)];
+        ? _.map(exts, name => Binding.get(name).definition(context, false))
+        : [Binding.get(exts).definition(context, false)];
 
       // Inherit
       _.defaults(def, ...defs);
     }
+
+
+    // Possibly lock down all properties
+    if (finalize) {
+      defineProperties(def, _.mapValues(def, () => ({
+        enumerable: false,
+        writable: false,
+        configurable: false
+      })));
+    }
+
 
     return def;
   }

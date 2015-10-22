@@ -1,6 +1,6 @@
 Package.describe({
   name: "dalgard:viewmodel",
-  version: "0.9.2",
+  version: "0.9.3",
   summary: "Minimalist VM for Meteor",
   git: "https://github.com/dalgard/meteor-viewmodel",
   documentation: "../../README.md"
@@ -23,7 +23,7 @@ Package.onUse(function (api) {
     "reactive-var",
     "reactive-dict",
     "stevezhu:lodash@3.10.1",
-    "nordlys:reactive-map@0.1.0"
+    "dalgard:reactive-map@0.1.0"
   ], "client");
 
   api.addFiles([

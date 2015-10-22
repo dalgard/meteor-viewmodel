@@ -12,7 +12,7 @@ defineProperties = function (obj, props) {
 
 // Get closest template instance for view
 templateInstance = function (view) {
-  do if (view.template)
+  do if (view.template && view.name !== "(contentBlock)" && view.name !== "Template.__dynamic" && view.name !== "Template.__dynamicWithDataContext")
     return view.templateInstance();
   while (view = view.parentView);
 

@@ -12,5 +12,6 @@ blaze-html-templates
 reload
 spacebars
 
+dalgard:get-helper-reactively
 dalgard:viewmodel
 richsilv:pikaday
