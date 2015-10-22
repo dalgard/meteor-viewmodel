@@ -39,6 +39,7 @@ Base = class Base {
 
   // Run callback when view is rendered and after flush
   onReady(callback) {
+    // Ensure type of argument
     check(callback, Function);
 
     // Bind callback to context
@@ -78,6 +79,7 @@ Base = class Base {
 
   // Run callback when view is refreshed
   onRefreshed(callback) {
+    // Ensure type of argument
     check(callback, Function);
 
     // Bind callback to context
@@ -91,11 +93,26 @@ Base = class Base {
 
   // Run callback when view is destroyed
   onDestroyed(callback) {
+    // Ensure type of argument
     check(callback, Function);
 
     // Bind callback to context
     callback = callback.bind(this);
 
     this.view.onViewDestroyed(callback);
+  }
+
+  // Run callback when the current computation is invalidated
+  onInvalidate(callback) {
+    // Ensure type of argument
+    check(callback, Function);
+
+    // Bind callback to context
+    callback = callback.bind(this);
+
+    let computation = Tracker.currentComputation;
+
+    if (computation)
+      computation.onInvalidate(callback);
   }
 };

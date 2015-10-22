@@ -74,36 +74,52 @@ Nexus = class Nexus extends Base {
     });
 
 
-    // Bind element on view ready
-    this.onReady(this.bind);
-
     // Unbind element on view refreshed
     this.onRefreshed(this.unbind);
 
     // Unbind element on view destroyed
     this.onDestroyed(this.unbind);
-  }
+
+    // Unbind element on computation invalidation
+    this.onInvalidate(() => this.unbind(true));
 
 
-  // Get element
-  elem() {
-    return $(this.selector);
+    // Bind element on view ready
+    this.onReady(this.bind);
   }
+
 
   // Get viewmodel property
-  prop() {
+  getProp() {
     let vm = this.context.viewmodel,
         has_prop = vm && !_.isUndefined(this.key) && _.isFunction(vm[this.key]);
 
     return has_prop ? vm[this.key] : null;
   }
 
+  // Whether the element is present in the document body
+  inBody() {
+    return document.body.contains(this.elem);
+  }
 
   // Bind element
   bind() {
-    let $elem = this.elem(),
-        binding = this.binding,
-        prop = this.prop();
+    let $elem = $(this.elem || this.selector);
+
+    if (!this.elem) {
+      // Save element on nexus
+      defineProperties(this, {
+        elem: { value: $elem[0] }
+      });
+    }
+
+    // Don't bind if element is no longer present
+    if (!this.inBody())
+      return false;
+
+
+    let binding = this.binding,
+        prop = this.getProp();
 
 
     if (binding.init) {
@@ -121,8 +137,7 @@ Nexus = class Nexus extends Base {
       // Ensure type of definition property
       check(binding.on, String);
 
-      // Register event listener
-      $elem.on(binding.on, event => {
+      let listener = event => {
         if (binding.get) {
           // Ensure type of definition property
           check(binding.get, Function);
@@ -145,7 +160,15 @@ Nexus = class Nexus extends Base {
 
         // Mark that we are exiting the update cycle
         Tracker.afterFlush(this.preventSet.bind(this, null));
+      };
+
+      // Save listener for unbind
+      defineProperties(this, {
+        listener: { value: listener }
       });
+
+      // Register event listener
+      $elem.on(binding.on, listener);
     }
 
 
@@ -154,7 +177,14 @@ Nexus = class Nexus extends Base {
       check(binding.set, Function);
       
       // Wrap set function and add it to list of autoruns
-      this.autorun(function () {
+      this.autorun(comp => {
+        if (comp.firstRun) {
+          // Save computation for unbind
+          defineProperties(this, {
+            comp: { value: comp }
+          });
+        }
+
         let new_value = prop && prop();
 
         if (!this.setPrevented)
@@ -168,23 +198,28 @@ Nexus = class Nexus extends Base {
 
     // Add to global list
     Nexus.add(this);
+
+    return true;
   }
 
   // Unbind element
-  unbind() {
-    let do_unbind = this.view.isDestroyed;
-
-    if (!do_unbind) {
-      let $elem = this.elem();
-
-      do_unbind = !$elem.length || !document.body.contains($elem[0]);
-    }
-
+  unbind(do_unbind = this.view.isDestroyed || !this.inBody()) {
     // Unbind elements that are no longer part of the DOM
     if (do_unbind) {
       let binding = this.binding,
-          prop = this.prop();
+          prop = this.getProp();
+
+
+      // Possibly unregister event listener
+      if (this.listener)
+        $(this.elem).off(binding.on, this.listener);
+
+      // Possibly stop set autorun
+      if (this.comp)
+        this.comp.stop();
+
       
+      // Possibly run dispose function
       if (binding.dispose) {
         // Ensure type of definition property
         check(binding.dispose, Function);

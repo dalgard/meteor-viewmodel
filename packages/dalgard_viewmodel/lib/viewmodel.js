@@ -132,23 +132,22 @@ ViewModel = class ViewModel extends Base {
     let is_object = _.isObject(definition);
 
     if (is_object) {
-      // Add autoruns
-      if (definition.autorun) {
+      // Possibly add autoruns
+      if (definition.autorun)
         this.autorun(definition.autorun);
-
-        delete definition.autorun;
-      }
 
       let template = this.templateInstance().view.template;
 
       _.each(definition, (init_value, key) => {
-        let property = new Property(this, key, init_value);
+        if (key !== "autorun") {
+          let property = new Property(this, key, init_value);
 
-        // Save accessor as viewmodel property
-        this[key] = property.accessor;
+          // Save accessor as viewmodel property
+          this[key] = property.accessor;
 
-        // Register Blaze helper
-        template.helpers({ [key]: Property.helper(key) });
+          // Register Blaze helper
+          template.helpers({ [key]: Property.helper(key) });
+        }
       });
     }
 

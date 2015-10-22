@@ -65,16 +65,27 @@ List = class List extends Array {
 
 
   // Decorate an object with list methods operating on an internal list
-  static decorate(obj) {
+  static decorate(obj, reference_key) {
+    // Ensure type of arguments
+    check(obj, Match.OneOf(Object, Function));
+    check(reference_key, Match.Optional(String));
+
     // Internal list
     let list = new List;
 
-    // Add bound methods
-    defineProperties(obj, {
+    // Property descriptors
+    let descriptor = {
       add: { value: list.add.bind(list) },
       remove: { value: list.remove.bind(list) },
       find: { value: list.find.bind(list) },
       findOne: { value: list.findOne.bind(list) }
-    });
+    };
+
+    // Possibly add a reference to the internal list
+    if (reference_key)
+      descriptor[reference_key] = { value: list };
+
+    // Add bound methods
+    defineProperties(obj, descriptor);
   }
 };
