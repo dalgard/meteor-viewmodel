@@ -236,7 +236,7 @@ The advantage of registering `{{bind}}` globally is that you may use it in any t
 
 The helper then automatically creates a new viewmodel instance (if none existed) and registers any bound properties as Blaze helpers.
 
-**Note:** The newly created helper may be used anywhere after the bind expression in the template. Using it *before* the call to `{{bind}}` is enabled by adding the package [`dalgard:get-helper-reactively`](https://github.com/nordlys-io/meteor-get-helper-reactively).
+**Note:** The newly created helper may be used anywhere after the bind expression in the template. Using it *before* the call to `{{bind}}` is enabled by adding the package [`dalgard:get-helper-reactively`](https://github.com/dalgard/meteor-get-helper-reactively).
 
 ##### Bind expressions
 
