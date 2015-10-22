@@ -13,6 +13,6 @@ reload
 spacebars
 jquery
 
-nordlys:get-helper-reactively
+dalgard:get-helper-reactively
 dalgard:jade
 dalgard:viewmodel

@@ -16,7 +16,7 @@ jquery
 kadira:flow-router
 kadira:blaze-layout
 
-nordlys:get-helper-reactively
+dalgard:get-helper-reactively
 dalgard:jade
 dalgard:viewmodel
 richsilv:pikaday

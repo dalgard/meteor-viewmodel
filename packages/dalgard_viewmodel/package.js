@@ -23,7 +23,7 @@ Package.onUse(function (api) {
     "reactive-var",
     "reactive-dict",
     "stevezhu:lodash@3.10.1",
-    "nordlys:reactive-map@0.1.0"
+    "dalgard:reactive-map@0.1.0"
   ], "client");
 
   api.addFiles([
