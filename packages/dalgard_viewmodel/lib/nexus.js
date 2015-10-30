@@ -10,7 +10,8 @@ Nexus = class Nexus extends Base {
     if (_.isString(binding))
       binding = Binding.get(binding);
 
-    let is_detached = binding.option("detached");
+    let is_detached = binding.option("detached"),
+        key;
 
 
     // Call constructor of Base
@@ -35,9 +36,9 @@ Nexus = class Nexus extends Base {
 
     // Possibly add key to nexus
     if (!is_detached && _.isArray(context.args) && _.isString(context.args[0])) {
-      let key = context.args[0];
+      key = context.args[0];
 
-      defineProperties(this, {
+      defineProperties(context, {
         // Viewmodel key
         key: { value: key }
       });
@@ -58,7 +59,7 @@ Nexus = class Nexus extends Base {
 
     // Possibly ensure existence of a viewmodel
     if (!is_detached && !(context.viewmodel instanceof ViewModel)) {
-      let vm = ViewModel.ensureViewmodel(view, this.key);
+      let vm = ViewModel.ensureViewmodel(view, key);
       
       defineProperties(context, {
         // Reference to viewmodel
@@ -92,9 +93,9 @@ Nexus = class Nexus extends Base {
   // Get viewmodel property
   getProp() {
     let vm = this.context.viewmodel,
-        has_prop = vm && !_.isUndefined(this.key) && _.isFunction(vm[this.key]);
+        has_prop = vm && !_.isUndefined(this.context.key) && _.isFunction(vm[this.context.key]);
 
-    return has_prop ? vm[this.key] : null;
+    return has_prop ? vm[this.context.key] : null;
   }
 
   // Whether the element is present in the document body
