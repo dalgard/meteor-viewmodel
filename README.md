@@ -52,7 +52,7 @@ If you are migrating from `manuel:viewmodel` or want to try both packages side b
     - [Submit ([send])](#submit-send)
     - [Disabled](#disabled)
     - [Focused](#focused)
-    - [Hovered](#hovered)
+    - [Hovered ([delay[Enter]][, delayLeave])](#hovered-delayenter-delayleave)
     - [Enter key](#enter-key)
     - [Key (keyCode)](#key-keycode)
     - [Class](#class)
@@ -536,6 +536,7 @@ Each function is called with an object as context (`this`) that is private to ea
 The context object comes with some useful properties:
 
 - `viewmodel`  –  A reference to the viewmodel, if available.
+- `key`  –  The property key, if available.
 - `view`  –  The view that the element was bound in.
 - `templateInstance`  –  The nearest template instance.
 - `data`  –  the current data context of the template instance.
@@ -700,12 +701,16 @@ The property reflects whether the element is in focus. An element can be given f
 { focused: true }
 ```
 
-#### Hovered
+#### Hovered ([delay[Enter]][, delayLeave])
 
 The property reflects whether the mouse hovers over the element.
 
+If an integer is passed as the only argument in the expression (keyword argument `delay`), this determines a delay on changing the property on both entering and leaving the element. To give each event a different delay, either pass two integers or use the keyword arguments `delayEnter` and `delayLeave`.
+
+Delaying the leave state is especially useful for not immediately closing a hover menu if the cursor is moved outside the element briefly.
+
 ```html
-<button {{bind 'hovered: hovered'}}></button>
+<button {{bind 'hovered: hovered 0 500'}}></button>
 ```
 
 ```js
@@ -789,6 +794,7 @@ Pro tip: Choose unique names that can be search-and-replaced globally, when the 
 
 ## History
 
+- 0.9.4  –  Added `key` to binding context and improved `hovered` built-in binding.
 - 0.9.3  –  Bug fixes: Corner case with rebinding on dynamic attribute change; don't put viewmodel on built-in templates.
 - 0.9.2  –  API change: `classes` binding is renamed to `class` and changed to take (optionally indicated) keyword arguments as class names and their values as the class' presence. Creating a viewmodel adds existing Blaze template helpers as properties.
 - 0.9.1  –  API change: `uniqueId` renamed to `uid`, `bindings` renamed to `nexuses`. Global list of binding nexuses can be inspected through `ViewModel.nexuses([name])`. Fixed bug: Using a predicate with traversal methods was temporarily broken. Updated Jade example to `dalgard:jade` 0.5.0.
