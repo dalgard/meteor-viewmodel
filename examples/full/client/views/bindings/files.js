@@ -1,3 +1,3 @@
 Template.fullFiles.viewmodel({
-  files: []
+  files: [],
 });

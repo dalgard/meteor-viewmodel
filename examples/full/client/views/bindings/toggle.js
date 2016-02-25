@@ -1,3 +1,3 @@
 Template.fullToggle.viewmodel({
-  toggled: false
+  toggled: false,
 });

@@ -3,5 +3,5 @@ Template.fullKey.viewmodel({
 
   key() {
     this.pressed(true);
-  }
+  },
 });

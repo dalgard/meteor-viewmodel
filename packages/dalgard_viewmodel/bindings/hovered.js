@@ -13,21 +13,21 @@ ViewModel.addBinding("hovered", {
 
   on: "mouseenter mouseleave",
 
-  get(event, $elem, prop) {
+  get(event, elem, prop) {
     clearTimeout(this.enterId);
     clearTimeout(this.leaveId);
 
     if (event.type === "mouseenter") {
-      if (this.delayEnter)
-        this.enterId = setTimeout(() => prop(true), this.delayEnter);
-      else
+      if (!this.delayEnter)
         return true;
+
+      this.enterId = setTimeout(() => prop(true), this.delayEnter);
     }
     else {
-      if (this.delayLeave)
-        this.leaveId = setTimeout(() => prop(false), this.delayLeave);
-      else
+      if (!this.delayLeave)
         return false;
+
+      this.leaveId = setTimeout(() => prop(false), this.delayLeave);
     }
-  }
+  },
 });

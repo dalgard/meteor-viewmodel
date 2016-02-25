@@ -5,7 +5,7 @@ List = class List extends Array {
 
     // Add dependency to list
     defineProperties(this, {
-      dep: { value: new Tracker.Dependency }
+      dep: { value: new Tracker.Dependency },
     });
   }
 
@@ -22,8 +22,8 @@ List = class List extends Array {
     let result = false;
 
     _.each(items, item => {
-      let index = this.indexOf(item),
-          is_found = !!~index;
+      const index = this.indexOf(item);
+      const is_found = !!~index;
 
       if (is_found) {
         this.splice(index, 1);
@@ -39,28 +39,34 @@ List = class List extends Array {
 
 
   // Reactively get an array of matching items
-  find(test) {
+  find(...tests) {
     this.dep.depend();
 
     // Possibly remove items failing test
-    if (test) {
-      return _.filter(this, (...args) => {
+    if (tests.length) {
+      return _.filter(this, (item, index, list) => _.every(tests, test => {
         if (_.isFunction(test))
-          return test(...args);
-        else if (_.isObject(args[0]) && _.isFunction(args[0].test))
-          return args[0].test(test);
-      });
+          return test(item, index, list);
+
+        if (_.isObject(item) && _.isFunction(item.test))
+          return item.test(test);
+
+        return test === item;
+      }));
     }
 
+    // Return copy of array
     return this.slice();
   }
 
   // Reactively get the first current item at index
-  findOne(test, index) {
-    if (_.isNumber(test))
-      index = test, test = null;
+  findOne(...args) {
+    // Handle trailing number arguments
+    const tests = _.dropRightWhile(args, _.isNumber);
+    const index = args.slice(tests.length).pop() || 0;
 
-    return this.find(test).slice(index || 0)[0] || null;
+    // Use slice to allow negative indices
+    return this.find(...tests).slice(index)[0] || null;
   }
 
 
@@ -71,14 +77,14 @@ List = class List extends Array {
     check(reference_key, Match.Optional(String));
 
     // Internal list
-    let list = new List;
+    const list = new List;
 
     // Property descriptors
-    let descriptor = {
+    const descriptor = {
       add: { value: list.add.bind(list) },
       remove: { value: list.remove.bind(list) },
       find: { value: list.find.bind(list) },
-      findOne: { value: list.findOne.bind(list) }
+      findOne: { value: list.findOne.bind(list) },
     };
 
     // Possibly add a reference to the internal list

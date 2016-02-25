@@ -1,3 +1,3 @@
 Template.fullTextarea.viewmodel({
-  value: ""
+  value: "",
 });

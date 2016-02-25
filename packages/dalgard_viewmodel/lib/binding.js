@@ -1,5 +1,5 @@
 // Store for binding definitions
-let bindings = new ReactiveMap;
+const bindings = new ReactiveMap;
 
 
 // Class for binding definitions
@@ -19,7 +19,7 @@ Binding = class Binding {
       _definition: { value: definition },
 
       // Configuration options
-      _options: { value: new ReactiveMap(options) }
+      _options: { value: new ReactiveMap(options) },
     });
   }
 
@@ -29,10 +29,14 @@ Binding = class Binding {
     // Ensure type of argument
     check(key, String);
 
-    if (!_.isUndefined(value))
-      this._options.set(key, value);
-    else
+    // Getter
+    if (_.isUndefined(value))
       return this._options.get(key);
+
+    this._elem.set(key, value);
+
+    // Return value if setter
+    return value;
   }
 
   // Get resolve binding definition
@@ -54,18 +58,22 @@ Binding = class Binding {
     // Add name to definition
     def.name = this.name;
 
+    // Convert event types to array
+    if (def.on)
+      def.on = def.on.split(/\s+/g);
+
     // Add options to definition
     _.defaults(def, this._options.all());
 
 
     // Get extends option
-    let exts = this.option("extends");
+    const exts = this.option("extends");
 
     if (exts) {
       check(exts, Match.OneOf(String, [String]));
 
       // Resolve extends
-      let defs = _.isArray(exts)
+      const defs = _.isArray(exts)
         ? _.map(exts, name => Binding.get(name).definition(context, false))
         : [Binding.get(exts).definition(context, false)];
 
@@ -79,7 +87,7 @@ Binding = class Binding {
       defineProperties(def, _.mapValues(def, () => ({
         enumerable: false,
         writable: false,
-        configurable: false
+        configurable: false,
       })));
     }
 
@@ -90,10 +98,12 @@ Binding = class Binding {
 
   // Add binding to the global list
   static add(name, definition, options) {
-    let binding = new Binding(name, definition, options);
+    const binding = new Binding(name, definition, options);
 
     // Add to reactive map
     bindings.set(name, binding);
+
+    return binding;
   }
 
   // Get binding by name

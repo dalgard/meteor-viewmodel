@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.9.4
+dalgard:viewmodel 1.0.0
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -9,7 +9,7 @@ Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:sessi
 - Highly declarative
 - Terse syntax
 
-(5.3 kB minified and gzipped)
+(6.0 kB minified and gzipped)
 
 ### Install
 
@@ -130,7 +130,7 @@ Template.page.viewmodel({
   // Computed property from child viewmodel
   myFieldValue() {
     // Get child viewmodel reactively by name
-    let field = this.child("field");
+    const field = this.child("field");
 
     // Get the value of myValue reactively when the field is rendered
     return field && field.myValue();
@@ -148,7 +148,7 @@ Template.field.viewmodel("field", function (data) {
     // Computed property
     regex() {
       // Get the value of myValue reactively
-      let value = this.myValue();
+      const value = this.myValue();
 
       return new RegExp(value);
     },
@@ -348,73 +348,79 @@ The recommended pattern with this package is to retrieve values from child viewm
 
 Consequently, the `parent`, `ancestor`, and `ancestors` methods should generally be avoided.
 
-The optional `name` argument below can either be a string or regex that will be compared to the name of the viewmodel, or it can be a predicate function, which is called with the viewmodel as its first argument.
+Each method takes a number of `test`s as optional arguments. A test can be either a **predicate function**, a **DOM element**, a **viewmodel**, a **regex**, or a **string**. The latter two are compared with the name of the viewmodel.
 
 If no name is specified for a viewmodel, it is named after its view (e.g. `"Template.example"`).
 
 ```js
-// Reactively get the parent viewmodel, optionally filtered by name
-this.parent([name]);
+// Reactively get a filtered array of child viewmodels
+this.children([...tests]);
 ```
 
 ```js
-// Reactively get a single descendant viewmodel, optionally within a depth,
-// at an index, and filtered by name
-this.ancestor([name][, index=0][, depth]);
+// Reactively get the first child or the child at index in a filtered array of
+// child viewmodels
+this.child([...tests][, index=0]);
 ```
 
 ```js
-// Reactively get an array of ancestor viewmodels, optionally within a depth
-// and filtered by name
-this.ancestors([name][, depth]);
+// Reactively get a filtered array of descendant viewmodels, optionally within
+// a depth
+this.descendants([...tests][, depth]);
 ```
 
 ```js
-// Reactively get a single child viewmodel, optionally at an index
-// and filtered by name
-this.child([name][, index=0]);
+// Reactively get the first descendant or the descendant at index in a filtered
+// array of descendant viewmodels, optionally within a depth
+this.descendant([...tests][, index=0][, depth]);
 ```
 
 ```js
-// Reactively get an array of child viewmodels, optionally filtered by name
-this.children([name]);
+// Reactively get the parent viewmodel filtered by tests
+this.parent([...tests]);
 ```
 
 ```js
-// Reactively get a single descendant viewmodel, optionally within a depth,
-// at an index, and filtered by name
-this.descendant([name][, index=0][, depth]);
+// Reactively get a filtered array of ancestor viewmodels, optionally within
+// a depth
+this.ancestors([...tests][, depth]);
 ```
 
 ```js
-// Reactively get an array of descendant viewmodels, optionally within a depth
-// and filtered by name
-this.descendants([name][, depth]);
+// Reactively get the first ancestor or the ancestor at index in a filtered
+// array of ancestor viewmodels, optionally within a depth
+this.ancestor([...tests][, index=0][, depth]);
 ```
 
 ### Static methods
 
-These methods are mainly for inspection while developing, but may also be used as a more convenient way of retrieving a component in a complex layout.
+The methods below are mainly for inspection while developing, but may also be used as a convenient way of retrieving a far off component in a complex view hierarchy (see previous section).
 
 ```js
-// Reactively get an array of current viewmodels, optionally filtered by name
-ViewModel.find([name]);
+// Reactively get a filtered array of all the current viewmodels on the page
+ViewModel.find([...tests]);
 ```
 
 ```js
-// Reactively get the first current viewmodel at index, optionally at an index
-// and filtered by name
-ViewModel.findOne([name][, index]);
+// Reactively get the first item or the item at index in a filtered array of
+// all the current viewmodels on the page
+ViewModel.findOne([...tests][, index=0]);
 ```
 
-The bound element-binding pairs – referred to as *nexuses*, with a novel term – that currently resides in a view, may be inspected through the view's `nexuses` property (the name can be changed through `ViewModel.nexusesKey`).
+The bound element-binding pairs – referred to as *nexuses*, with a novel term – that currently resides in a view, may be inspected through the view's `nexuses` property (the name of this property can be changed through `ViewModel.nexusesKey`).
 
-To get a list of all nexuses currently active in the page, use the static method below. This method should be considered strictly for debugging purposes.
+To get a list of all the current nexuses on the page, use the static `find` and `findOne` methods on the `ViewModel.Nexus` class, which are equivalent to the methods on `ViewModel`. They are useful for finding and updating a property associated with a specific binding on an element (among other things):
 
 ```js
-// Reactively get an array of current nexuses, optionally filtered by
-// the binding's name
-ViewModel.nexuses([name]);
+// Update viewmodel property
+ViewModel.Nexus.findOne(dom_element, "value").prop("Hello new world");
+```
+
+Lastly, a utility method for finding the closest template instance from a view or DOM element (traversing upwards in the view hierarchy) is available as a static method on `ViewModel`:
+
+```js
+// Get the closest template instance
+ViewModel.templateInstance(view || dom_elem);
 ```
 
 ### Transclude
@@ -483,24 +489,24 @@ ViewModel.addBinding("name", {
   // Run once when the element is rendered, right before the first call to set.
   // Used to initalize things like jQuery plugins. When creating a binding that
   // only contains init and/or dispose, set the "detached" option to true
-  init: function ($elem, init_value) {
+  init: function (elem, init_value) {
     // For example
-    this.instance = $elem.plugin(this.hash.options);
+    this.instance = $(elem).plugin(this.hash.options);
   },
 
   // Apply the original value and new values to the DOM
-  set: function ($elem, new_value) {
+  set: function (elem, new_value) {
     // For example
-    $elem.val(new_value);
+    elem.value = new_value || "";
   },
 
-  // Space separated list of events
+  // Space separated list or array of event types
   on: "keyup input change",
 
   // Get the changed value from the DOM triggered by events
-  get: function (event, $elem, prop) {
+  get: function (event, elem, prop) {
     // For example
-    return $elem.val();
+    return elem.value;
   },
 
   // Run once when the view that contains the element is destroyed.
@@ -517,17 +523,15 @@ ViewModel.addBinding("name", {
   extends: "superName",
 
   // Omitted in most cases. If true, the binding doesn't use a viewmodel, and
-  // consequently, viewmodels or properties will not be created automatically.
-  // The get and set functions will be called with the view as contex, instead
-  // of a viewmodel.
+  // consequently, viewmodels or properties will not be created automatically
   detached: false
 });
 ```
 
 The parameters used for `init`, `set`, `get`, and `dispose` are:
 
-- `event`  –  the original (jQuery) event object.
-- `$elem`  –  the element that the `{{bind}}` helper was called on, wrapped in jQuery.
+- `event`  –  the original event object.
+- `elem`  –  the DOM element that the `{{bind}}` helper was called on.
 - `init_value`/`new_value`  –  the new value that was passed to the property.
 - `prop`  –  the property on the viewmodel, if available.
 
@@ -552,8 +556,8 @@ ViewModel.addBinding("enterKey", {
   on: "keyup",
 
   // This function doesn't return anything but calls the property explicitly instead
-  get(event, $elem, prop) {
-    if (event.which === 13)
+  get(event, elem, prop) {
+    if (event.keyCode === 13)
       // Call prop with these three arguments as standard
       prop(event, this.args, this.hash);
   }
@@ -743,9 +747,9 @@ A method on the viewmodel is run when the specific key, passed as an argument, i
 
 #### Class
 
-This bind expression takes any number of keys, where each key refers to a keyword argument. The name of the keyword argument represents a class name and the truthyness of its value determines whether the class is toggled.
+This bind expression takes a number of keys, where each key refers to a keyword argument. The name of the keyword argument represents a class name and the truthyness of its value determines whether the class is toggled.
 
-If no keys are indicated in the bind expression (the colon is omitted, too), all keyword arguments are used.
+If no keys are indicated in the bind expression (the colon should be omitted, too), all keyword arguments are used.
 
 ```html
 <p {{bind 'class: red large' red=isRed large=true otherArg=''}}></p>
@@ -794,6 +798,7 @@ Pro tip: Choose unique names that can be search-and-replaced globally, when the 
 
 ## History
 
+- 1.0.0  –  jQuery was removed as a dependency; the element passed to bindings is now a plain DOM element. ViewModel class API changes: `ViewModel.nexuses()` → `ViewModel.Nexus.find()` – the `find()` and `findOne()` methods on `ViewModel` and `ViewModel.Nexus` now takes a number of tests as arguments; a test can be either a predicate function, a DOM element, a regex, or a string (an index may still be added as an argument to `findOne`). Added `ViewModel.templateInstance(view || dom_element)` utility method. Viewmodel instance API changes: `vm.isPersisted()`, `vm.restore(hash_id)`, `vm.addChild(vm)`, and `vm.removeChild(vm)` methods now public. Nexus instance API changes: `nexus.getProp()` → `nexus.prop`, `nexus.elem` → `nexus.elem()`, `nexus.setPrevented` → `nexus.isSetPrevented()`, `nexus.inBody()` → `ViewModel.Nexus.isInBody(nexus.elem())`.
 - 0.9.4  –  Added `key` to binding context and improved `hovered` built-in binding.
 - 0.9.3  –  Bug fixes: Corner case with rebinding on dynamic attribute change; don't put viewmodel on built-in templates.
 - 0.9.2  –  API change: `classes` binding is renamed to `class` and changed to take (optionally indicated) keyword arguments as class names and their values as the class' presence. Creating a viewmodel adds existing Blaze template helpers as properties.

@@ -1,3 +1,3 @@
 Template.fullRadio.viewmodel({
-  value: "first"
+  value: "first",
 });

@@ -1,4 +1,4 @@
 Template.fullDisabled.viewmodel({
   disabled: false,
-  value: "yo"
+  value: "yo",
 });

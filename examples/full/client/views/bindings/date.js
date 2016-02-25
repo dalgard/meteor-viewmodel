@@ -1,3 +1,3 @@
 Template.fullDate.viewmodel({
-  date: null
+  date: null,
 });

@@ -9,7 +9,7 @@ Template.usageField.viewmodel("field", function (data) {
     // Computed property
     regex() {
       // Get the value of myValue reactively
-      let value = this.myValue();
+      const value = this.myValue();
 
       return new RegExp(value);
     },
@@ -19,6 +19,6 @@ Template.usageField.viewmodel("field", function (data) {
     autorun() {
       // Log every time the computed regex property changes
       console.log("New value of regex:", this.regex());
-    }
+    },
   };
 });
