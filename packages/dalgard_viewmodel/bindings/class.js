@@ -1,5 +1,5 @@
 ViewModel.addBinding("class", {
-  set($elem) {
+  set(elem) {
     let classes = this.hash;
 
     // Keyword arguments must be present
@@ -8,10 +8,10 @@ ViewModel.addBinding("class", {
       if (this.args.length)
         classes = _.pick(classes, this.args);
 
-      _.each(classes, (value, class_name) => $elem.toggleClass(class_name, value || false));
+      _.each(classes, (value, name) => (value ? addClass(elem, name) : removeClass(elem, name)));
     }
-  }
+  },
 }, {
   // This binding doesn't need a viewmodel
-  detached: true
+  detached: true,
 });
