@@ -78,15 +78,19 @@ Property = class Property {
 
   // Reactive accessor function bound to property instance
   accessor(value) {
+    // Getter
     if (_.isUndefined(value))
       return this.get();
-    else
-      this.set(value);
+
+    this.set(value);
+
+    // Return value if setter
+    return value;
   }
 
   // Get the value of the property nonreactively
   nonreactive(...args) {
-    let accessor = this.accessor.bind(this, ...args);
+    const accessor = this.accessor.bind(this, ...args);
 
     return Tracker.nonreactive(accessor);
   }
