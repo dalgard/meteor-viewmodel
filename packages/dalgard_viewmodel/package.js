@@ -1,6 +1,6 @@
 Package.describe({
   name: "dalgard:viewmodel",
-  version: "0.9.4",
+  version: "1.0.0",
   summary: "Minimalist VM for Meteor",
   git: "https://github.com/dalgard/meteor-viewmodel",
   documentation: "../../README.md",

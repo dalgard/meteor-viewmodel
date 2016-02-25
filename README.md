@@ -1,4 +1,4 @@
-dalgard:viewmodel 0.9.4
+dalgard:viewmodel 1.0.0
 =======================
 
 Minimalist VM for Meteor – inspired by `manuel:viewmodel` and `nikhizzle:session-bind`.
@@ -798,7 +798,7 @@ Pro tip: Choose unique names that can be search-and-replaced globally, when the 
 
 ## History
 
-- 1.0.0-rc  –  jQuery was removed as a dependency; the element passed to bindings is now a plain DOM element. ViewModel class API changes: `ViewModel.nexuses()` → `ViewModel.Nexus.find()` – the `find()` and `findOne()` methods on `ViewModel` and `ViewModel.Nexus` now takes a number of tests as arguments; a test can be either a predicate function, a DOM element, a regex, or a string (an index may still be added as an argument to `findOne`). Added `ViewModel.templateInstance(view || dom_element)` utility method. Viewmodel instance API changes: `vm.isPersisted()`, `vm.restore(hash_id)`, `vm.addChild(vm)`, and `vm.removeChild(vm)` methods now public. Nexus instance API changes: `nexus.getProp()` → `nexus.prop`, `nexus.elem` → `nexus.elem()`, `nexus.setPrevented` → `nexus.isSetPrevented()`, `nexus.inBody()` → `ViewModel.Nexus.isInBody(nexus.elem())`.
+- 1.0.0  –  jQuery was removed as a dependency; the element passed to bindings is now a plain DOM element. ViewModel class API changes: `ViewModel.nexuses()` → `ViewModel.Nexus.find()` – the `find()` and `findOne()` methods on `ViewModel` and `ViewModel.Nexus` now takes a number of tests as arguments; a test can be either a predicate function, a DOM element, a regex, or a string (an index may still be added as an argument to `findOne`). Added `ViewModel.templateInstance(view || dom_element)` utility method. Viewmodel instance API changes: `vm.isPersisted()`, `vm.restore(hash_id)`, `vm.addChild(vm)`, and `vm.removeChild(vm)` methods now public. Nexus instance API changes: `nexus.getProp()` → `nexus.prop`, `nexus.elem` → `nexus.elem()`, `nexus.setPrevented` → `nexus.isSetPrevented()`, `nexus.inBody()` → `ViewModel.Nexus.isInBody(nexus.elem())`.
 - 0.9.4  –  Added `key` to binding context and improved `hovered` built-in binding.
 - 0.9.3  –  Bug fixes: Corner case with rebinding on dynamic attribute change; don't put viewmodel on built-in templates.
 - 0.9.2  –  API change: `classes` binding is renamed to `class` and changed to take (optionally indicated) keyword arguments as class names and their values as the class' presence. Creating a viewmodel adds existing Blaze template helpers as properties.

@@ -15,7 +15,7 @@ dalgard:get-helper-reactively@0.1.0
 dalgard:jade@0.5.4_1
 dalgard:jade-compiler@0.5.4_1
 dalgard:reactive-map@0.1.0_3
-dalgard:viewmodel@0.9.4
+dalgard:viewmodel@1.0.0
 ddp@1.2.2
 ddp-client@1.2.1
 ddp-common@1.2.2
