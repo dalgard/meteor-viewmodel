@@ -12,9 +12,15 @@ defineProperties = function (obj, props) {
 
 // Get closest template instance for view
 templateInstance = function (view) {
-  do if (view.template && view.name !== "(contentBlock)" && view.name !== "Template.__dynamic" && view.name !== "Template.__dynamicWithDataContext")
-    return view.templateInstance();
-  while (view = view.parentView);
+  // A DOM element may be passed instead of a view
+  if (_.isElement(view))
+    view = Blaze.getView(view);
+
+  if (view) {
+    do if (view.template && view.name !== "(contentBlock)" && view.name !== "Template.__dynamic" && view.name !== "Template.__dynamicWithDataContext")
+      return view.templateInstance();
+    while (view = view.parentView);
+  }
 
   return null;
 };
