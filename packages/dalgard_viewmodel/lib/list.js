@@ -39,28 +39,34 @@ List = class List extends Array {
 
 
   // Reactively get an array of matching items
-  find(test) {
+  find(...tests) {
     this.dep.depend();
 
     // Possibly remove items failing test
-    if (test) {
-      return _.filter(this, (...args) => {
+    if (tests.length) {
+      return _.filter(this, (item, index, list) => _.every(tests, test => {
         if (_.isFunction(test))
-          return test(...args);
-        else if (_.isObject(args[0]) && _.isFunction(args[0].test))
-          return args[0].test(test);
-      });
+          return test(item, index, list);
+
+        if (_.isObject(item) && _.isFunction(item.test))
+          return item.test(test);
+
+        return test === item;
+      }));
     }
 
+    // Return copy of array
     return this.slice();
   }
 
   // Reactively get the first current item at index
-  findOne(test, index) {
-    if (_.isNumber(test))
-      index = test, test = null;
+  findOne(...args) {
+    // Handle trailing number arguments
+    const tests = _.dropRightWhile(args, _.isNumber);
+    const index = args.slice(tests.length).pop() || 0;
 
-    return this.find(test).slice(index || 0)[0] || null;
+    // Use slice to allow negative indices
+    return this.find(...tests).slice(index)[0] || null;
   }
 
 

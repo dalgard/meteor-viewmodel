@@ -20,20 +20,32 @@ Base = class Base {
     // Ensure type of argument
     check(name, Match.Optional(String));
 
-    if (_.isString(name))
-      this._name.set(name);
-    else
+    // Getter
+    if (_.isUndefined(name))
       return this._name.get();
+
+    this._name.set(name);
+
+    // Return name if setter
+    return name;
   }
 
-  // Test the name of this instance with a regex or string
+  // Test this instance
   test(test) {
+    // Predicate function
     if (_.isFunction(test))
       return test(this);
-    else if (_.isRegExp(test))
+
+    // Test regex with name
+    if (_.isRegExp(test))
       return test.test(this.name());
 
-    return test === this.name();
+    // Compare with name
+    if (_.isString(test))
+      return test === this.name();
+
+    // Compare with instance
+    return test === this;
   }
 
 
