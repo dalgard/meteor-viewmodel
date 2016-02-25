@@ -1,4 +1,4 @@
 Template.fullChecked.viewmodel({
   checked: false,
-  value: "yo"
+  value: "yo",
 });

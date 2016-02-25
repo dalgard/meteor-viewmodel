@@ -1,5 +1,5 @@
 // Store for binding definitions
-let bindings = new ReactiveMap;
+const bindings = new ReactiveMap;
 
 
 // Class for binding definitions
@@ -19,7 +19,7 @@ Binding = class Binding {
       _definition: { value: definition },
 
       // Configuration options
-      _options: { value: new ReactiveMap(options) }
+      _options: { value: new ReactiveMap(options) },
     });
   }
 
@@ -79,7 +79,7 @@ Binding = class Binding {
       defineProperties(def, _.mapValues(def, () => ({
         enumerable: false,
         writable: false,
-        configurable: false
+        configurable: false,
       })));
     }
 

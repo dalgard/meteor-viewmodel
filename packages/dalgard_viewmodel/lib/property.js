@@ -5,8 +5,8 @@ Property = class Property {
     check(vm, ViewModel);
     check(key, String);
 
-    let is_primitive = !_.isFunction(init_value),
-        accessor = is_primitive ? this.accessor.bind(this) : init_value.bind(vm);
+    const is_primitive = !_.isFunction(init_value);
+    const accessor = is_primitive ? this.accessor.bind(this) : init_value.bind(vm);
 
 
     // Static properties on property instance
@@ -21,7 +21,7 @@ Property = class Property {
       value: { value: new ReactiveVar },
 
       // Bound accessor method
-      accessor: { value: accessor }
+      accessor: { value: accessor },
     });
 
 
@@ -37,7 +37,7 @@ Property = class Property {
       reset: { value: this.reset.bind(this) },
 
       // Nonreactive accessor
-      nonreactive: { value: this.nonreactive.bind(this) }
+      nonreactive: { value: this.nonreactive.bind(this) },
     });
     
 
@@ -62,7 +62,7 @@ Property = class Property {
 
     // Write to other viewmodels if shared
     if (share && this.viewmodel.option("share")) {
-      let shared = ViewModel.find(vm => vm._id === this.viewmodel._id);
+      const shared = ViewModel.find(vm => vm._id === this.viewmodel._id);
 
       _.each(shared, vm => vm[this.key].set(value, false));
     }
@@ -95,8 +95,8 @@ Property = class Property {
   // Factory for Blaze property helpers bound to a key
   static helper(key) {
     // Helper function
-    let helper = function (...args) {
-      let vm = ViewModel.ensureViewmodel(Blaze.getView(), key);
+    const helper = function (...args) {
+      const vm = ViewModel.ensureViewmodel(Blaze.getView(), key);
 
       return vm[key](...args);
     };

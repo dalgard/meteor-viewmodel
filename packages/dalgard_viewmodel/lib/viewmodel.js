@@ -8,7 +8,7 @@ let is_hcp = true;
 let is_global = false;
 
 // ReactiveDict for persistence after hot code push and across re-rendering
-let persist = new ReactiveDict("dalgard:viewmodel");
+const persist = new ReactiveDict("dalgard:viewmodel");
 
 
 // Exported class for viewmodels
@@ -32,10 +32,10 @@ ViewModel = class ViewModel extends Base {
       _id: { value: id },
 
       // List of child viewmodels
-      _children: { value: new ReactiveVar([]) },
+      _children: { value: new List },
 
       // Configuration options
-      _options: { value: new ReactiveMap(options) }
+      _options: { value: new ReactiveMap(options) },
     });
 
     // Attach to template instance
@@ -169,7 +169,7 @@ ViewModel = class ViewModel extends Base {
       data: { value: this.getData() },
 
       // Arguments for binding
-      args: { value: args }
+      args: { value: args },
     });
 
     // Create binding nexus
@@ -417,7 +417,7 @@ ViewModel = class ViewModel extends Base {
     // Ensure type of argument
     check(maps, Array);
 
-    let viewmodels = this.find(name);
+    const viewmodels = this.find(name);
 
     _.each(viewmodels, (vm, index) => vm.deserialize(maps[index]));
   }
@@ -429,8 +429,9 @@ ViewModel = class ViewModel extends Base {
     check(view, Blaze.View);
     check(key, Match.Optional(String));
 
-    let template_instance = templateInstance(view),
-        vm = template_instance[ViewModel.viewmodelKey];
+    const template_instance = templateInstance(view);
+
+    let vm = template_instance[ViewModel.viewmodelKey];
 
     // Possibly create new viewmodel instance on view
     if (!(vm instanceof ViewModel))
@@ -439,7 +440,7 @@ ViewModel = class ViewModel extends Base {
     // Possibly create missing property on viewmodel
     if (_.isString(key) && !_.isFunction(vm[key])) {
       // Initialize as undefined
-      let definition = _.zipObject([key]);
+      const definition = _.zipObject([key]);
 
       vm.addProps(definition);
     }
@@ -449,10 +450,14 @@ ViewModel = class ViewModel extends Base {
 
   // The {{bind}} Blaze helper
   static bindHelper(...args) {
-    let view = Blaze.getView(),
-        data = Blaze.getData(),
-        hash = args.pop(),  // Keyword arguments
-        bind_exps = [];
+    const view = Blaze.getView();
+    const data = Blaze.getData();
+
+    // Unique bind id for current element
+    const bind_id = ViewModel.uid();
+
+    let hash = args.pop();  // Keyword arguments
+    let bind_exps = [];
 
     // Possibly use hash of Spacebars keywords arguments object
     if (hash instanceof Spacebars.kw)
@@ -483,7 +488,7 @@ ViewModel = class ViewModel extends Base {
         args: { value: args },
 
         // Hash object of Spacebars keyword arguments
-        hash: { value: hash }
+        hash: { value: hash },
       });
 
       // Create binding nexus
@@ -528,27 +533,29 @@ ViewModel = class ViewModel extends Base {
 
 
     // Give all instances of this viewmodel the same id (used when sharing state)
-    let id = ViewModel.uid();
+    const id = ViewModel.uid();
 
     // Create viewmodel instance – a function is added to the template's onCreated
     // hook, wherein a viewmodel instance is created on the view with the properties
     // from the definition object
     this.onCreated(function () {
-      let template = this.view.template;
+      const template = this.view.template;
 
       // If the helper hasn't been registered globally
       if (!is_global) {
         // Register the Blaze bind helper on this template
         template.helpers({
-          [ViewModel.helperName]: ViewModel.bindHelper
+          [ViewModel.helperName]: ViewModel.bindHelper,
         });
       }
 
-      let vm = this[ViewModel.viewmodelKey];
+
+      // Check existing viewmodel on template instance
+      const vm = this[ViewModel.viewmodelKey];
 
       // Create new viewmodel instance on view or add properties to existing viewmodel
       if (!(vm instanceof ViewModel)) {
-        vm = new ViewModel(this.view, name, id, definition, options);
+        new ViewModel(this.view, name, id, definition, options);
       }
       else {
         if (name !== this.viewName)

@@ -3,7 +3,7 @@ Package.describe({
   version: "0.9.4",
   summary: "Minimalist VM for Meteor",
   git: "https://github.com/dalgard/meteor-viewmodel",
-  documentation: "../../README.md"
+  documentation: "../../README.md",
 });
 
 Package.onUse(function (api) {
@@ -17,13 +17,12 @@ Package.onUse(function (api) {
     "check",
     "blaze",
     "templating",
-    "jquery",
     "tracker",
     "ejson",
     "reactive-var",
     "reactive-dict",
     "stevezhu:lodash@3.10.1",
-    "dalgard:reactive-map@0.1.0"
+    "dalgard:reactive-map@0.1.0",
   ], "client");
 
   api.addFiles([
@@ -33,7 +32,7 @@ Package.onUse(function (api) {
     "lib/binding.js",
     "lib/property.js",
     "lib/nexus.js",
-    "lib/viewmodel.js"
+    "lib/viewmodel.js",
   ], "client");
 
   api.addFiles([
@@ -50,7 +49,7 @@ Package.onUse(function (api) {
     "bindings/radio.js",
     "bindings/submit.js",
     "bindings/toggle.js",
-    "bindings/value.js"
+    "bindings/value.js",
   ], "client");
 
   api.export("ViewModel", "client");

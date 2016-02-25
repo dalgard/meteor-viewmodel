@@ -3,7 +3,7 @@ Template.full.viewmodel({
 
   childValue() {
     // Get child viewmodel reactively
-    let child = this.child("value");
+    const child = this.child("value");
 
     // Child may not be ready when this value is used
     if (child)
@@ -11,9 +11,12 @@ Template.full.viewmodel({
   },
 
   autorun() {
-    let child = this.child("value");
+    const child = this.child("value");
 
     if (child)
       console.log("page autorun", child.value());
-  }
-}, { persist: true });  // Persist this viewmodel and descendant viewmodels across re-rendering
+  },
+}, {
+  // Persist this viewmodel and descendant viewmodels across re-rendering
+  persist: true,
+});

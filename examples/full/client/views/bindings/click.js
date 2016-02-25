@@ -3,5 +3,5 @@ Template.fullClick.viewmodel({
 
   click() {
     this.clicked(true);
-  }
+  },
 });

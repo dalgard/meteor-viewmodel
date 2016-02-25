@@ -1,3 +1,3 @@
 Template.fullThrottled.viewmodel({
-  value: ""
+  value: "",
 });

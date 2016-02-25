@@ -10,7 +10,7 @@ Base = class Base {
       view: { value: view },
 
       // Instance name
-      _name: { value: new ReactiveVar(name) }
+      _name: { value: new ReactiveVar(name) },
     });
   }
 
@@ -45,7 +45,7 @@ Base = class Base {
     // Bind callback to context
     callback = callback.bind(this);
 
-    let view = this.view;
+    const view = this.view;
 
     if (view.isRendered) {
       if (!view.isDestroyed) {
@@ -69,7 +69,7 @@ Base = class Base {
     // Bind callback to context
     callback = callback.bind(this);
 
-    let view = this.view;
+    const view = this.view;
 
     // Wait until the view is rendered and after flush
     this.onReady(function () {
@@ -110,7 +110,7 @@ Base = class Base {
     // Bind callback to context
     callback = callback.bind(this);
 
-    let computation = Tracker.currentComputation;
+    const computation = Tracker.currentComputation;
 
     if (computation)
       computation.onInvalidate(callback);

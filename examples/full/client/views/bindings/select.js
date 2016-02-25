@@ -1,3 +1,3 @@
 Template.fullSelect.viewmodel({
-  value: ""
+  value: "",
 });

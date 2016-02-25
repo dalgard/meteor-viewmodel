@@ -1,3 +1,3 @@
 ViewModel.addBinding("click", {
-  on: "click"
+  on: "click",
 });

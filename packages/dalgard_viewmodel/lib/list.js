@@ -5,7 +5,7 @@ List = class List extends Array {
 
     // Add dependency to list
     defineProperties(this, {
-      dep: { value: new Tracker.Dependency }
+      dep: { value: new Tracker.Dependency },
     });
   }
 
@@ -22,8 +22,8 @@ List = class List extends Array {
     let result = false;
 
     _.each(items, item => {
-      let index = this.indexOf(item),
-          is_found = !!~index;
+      const index = this.indexOf(item);
+      const is_found = !!~index;
 
       if (is_found) {
         this.splice(index, 1);
@@ -71,14 +71,14 @@ List = class List extends Array {
     check(reference_key, Match.Optional(String));
 
     // Internal list
-    let list = new List;
+    const list = new List;
 
     // Property descriptors
-    let descriptor = {
+    const descriptor = {
       add: { value: list.add.bind(list) },
       remove: { value: list.remove.bind(list) },
       find: { value: list.find.bind(list) },
-      findOne: { value: list.findOne.bind(list) }
+      findOne: { value: list.findOne.bind(list) },
     };
 
     // Possibly add a reference to the internal list
