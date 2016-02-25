@@ -54,18 +54,22 @@ Binding = class Binding {
     // Add name to definition
     def.name = this.name;
 
+    // Convert event types to array
+    if (def.on)
+      def.on = def.on.split(/\s+/g);
+
     // Add options to definition
     _.defaults(def, this._options.all());
 
 
     // Get extends option
-    let exts = this.option("extends");
+    const exts = this.option("extends");
 
     if (exts) {
       check(exts, Match.OneOf(String, [String]));
 
       // Resolve extends
-      let defs = _.isArray(exts)
+      const defs = _.isArray(exts)
         ? _.map(exts, name => Binding.get(name).definition(context, false))
         : [Binding.get(exts).definition(context, false)];
 
