@@ -10,8 +10,23 @@ Nexus = class Nexus extends Base {
     if (_.isString(binding))
       binding = Binding.get(binding);
 
-    let is_detached = binding.option("detached"),
-        key;
+    const is_detached = binding.option("detached");
+
+    let key = null;
+    let vm = null;
+    let prop = null;
+    
+    // Possibly get key
+    if (!is_detached && _.isArray(context.args) && _.isString(context.args[0]))
+      key = context.args[0];
+
+    // Possibly ensure existence of a viewmodel
+    if (!is_detached && !(context.viewmodel instanceof ViewModel))
+      vm = ViewModel.ensureViewmodel(view, key);
+
+    // Possibly get viewmodel property
+    if (vm && !_.isUndefined(key) && _.isFunction(vm[key]))
+      prop = vm[key];
 
 
     // Call constructor of Base
@@ -20,29 +35,6 @@ Nexus = class Nexus extends Base {
     // Possibly create nexuses list
     if (!(this.view[ViewModel.nexusesKey] instanceof List))
       this.view[ViewModel.nexusesKey] = new List;
-
-
-    // Static properties on nexus instance
-    defineProperties(this, {
-      // Element selector
-      selector: { value: selector },
-
-      // Calling context of bind
-      context: { value: context },
-
-      // Whether to run the set function when updating
-      setPrevented: { value: null, writable: true }
-    });
-
-    // Possibly add key to nexus
-    if (!is_detached && _.isArray(context.args) && _.isString(context.args[0])) {
-      key = context.args[0];
-
-      defineProperties(context, {
-        // Viewmodel key
-        key: { value: key }
-      });
-    }
 
 
     // Static properties on context object
@@ -54,24 +46,35 @@ Nexus = class Nexus extends Base {
       templateInstance: { value: templateInstance(view) },
 
       // Method bound to instance
-      preventSet: { value: this.preventSet.bind(this) }
+      preventSet: { value: this.preventSet.bind(this) },
+
+      // Viewmodel key
+      key: { value: key },
+
+      // Reference to viewmodel
+      viewmodel: { value: vm },
     });
 
-    // Possibly ensure existence of a viewmodel
-    if (!is_detached && !(context.viewmodel instanceof ViewModel)) {
-      let vm = ViewModel.ensureViewmodel(view, key);
-      
-      defineProperties(context, {
-        // Reference to viewmodel
-        viewmodel: { value: vm }
-      });
-    }
 
-
-    // Add binding resolved with context
+    // Static properties on nexus instance
     defineProperties(this, {
-      // Binding definition
-      binding: { value: binding.definition(this.context) }
+      // Element selector
+      selector: { value: selector },
+
+      // Calling context of bind
+      context: { value: context },
+
+      // Binding definition resolved with context
+      binding: { value: binding.definition(context) },
+
+      // Viewmodel property
+      prop: { value: prop },
+
+      // Bound DOM element
+      _elem: { value: new ReactiveVar(null) },
+
+      // Whether to run the set function when updating
+      _isSetPrevented: { value: new ReactiveVar(null) },
     });
 
 
@@ -90,65 +93,94 @@ Nexus = class Nexus extends Base {
   }
 
 
-  // Get viewmodel property
-  getProp() {
-    let vm = this.context.viewmodel,
-        has_prop = vm && !_.isUndefined(this.context.key) && _.isFunction(vm[this.context.key]);
+  // Reactively get or set the bound DOM element
+  elem(elem) {
+    // Ensure type of argument
+    check(elem, Match.Optional(Match.Where(_.isElement)));
 
-    return has_prop ? vm[this.context.key] : null;
+    // Getter
+    if (_.isUndefined(elem))
+      return this._elem.get();
+
+    this._elem.set(elem);
+
+    // Return element if setter
+    return elem;
   }
 
-  // Whether the element is present in the document body
-  inBody() {
-    return document.body.contains(this.elem);
+  // Test the element of this instance or delegate to super
+  test(test) {
+    // Compare with element
+    if (_.isElement(test))
+      return test === this.elem();
+    
+    return super(test);
   }
+
+
+  // Reactively get or set whether to run the set function when updating
+  isSetPrevented(is_set_prevented) {
+    // Ensure type of argument
+    check(is_set_prevented, Match.Optional(Match.OneOf(Boolean, null)));
+
+    // Getter
+    if (_.isUndefined(is_set_prevented))
+      return this._isSetPrevented.get();
+
+    this._isSetPrevented.set(is_set_prevented);
+
+    // Return is_set_prevented if setter
+    return is_set_prevented;
+  }
+
+  // Change prevented state of nexus
+  preventSet(state = true) {
+    // Ensure type of argument
+    check(state, Match.OneOf(Boolean, null));
+
+    this.isSetPrevented(state);
+  }
+
 
   // Bind element
   bind() {
-    let $elem = $(this.elem || this.selector);
+    const binding = this.binding;
+    const prop = this.prop;
 
-    if (!this.elem) {
-      // Save element on nexus
-      defineProperties(this, {
-        elem: { value: $elem[0] }
-      });
-    }
+    // Get element (possibly set)
+    const elem = this.elem() || this.elem(document.querySelector(this.selector));
 
     // Don't bind if element is no longer present
-    if (!this.inBody())
+    if (!Nexus.isInBody(elem))
       return false;
-
-
-    let binding = this.binding,
-        prop = this.getProp();
 
 
     if (binding.init) {
       // Ensure type of definition property
       check(binding.init, Function);
 
-      let init_value = prop && prop();
+      const init_value = prop && prop();
 
       // Run init function immediately
-      binding.init.call(this.context, $elem, init_value);
+      binding.init.call(this.context, elem, init_value);
     }
 
 
     if (binding.on) {
       // Ensure type of definition property
-      check(binding.on, String);
+      check(binding.on, Array);
 
-      let listener = event => {
+      const listener = event => {
         if (binding.get) {
           // Ensure type of definition property
           check(binding.get, Function);
 
-          let result = binding.get.call(this.context, event, $elem, prop);
+          const result = binding.get.call(this.context, event, elem, prop);
 
           // Call property if get returned a value other than undefined
           if (prop && !_.isUndefined(result)) {
             // Don't trigger set function from updating property
-            if (this.setPrevented !== false)
+            if (this.isSetPrevented() !== false)
               this.preventSet();
 
             prop.call(this.context.viewmodel, result);
@@ -165,11 +197,11 @@ Nexus = class Nexus extends Base {
 
       // Save listener for unbind
       defineProperties(this, {
-        listener: { value: listener }
+        listener: { value: listener },
       });
 
-      // Register event listener
-      $elem.on(binding.on, listener);
+      // Register event listeners
+      _.each(binding.on, type => elem.addEventListener(type, listener));
     }
 
 
@@ -182,14 +214,14 @@ Nexus = class Nexus extends Base {
         if (comp.firstRun) {
           // Save computation for unbind
           defineProperties(this, {
-            comp: { value: comp }
+            comp: { value: comp },
           });
         }
 
-        let new_value = prop && prop();
+        const new_value = prop && prop();
 
-        if (!this.setPrevented)
-          binding.set.call(this.context, $elem, new_value);
+        if (!this.isSetPrevented())
+          binding.set.call(this.context, elem, new_value);
       });
     }
 
@@ -204,16 +236,19 @@ Nexus = class Nexus extends Base {
   }
 
   // Unbind element
-  unbind(do_unbind = this.view.isDestroyed || !this.inBody()) {
+  unbind(do_unbind = this.view.isDestroyed || !Nexus.isInBody(this.elem())) {
     // Unbind elements that are no longer part of the DOM
     if (do_unbind) {
-      let binding = this.binding,
-          prop = this.getProp();
+      const binding = this.binding;
+      const prop = this.prop;
 
 
       // Possibly unregister event listener
-      if (this.listener)
-        $(this.elem).off(binding.on, this.listener);
+      if (this.listener) {
+        const elem = this.elem();
+
+        _.each(binding.on, type => elem.removeEventListener(type, this.listener));
+      }
 
       // Possibly stop set autorun
       if (this.comp)
@@ -240,14 +275,12 @@ Nexus = class Nexus extends Base {
   }
 
 
-  // Change prevented state of nexus
-  preventSet(state = true) {
-    // Ensure type of argument
-    check(state, Match.OneOf(Boolean, null));
-
-    this.setPrevented = state;
+  // Whether an element is present in the document body
+  static isInBody(elem) {
+    // Using the DOM contains method
+    return document.body.contains(elem);
   }
 };
 
-// Decorate Nexus class with list methods operating on an internal list
+// Decorate Nexus class with static list methods operating on an internal list
 List.decorate(Nexus);

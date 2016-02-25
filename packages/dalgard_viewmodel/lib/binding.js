@@ -29,10 +29,14 @@ Binding = class Binding {
     // Ensure type of argument
     check(key, String);
 
-    if (!_.isUndefined(value))
-      this._options.set(key, value);
-    else
+    // Getter
+    if (_.isUndefined(value))
       return this._options.get(key);
+
+    this._elem.set(key, value);
+
+    // Return value if setter
+    return value;
   }
 
   // Get resolve binding definition
@@ -94,10 +98,12 @@ Binding = class Binding {
 
   // Add binding to the global list
   static add(name, definition, options) {
-    let binding = new Binding(name, definition, options);
+    const binding = new Binding(name, definition, options);
 
     // Add to reactive map
     bindings.set(name, binding);
+
+    return binding;
   }
 
   // Get binding by name
