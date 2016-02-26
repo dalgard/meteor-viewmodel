@@ -1,4 +1,4 @@
-dalgard:viewmodel 1.0.0
+dalgard:viewmodel 1.0.1
 =======================
 
 <br>
@@ -171,7 +171,7 @@ Template.field.viewmodel("field", function (data) {
 });
 ```
 
-When a viewmodel is created on a template – either implicitly or explicitly – existing Blaze helpers on the template become properties of the viewmodel. The helpers preserve their their normal context and arguments when called.
+When a viewmodel is created on a template – either implicitly or explicitly – existing Blaze helpers on the template become properties of the viewmodel. The helpers preserve their normal context and arguments when called.
 
 The viewmodel of a template instance may be accessed inside lifetime hooks, helpers, and events, through the `viewmodel` property on the template instance:
 
@@ -734,11 +734,11 @@ Delaying the leave state is especially useful for not immediately closing a hove
 A method on the viewmodel is run when the enter key is pressed on the element.
 
 ```html
-<input type="text" {{bind 'enterKey: pressed'}}>
+<input type="text" {{bind 'enterKey: press'}}>
 ```
 
 ```js
-{ pressed(event, args, hash) { ... } }
+{ press(event, args, hash) { ... } }
 ```
 
 #### Key (keyCode)
@@ -746,11 +746,11 @@ A method on the viewmodel is run when the enter key is pressed on the element.
 A method on the viewmodel is run when the specific key, passed as an argument, is pressed on the element. In the example, it's the shift key.
 
 ```html
-<input type="text" {{bind 'key: pressed 16'}}>
+<input type="text" {{bind 'key: press 16'}}>
 ```
 
 ```js
-{ pressed(event, args, hash) { ... } }
+{ press(event, args, hash) { ... } }
 ```
 
 #### Class
@@ -806,11 +806,12 @@ Pro tip: Choose unique names that can be search-and-replaced globally, when the 
 
 ## History
 
+- 1.0.1  –  Fixed passing event types as an array in binding definition.
 - 1.0.0  –  jQuery was removed as a dependency; consequently, elements and events are no longer wrapped in jQuery. ViewModel class API changes: `ViewModel.nexuses()` → `ViewModel.Nexus.find()`. The `find()` and `findOne()` methods on `ViewModel` and `ViewModel.Nexus`, together with all the traversal methods, now take a number of tests as arguments (besides the usual index and depth arguments, in some cases); a test can be either a predicate function, a DOM element, a viewmodel, a regex, or a string. Added `ViewModel.templateInstance(view || dom_element)` utility method. Viewmodel instance API changes: `vm.isPersisted()`, `vm.restore(hash_id)`, `vm.addChild(vm)`, and `vm.removeChild(vm)` methods now public. Nexus instance API changes: `nexus.getProp()` → `nexus.prop`, `nexus.elem` → `nexus.elem()`, `nexus.setPrevented` → `nexus.isSetPrevented()`, `nexus.inBody()` → `ViewModel.Nexus.isInBody(nexus.elem())`.
 - 0.9.4  –  Added `key` to binding context and improved `hovered` built-in binding.
 - 0.9.3  –  Bug fixes: Corner case with rebinding on dynamic attribute change; don't put viewmodel on built-in templates.
 - 0.9.2  –  API change: `classes` binding is renamed to `class` and changed to take (optionally indicated) keyword arguments as class names and their values as the class' presence. Creating a viewmodel adds existing Blaze template helpers as properties.
-- 0.9.1  –  API change: `uniqueId` renamed to `uid`, `bindings` renamed to `nexuses`. Global list of binding nexuses can be inspected through `ViewModel.nexuses([name])`. Fixed bug: Using a predicate with traversal methods was temporarily broken. Updated Jade example to `dalgard:jade` 0.5.0.
+- 0.9.1  –  API change: `uniqueId` renamed to `uid`, `bindings` renamed to `nexuses`. Global list of binding nexuses can be inspected through `ViewModel.nexuses([name])`. Fixed bug: Using a predicate with traversal methods was temporarily broken. Updated Jade example to `dalgard:jade@0.5.0`.
 - 0.9.0  –  Major refactoring. API change: Signatures and context of the functions in bindings is changed, and `extends` and `detached` are moved to an options object. Viewmodel methods have access to an internal reactive variable. Bound element-binding pairs (termed "nexuses") in a view can be inspected through the view's `bindings` property. Pikaday supports keyboard arrows up/down.
 - 0.8.3  –  Don't trigger `set` on normal updates in bindings, i.e. with a return value from `get`.
 - 0.8.2  –  If no name is specified for a viewmodel, it is named after its view
