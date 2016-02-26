@@ -1,11 +1,11 @@
 dalgard:viewmodel 1.0.1
 =======================
-
 <br>
+
 > **Version `1.0.0` has been released** after an extended period without issues.
-
+> 
 > The new version should be compatible with the previous version `0.9.4`, except that jQuery has been removed as a dependency, meaning that elements and events are no longer wrapped in jQuery.
-
+> 
 > See the [History](#history) section for more info.
 
 <br>
@@ -497,13 +497,13 @@ ViewModel.addBinding("name", {
   // Run once when the element is rendered, right before the first call to set.
   // Used to initalize things like jQuery plugins. When creating a binding that
   // only contains init and/or dispose, set the "detached" option to true
-  init: function (elem, init_value) {
+  init(elem, init_value) {
     // For example
     this.instance = $(elem).plugin(this.hash.options);
   },
 
   // Apply the original value and new values to the DOM
-  set: function (elem, new_value) {
+  set(elem, new_value) {
     // For example
     elem.value = new_value || "";
   },
@@ -512,14 +512,14 @@ ViewModel.addBinding("name", {
   on: "keyup input change",
 
   // Get the changed value from the DOM triggered by events
-  get: function (event, elem, prop) {
+  get(event, elem, prop) {
     // For example
     return elem.value;
   },
 
   // Run once when the view that contains the element is destroyed.
   // Used to tear down things like jQuery plugins.
-  dispose: function (prop) {
+  dispose(prop) {
     // For example
     this.instance.destroy();
     prop.reset();
