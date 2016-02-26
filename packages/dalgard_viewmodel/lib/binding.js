@@ -59,7 +59,7 @@ Binding = class Binding {
     def.name = this.name;
 
     // Convert event types to array
-    if (def.on)
+    if (_.isString(def.on))
       def.on = def.on.split(/\s+/g);
 
     // Add options to definition
