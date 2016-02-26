@@ -7,7 +7,7 @@ caching-compiler@1.0.0
 caching-html-compiler@1.0.2
 check@1.1.0
 dalgard:reactive-map@0.1.0
-dalgard:viewmodel@1.0.0
+dalgard:viewmodel@1.0.1
 deps@1.0.9
 diff-sequence@1.0.1
 ecmascript@0.1.6
