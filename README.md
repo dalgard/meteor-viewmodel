@@ -806,6 +806,7 @@ Pro tip: Choose unique names that can be search-and-replaced globally, when the 
 
 ## History
 
+- 1.0.2  –  Fixed regression with `this.preventSet()` (inputs with `value` binding constantly moving cursor to end).
 - 1.0.1  –  Fixed passing event types as an array in binding definition.
 - 1.0.0  –  jQuery was removed as a dependency; consequently, elements and events are no longer wrapped in jQuery. ViewModel class API changes: `ViewModel.nexuses()` → `ViewModel.Nexus.find()`. The `find()` and `findOne()` methods on `ViewModel` and `ViewModel.Nexus`, together with all the traversal methods, now take a number of tests as arguments (besides the usual index and depth arguments, in some cases); a test can be either a predicate function, a DOM element, a viewmodel, a regex, or a string. Added `ViewModel.templateInstance(view || dom_element)` utility method. Viewmodel instance API changes: `vm.isPersisted()`, `vm.restore(hash_id)`, `vm.addChild(vm)`, and `vm.removeChild(vm)` methods now public. Nexus instance API changes: `nexus.getProp()` → `nexus.prop`, `nexus.elem` → `nexus.elem()`, `nexus.setPrevented` → `nexus.isSetPrevented()`, `nexus.inBody()` → `ViewModel.Nexus.isInBody(nexus.elem())`.
 - 0.9.4  –  Added `key` to binding context and improved `hovered` built-in binding.
