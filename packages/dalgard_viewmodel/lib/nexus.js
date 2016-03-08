@@ -71,10 +71,10 @@ Nexus = class Nexus extends Base {
       prop: { value: prop },
 
       // Bound DOM element
-      _elem: { value: new ReactiveVar(null) },
+      _elem: { value: null, writable: true },
 
       // Whether to run the set function when updating
-      _isSetPrevented: { value: new ReactiveVar(null) },
+      _isSetPrevented: { value: null, writable: true },
     });
 
 
@@ -93,19 +93,17 @@ Nexus = class Nexus extends Base {
   }
 
 
-  // Reactively get or set the bound DOM element
+  // Get or set the bound DOM element
   elem(elem) {
     // Ensure type of argument
     check(elem, Match.Optional(Match.Where(_.isElement)));
 
     // Getter
     if (_.isUndefined(elem))
-      return this._elem.get();
+      return this._elem;
 
-    this._elem.set(elem);
-
-    // Return element if setter
-    return elem;
+    // Set and return element if setter
+    return this._elem = elem;
   }
 
   // Test the element of this instance or delegate to super
@@ -118,19 +116,17 @@ Nexus = class Nexus extends Base {
   }
 
 
-  // Reactively get or set whether to run the set function when updating
+  // Get or set whether to run the set function when updating
   isSetPrevented(is_set_prevented) {
     // Ensure type of argument
     check(is_set_prevented, Match.Optional(Match.OneOf(Boolean, null)));
 
     // Getter
     if (_.isUndefined(is_set_prevented))
-      return this._isSetPrevented.get();
+      return this._isSetPrevented;
 
-    this._isSetPrevented.set(is_set_prevented);
-
-    // Return is_set_prevented if setter
-    return is_set_prevented;
+    // Set and return is_set_prevented if setter
+    return this._isSetPrevented = is_set_prevented;
   }
 
   // Change prevented state of nexus
