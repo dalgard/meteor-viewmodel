@@ -77,6 +77,7 @@ Nexus = class Nexus extends Base {
       _isSetPrevented: { value: null, writable: true },
     });
 
+    var that = this;
 
     // Unbind element on view refreshed
     this.onRefreshed(this.unbind);
@@ -85,11 +86,27 @@ Nexus = class Nexus extends Base {
     this.onDestroyed(this.unbind);
 
     // Unbind element on computation invalidation
-    this.onInvalidate(() => this.unbind(true));
+    this.onInvalidate(function() {
+      if (that.view.viewModelReady) {
+        that.unbind(true);
 
+        // Set the viewModel to unready
+        view.viewModelReady = false;
+      }
+      else {
+        that.onReady(function () {
+          that.unbind(true)
+        })
+      }
+    });
 
     // Bind element on view ready
-    this.onReady(this.bind);
+    this.onReady(function() {
+      that.bind();
+
+      // Set the viewModel to ready
+      view.viewModelReady = true;
+    });
   }
 
 
@@ -221,7 +238,6 @@ Nexus = class Nexus extends Base {
       });
     }
 
-
     // Add to view list
     this.view[ViewModel.nexusesKey].add(this);
 
@@ -258,7 +274,6 @@ Nexus = class Nexus extends Base {
 
         binding.dispose.call(this.context, prop);
       }
-
 
       // Remove from global list
       Nexus.remove(this);
