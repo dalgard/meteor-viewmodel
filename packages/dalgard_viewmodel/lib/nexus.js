@@ -77,8 +77,6 @@ Nexus = class Nexus extends Base {
       _isSetPrevented: { value: null, writable: true },
     });
 
-    var that = this;
-
     // Unbind element on view refreshed
     this.onRefreshed(this.unbind);
 
@@ -86,23 +84,23 @@ Nexus = class Nexus extends Base {
     this.onDestroyed(this.unbind);
 
     // Unbind element on computation invalidation
-    this.onInvalidate(function() {
-      if (that.view.viewModelReady) {
-        that.unbind(true);
+    this.onInvalidate(() => {
+      if (view.viewModelReady) {
+        this.unbind(true);
 
         // Set the viewModel to unready
         view.viewModelReady = false;
       }
       else {
-        that.onReady(function () {
-          that.unbind(true)
+        this.onReady(function () {
+          this.unbind(true)
         })
       }
     });
 
     // Bind element on view ready
-    this.onReady(function() {
-      that.bind();
+    this.onReady(() => {
+      this.bind();
 
       // Set the viewModel to ready
       view.viewModelReady = true;
