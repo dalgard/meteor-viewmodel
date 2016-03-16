@@ -15,7 +15,7 @@ Nexus = class Nexus extends Base {
     let key = null;
     let vm = null;
     let prop = null;
-    
+
     // Possibly get key
     if (!is_detached && _.isArray(context.args) && _.isString(context.args[0]))
       key = context.args[0];
@@ -77,6 +77,8 @@ Nexus = class Nexus extends Base {
       _isSetPrevented: { value: null, writable: true },
     });
 
+    // Set the viewModel to unready
+    view.viewModelReady = false;
 
     // Unbind element on view refreshed
     this.onRefreshed(this.unbind);
@@ -85,11 +87,26 @@ Nexus = class Nexus extends Base {
     this.onDestroyed(this.unbind);
 
     // Unbind element on computation invalidation
-    this.onInvalidate(() => this.unbind(true));
-
+    this.onInvalidate(() => {
+      // If the onReady bind has fired unbind the element immediately
+      if (view.viewModelReady) {
+      this.unbind(true);
+    }
+    // Else add the unbind function to the onReady handler (to be executed after the onReady bind)
+  else {
+      this.onReady(function () {
+        this.unbind(true)
+      })
+    }
+  });
 
     // Bind element on view ready
-    this.onReady(this.bind);
+    this.onReady(() => {
+      this.bind();
+
+    // Set the viewModel to ready
+    view.viewModelReady = true;
+  });
   }
 
 
@@ -111,7 +128,7 @@ Nexus = class Nexus extends Base {
     // Compare with element
     if (_.isElement(test))
       return test === this.elem();
-    
+
     return super(test);
   }
 
@@ -204,23 +221,22 @@ Nexus = class Nexus extends Base {
     if (binding.set) {
       // Ensure type of definition property
       check(binding.set, Function);
-      
+
       // Wrap set function and add it to list of autoruns
       this.autorun(comp => {
         if (comp.firstRun) {
-          // Save computation for unbind
-          defineProperties(this, {
-            comp: { value: comp },
-          });
-        }
+        // Save computation for unbind
+        defineProperties(this, {
+          comp: { value: comp },
+        });
+      }
 
-        const new_value = prop && prop();
+      const new_value = prop && prop();
 
-        if (!this.isSetPrevented())
-          binding.set.call(this.context, elem, new_value);
-      });
+      if (!this.isSetPrevented())
+        binding.set.call(this.context, elem, new_value);
+    });
     }
-
 
     // Add to view list
     this.view[ViewModel.nexusesKey].add(this);
@@ -250,7 +266,7 @@ Nexus = class Nexus extends Base {
       if (this.comp)
         this.comp.stop();
 
-      
+
       // Possibly run dispose function
       if (binding.dispose) {
         // Ensure type of definition property
@@ -258,7 +274,6 @@ Nexus = class Nexus extends Base {
 
         binding.dispose.call(this.context, prop);
       }
-
 
       // Remove from global list
       Nexus.remove(this);
