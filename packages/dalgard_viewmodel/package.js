@@ -18,6 +18,7 @@ Package.onUse(function (api) {
     "blaze",
     "templating",
     "tracker",
+    "jQuery",
     "ejson",
     "reactive-var",
     "reactive-dict",
