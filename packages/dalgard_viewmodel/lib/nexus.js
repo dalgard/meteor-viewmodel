@@ -214,7 +214,12 @@ Nexus = class Nexus extends Base {
       });
 
       // Register event listeners
-      _.each(binding.on, type => elem.addEventListener(type, listener));
+      if (binding.jQuery) {
+        _.each(binding.on, type => $(elem).on(type, listener));
+      }
+      else {
+        _.each(binding.on, type => elem.addEventListener(type, listener));
+      }
     }
 
 
@@ -259,7 +264,12 @@ Nexus = class Nexus extends Base {
       if (this.listener) {
         const elem = this.elem();
 
-        _.each(binding.on, type => elem.removeEventListener(type, this.listener));
+        if (binding.jQuery) {
+          _.each(binding.on, type => $(elem).off(type, this.listener));
+        }
+        else {
+          _.each(binding.on, type => elem.removeEventListener(type, this.listener));
+        }
       }
 
       // Possibly stop set autorun
