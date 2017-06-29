@@ -1,24 +1,24 @@
 // Class for reactive lists
 List = class List extends Array {
-  constructor(...args) {
+  constructor (...args) {
     super(...args);
 
     // Add dependency to list
     defineProperties(this, {
-      dep: { value: new Tracker.Dependency },
+      dep: { value: new Tracker.Dependency }
     });
   }
 
 
   // Reactively add an item
-  add(...items) {
+  add = (...items) => {
     this.push(...items);
 
     this.dep.changed();
   }
 
   // Reactively remove an item
-  remove(...items) {
+  remove = (...items) => {
     let result = false;
 
     _.each(items, item => {
@@ -39,7 +39,7 @@ List = class List extends Array {
 
 
   // Reactively get an array of matching items
-  find(...tests) {
+  find = (...tests) => {
     this.dep.depend();
 
     // Possibly remove items failing test
@@ -60,7 +60,7 @@ List = class List extends Array {
   }
 
   // Reactively get the first current item at index
-  findOne(...args) {
+  findOne = (...args) => {
     // Handle trailing number arguments
     const tests = _.dropRightWhile(args, _.isNumber);
     const index = args.slice(tests.length).pop() || 0;
