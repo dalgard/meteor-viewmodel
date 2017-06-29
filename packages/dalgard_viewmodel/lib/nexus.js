@@ -112,7 +112,7 @@ Nexus = class Nexus extends Base {
     if (_.isElement(test))
       return test === this.elem();
     
-    return super(test);
+    return super.test(test);
   }
 
 

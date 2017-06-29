@@ -195,7 +195,7 @@ ViewModel = class ViewModel extends Base {
     if (_.isElement(test))
       return ViewModel.templateInstance(test) === this.templateInstance();
     
-    return super(test);
+    return super.test(test);
   }
 
 
